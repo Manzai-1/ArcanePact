@@ -4,6 +4,9 @@
 pragma solidity 0.8.28;
 
 contract ArcanePact {
+    uint256 private nextId;
+
+
     enum CampaignState {
         Initialized,
         Running,
@@ -25,31 +28,37 @@ contract ArcanePact {
         address owner;
         CampaignState state;
         bool inviteOnly;
-        mapping(address => Player) players;
+    }
+
+    struct NewCampaignConfig {
+        string title;
+        string description;
+        bool inviteOnly;
+        uint256 gamemasterFee;
+        uint256 collateral;
     }
     
     mapping(uint256 => Campaign) internal campaigns;
 
+    event NewCampaignCreated(
+        uint256 indexed id, 
+        address indexed owner, 
+        NewCampaignConfig config
+    );
 
-    error CampaignIDTaken(uint256 id);
 
-    event NewCampaignCreated(uint256 indexed id, string indexed title, string description, bool inviteOnly);
+    constructor () {
+        nextId = 1;
+    }
 
-
-    function newCampaign (
-        uint256 id,
-        string memory title,
-        string memory description,
-        bool inviteOnly
-    ) external {
+    function newCampaign (NewCampaignConfig calldata config) external {
+        uint256 id = nextId++;
         Campaign storage campaign = campaigns[id];
-
-        if(campaign.owner == address(0)) revert CampaignIDTaken(id);
         
         campaign.owner = msg.sender;
         campaign.state = CampaignState.Initialized;
-        campaign.inviteOnly = inviteOnly;
+        campaign.inviteOnly = config.inviteOnly;
 
-        emit NewCampaignCreated(id, title, description, inviteOnly);
+        emit NewCampaignCreated(id, msg.sender, config);
     }
 }
