@@ -16,7 +16,7 @@ contract ArcanePact {
     enum PlayerState {
         NotAdded,
         Applied,
-        PendingSignature,
+        AwaitingSignature,
         Signed,
         InSession
     }
@@ -48,6 +48,11 @@ contract ArcanePact {
         NewCampaignConfig config
     );
 
+    event NewApplicationAdded(
+        uint256 indexed campaignId,
+        address indexed player
+    );
+
     event NewInvitationAdded(
         uint256 indexed campaignId,
         address player
@@ -56,7 +61,8 @@ contract ArcanePact {
     error NotOwner(address caller);
     error CampaignClosedForInvites(uint256 campaignId);
     error CampaignDoesNotExist(uint256 campaignId);
-    error PlayerAlreadyExists(uint256 campaignId, address player);
+    error PlayerExistsInCampaign(uint256 campaignId, address player);
+    error CampaignIsInviteOnly(uint256 campaignId);
 
 
     constructor () {
@@ -92,10 +98,27 @@ contract ArcanePact {
             Player storage player = campaignPlayers[campaignId][adr];
 
             if(player.state != PlayerState.NotAdded) 
-                revert PlayerAlreadyExists(campaignId, adr);
-                
-            player.state = PlayerState.PendingSignature;
+                revert PlayerExistsInCampaign(campaignId, adr);
+
+            player.state = PlayerState.AwaitingSignature;
             emit NewInvitationAdded(campaignId, adr);
         }
+    }
+
+    function campaignApplication (uint256 campaignId) external {
+        address adr = msg.sender;
+
+        Campaign storage campaign = campaigns[campaignId];
+        if(campaign.owner == address(0)) 
+            revert CampaignDoesNotExist(campaignId);
+        
+        if(campaign.inviteOnly) revert CampaignIsInviteOnly(campaignId);
+
+        Player storage player = campaignPlayers[campaignId][adr];
+        if(player.state != PlayerState.NotAdded) 
+            revert PlayerExistsInCampaign(campaignId, adr);
+        
+        player.state = PlayerState.Applied;
+        emit NewApplicationAdded(campaignId, adr);
     }
 }
