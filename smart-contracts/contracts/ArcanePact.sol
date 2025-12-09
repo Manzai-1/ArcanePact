@@ -106,21 +106,15 @@ contract ArcanePact {
     function invitePlayers (uint256 campaignId, address[] calldata addresses) external {
         Campaign storage campaign = campaigns[campaignId];
 
-        if(campaign.owner == address(0)) 
-            revert CampaignDoesNotExist(campaignId);
-
-        if(campaign.owner != msg.sender) 
-            revert NotOwner(msg.sender);
-
-        if(campaign.state != CampaignState.Initialized) 
-            revert CampaignLocked(campaignId);
+        checkCampaignExists(campaign.owner, campaignId); 
+        checkIsOwner(campaign.owner, msg.sender);
+        checkIfCampaignLocked(campaign.state, campaignId);
 
         for(uint256 i = 0; i < addresses.length; i++) {
             address adr = addresses[i];
             Player storage player = campaignPlayers[campaignId][adr];
 
-            if(player.state != PlayerState.None) 
-                revert PlayerExistsInCampaign(campaignId, adr);
+            checkPlayerAlreadyInCampaign(player.state, campaignId, adr);
 
             player.state = PlayerState.AwaitingSignature;
             emit InvitationAdded(campaignId, adr);
@@ -128,31 +122,26 @@ contract ArcanePact {
     }
 
     function campaignApplication (uint256 campaignId) external {
-        address adr = msg.sender;
+        address applicant = msg.sender;
 
         Campaign storage campaign = campaigns[campaignId];
-        if(campaign.owner == address(0)) 
-            revert CampaignDoesNotExist(campaignId);
-        
-        if(campaign.inviteOnly) 
-            revert CampaignIsInviteOnly(campaignId);
+        checkCampaignExists(campaign.owner, campaignId); 
+        checkCampaignInviteOnly(campaign.inviteOnly, campaignId);
+        checkIfCampaignLocked(campaign.state, campaignId);
 
-        Player storage player = campaignPlayers[campaignId][adr];
-        if(player.state != PlayerState.None) 
-            revert PlayerExistsInCampaign(campaignId, adr);
+        Player storage player = campaignPlayers[campaignId][applicant];
+        checkPlayerAlreadyInCampaign(player.state, campaignId, applicant);
         
         player.state = PlayerState.Applied;
-        emit ApplicationAdded(campaignId, adr);
+        emit ApplicationAdded(campaignId, applicant);
     }
 
     function ReviewApplications(uint256 campaignId, ApplicationReview[] calldata reviews) external {
         Campaign storage campaign = campaigns[campaignId];
 
-        if(campaign.owner == address(0)) 
-            revert CampaignDoesNotExist(campaignId);
-
-        if(campaign.owner != msg.sender) 
-            revert NotOwner(msg.sender);
+        checkCampaignExists(campaign.owner, campaignId); 
+        checkIsOwner(campaign.owner, msg.sender);
+        checkIfCampaignLocked(campaign.state, campaignId);
 
         for(uint256 i = 0; i < reviews.length; i++){
             ApplicationDecision decision = reviews[i].decision;
@@ -160,22 +149,49 @@ contract ArcanePact {
 
             Player storage player = campaignPlayers[campaignId][applicant];
 
-            if(player.state == PlayerState.None) 
-                    revert ApplicantDoesNotExist(campaignId, applicant);
+            checkApplicantExists(player.state, campaignId, applicant); 
         
             if(decision == ApplicationDecision.Approved){
-                if(player.state == PlayerState.AwaitingSignature)
-                    revert ApplicantAlreadyApproved(campaignId, applicant);
-
+                checkApplicantAlreadyApproved(player.state, campaignId, applicant);
                 player.state = PlayerState.AwaitingSignature;
                 emit ApplicationAproved(campaignId, applicant);
             } else {
-                if(player.state == PlayerState.Rejected)
-                    revert ApplicantAlreadyRejected(campaignId, applicant);
-
+                checkApplicantAlreadyRejected(player.state, campaignId, applicant);
                 player.state = PlayerState.Rejected;
                 emit ApplicationRejected(campaignId, applicant);
             }
         }
+    }
+
+    function checkIsOwner(address owner, address sender) internal pure {
+        if(owner != sender) revert NotOwner(sender);
+    }
+
+    function checkCampaignExists(address owner, uint256 campaignId) internal pure {
+        if(owner == address(0)) revert CampaignDoesNotExist(campaignId);
+    }
+
+    function checkApplicantExists(PlayerState state, uint256 campaignId, address applicant) internal pure {
+        if(state == PlayerState.None) revert ApplicantDoesNotExist(campaignId, applicant);
+    }
+
+    function checkApplicantAlreadyApproved(PlayerState state, uint256 campaignId, address applicant) internal pure {
+        if(state == PlayerState.AwaitingSignature) revert ApplicantAlreadyApproved(campaignId, applicant);
+    }
+
+    function checkApplicantAlreadyRejected(PlayerState state, uint256 campaignId, address applicant) internal pure {
+        if(state == PlayerState.Rejected) revert ApplicantAlreadyRejected(campaignId, applicant);
+    }
+
+    function checkCampaignInviteOnly(bool inviteOnly, uint256 campaignId) internal pure {
+        if(inviteOnly) revert CampaignIsInviteOnly(campaignId);
+    }
+
+    function checkPlayerAlreadyInCampaign(PlayerState state, uint256 campaignId, address player) internal pure {
+        if(state != PlayerState.None) revert PlayerExistsInCampaign(campaignId, player);
+    }
+
+    function checkIfCampaignLocked(CampaignState state, uint256 campaignId) internal pure {
+        if(state != CampaignState.Initialized) revert CampaignLocked(campaignId);
     }
 }
