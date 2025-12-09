@@ -11,6 +11,25 @@ const campaignConfig = {
     collateral: 0n
 }
 
+const enum PlayerState {
+    None,
+    Applied,
+    Rejected,
+    AwaitingSignature,
+    Signed,
+    InSession
+}
+
+enum ApplicationDecision {
+    Approved,
+    Rejected
+}
+
+type ApplicationReview = {
+    applicant: string,
+    decision: number
+}
+
 async function contractFixture() {
     const account = await ethers.getSigners();
     const ArcanePact = await ethers.getContractFactory('ArcanePact');
@@ -24,7 +43,7 @@ describe('Campaign lifecycle', () => {
         const { arcanePact, account } = await contractFixture();
 
         await expect(arcanePact.newCampaign(campaignConfig))
-            .to.emit(arcanePact, "NewCampaignCreated")
+            .to.emit(arcanePact, "CampaignCreated")
             .withArgs(
                 (id: any) => { 
                     expect(id).to.be.a("bigint"); 
@@ -54,7 +73,7 @@ describe('Campaign participation', () => {
 
             await arcanePact.newCampaign(campaignConfig);
             await expect(arcanePact.invitePlayers(1, players))
-                .to.emit(arcanePact, "NewInvitationAdded")
+                .to.emit(arcanePact, "InvitationAdded")
                 .withArgs(1, account[1].address);
         });
 
@@ -67,8 +86,8 @@ describe('Campaign participation', () => {
 
             await arcanePact.newCampaign(campaignConfig);
             await expect(arcanePact.invitePlayers(1, players))
-                .to.emit(arcanePact, "NewInvitationAdded").withArgs(1, account[1].address)
-                .and.to.emit(arcanePact, "NewInvitationAdded").withArgs(1, account[1].address);
+                .to.emit(arcanePact, "InvitationAdded").withArgs(1, account[1].address)
+                .and.to.emit(arcanePact, "InvitationAdded").withArgs(1, account[1].address);
         });
 
         it('should throw a NotOwner error if caller is not owner of the contract', async () => {
@@ -123,7 +142,7 @@ describe('Campaign participation', () => {
 
                 await arcanePact.newCampaign(campaignConfig);
                 await expect(arcanePact.connect(account[1]).campaignApplication(1))
-                    .to.emit(arcanePact, "NewApplicationAdded").withArgs(1, account[1].address);
+                    .to.emit(arcanePact, "ApplicationAdded").withArgs(1, account[1].address);
             })
 
             it('should throw CampaignDoesNotExist error if campaign does not exist', async () => {
@@ -160,8 +179,85 @@ describe('Campaign participation', () => {
         })
 
         describe('Gamemaster application management', () => {
-            it.skip('should set player state as PendingSignature when application aproved', async () => {
+            it('should emit an ApplicationAproved event when one application is aproved', async () => {
+                const { arcanePact, account } = await contractFixture();
+                const reviews: ApplicationReview[] = [
+                    {
+                        applicant: account[1].address, 
+                        decision: ApplicationDecision.Approved
+                    }
+                ];
 
+                await arcanePact.newCampaign(campaignConfig);
+                await arcanePact.connect(account[1]).campaignApplication(1);
+
+                await expect(arcanePact.connect(account[0]).ReviewApplications(1, reviews))
+                    .to.emit(arcanePact, "ApplicationAproved").withArgs(
+                        1, 
+                        account[1].address
+                    );
+            })
+
+            it('should emit an ApplicationRejected event when one application is rejected', async () => {
+                const { arcanePact, account } = await contractFixture();
+                const reviews: ApplicationReview[] = [
+                    {
+                        applicant: account[1].address, 
+                        decision: ApplicationDecision.Rejected
+                    }
+                ];
+
+                await arcanePact.newCampaign(campaignConfig);
+                await arcanePact.connect(account[1]).campaignApplication(1);
+
+                await expect(arcanePact.connect(account[0]).ReviewApplications(1, reviews))
+                    .to.emit(arcanePact, "ApplicationRejected").withArgs(
+                        1, 
+                        account[1].address
+                    );
+            })
+
+            it('should emit correct events when multiple applications reviewed', async () => {
+                const { arcanePact, account } = await contractFixture();
+                const reviews: ApplicationReview[] = [
+                    {
+                        applicant: account[1].address, 
+                        decision: ApplicationDecision.Rejected
+                    },
+                    {
+                        applicant: account[2].address, 
+                        decision: ApplicationDecision.Approved
+                    },
+                    {
+                        applicant: account[3].address, 
+                        decision: ApplicationDecision.Rejected
+                    },
+                    {
+                        applicant: account[4].address, 
+                        decision: ApplicationDecision.Approved
+                    },
+                ];
+
+                await arcanePact.newCampaign(campaignConfig);
+                await arcanePact.connect(account[1]).campaignApplication(1);
+                await arcanePact.connect(account[2]).campaignApplication(1);
+                await arcanePact.connect(account[3]).campaignApplication(1);
+                await arcanePact.connect(account[4]).campaignApplication(1);
+
+                await expect(arcanePact.connect(account[0]).ReviewApplications(1, reviews))
+                    .to.emit(arcanePact, "ApplicationRejected").withArgs(
+                        1, 
+                        account[1].address
+                    ).and.to.emit(arcanePact, "ApplicationAproved").withArgs(
+                        1, 
+                        account[2].address
+                    ).and.to.emit(arcanePact, "ApplicationRejected").withArgs(
+                        1, 
+                        account[3].address
+                    ).and.to.emit(arcanePact, "ApplicationAproved").withArgs(
+                        1, 
+                        account[4].address
+                    );
             })
 
             it.skip('should revert with custom error if player does not exist', async () => {

@@ -14,11 +14,22 @@ contract ArcanePact {
     }
 
     enum PlayerState {
-        NotAdded,
+        None,
         Applied,
+        Rejected,
         AwaitingSignature,
         Signed,
         InSession
+    }
+
+    enum ApplicationDecision {
+        Approved,
+        Rejected
+    }
+
+    struct ApplicationReview {
+        address applicant;
+        ApplicationDecision decision;
     }
 
     struct Player {
@@ -42,18 +53,28 @@ contract ArcanePact {
     mapping(uint256 => Campaign) internal campaigns;
     mapping(uint256 => mapping(address => Player)) internal campaignPlayers;
 
-    event NewCampaignCreated(
+    event CampaignCreated(
         uint256 indexed campaignId, 
         address indexed owner, 
         NewCampaignConfig config
     );
 
-    event NewApplicationAdded(
+    event ApplicationAdded(
         uint256 indexed campaignId,
         address indexed player
     );
 
-    event NewInvitationAdded(
+    event ApplicationAproved(
+        uint256 indexed campaignId,
+        address indexed player
+    );
+
+    event ApplicationRejected(
+        uint256 indexed campaignId,
+        address indexed player
+    );
+
+    event InvitationAdded(
         uint256 indexed campaignId,
         address player
     );
@@ -77,7 +98,7 @@ contract ArcanePact {
         campaign.state = CampaignState.Initialized;
         campaign.inviteOnly = config.inviteOnly;
 
-        emit NewCampaignCreated(campaignId, msg.sender, config);
+        emit CampaignCreated(campaignId, msg.sender, config);
     }
 
     // use if instead of modifier to avoid looking up mapping twice, add to documentation / natspec later
@@ -97,11 +118,11 @@ contract ArcanePact {
             address adr = addresses[i];
             Player storage player = campaignPlayers[campaignId][adr];
 
-            if(player.state != PlayerState.NotAdded) 
+            if(player.state != PlayerState.None) 
                 revert PlayerExistsInCampaign(campaignId, adr);
 
             player.state = PlayerState.AwaitingSignature;
-            emit NewInvitationAdded(campaignId, adr);
+            emit InvitationAdded(campaignId, adr);
         }
     }
 
@@ -112,13 +133,18 @@ contract ArcanePact {
         if(campaign.owner == address(0)) 
             revert CampaignDoesNotExist(campaignId);
         
-        if(campaign.inviteOnly) revert CampaignIsInviteOnly(campaignId);
+        if(campaign.inviteOnly) 
+            revert CampaignIsInviteOnly(campaignId);
 
         Player storage player = campaignPlayers[campaignId][adr];
-        if(player.state != PlayerState.NotAdded) 
+        if(player.state != PlayerState.None) 
             revert PlayerExistsInCampaign(campaignId, adr);
         
         player.state = PlayerState.Applied;
-        emit NewApplicationAdded(campaignId, adr);
+        emit ApplicationAdded(campaignId, adr);
+    }
+
+    function ReviewApplications(uint256 campaignId, ApplicationReview[] calldata reviews) external {
+
     }
 }
