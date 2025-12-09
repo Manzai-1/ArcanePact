@@ -80,12 +80,13 @@ contract ArcanePact {
     );
 
     error NotOwner(address caller);
-    error CampaignClosedForInvites(uint256 campaignId);
+    error CampaignLocked(uint256 campaignId);
     error CampaignDoesNotExist(uint256 campaignId);
     error PlayerExistsInCampaign(uint256 campaignId, address player);
     error CampaignIsInviteOnly(uint256 campaignId);
-
-
+    error ApplicantDoesNotExist(uint256 campaignId, address applicant);
+    error ApplicantAlreadyRejected(uint256 campaignId, address applicant);
+    error ApplicantAlreadyApproved(uint256 campaignId, address applicant);
     constructor () {
         nextId = 1;
     }
@@ -112,7 +113,7 @@ contract ArcanePact {
             revert NotOwner(msg.sender);
 
         if(campaign.state != CampaignState.Initialized) 
-            revert CampaignClosedForInvites(campaignId);
+            revert CampaignLocked(campaignId);
 
         for(uint256 i = 0; i < addresses.length; i++) {
             address adr = addresses[i];
@@ -145,6 +146,17 @@ contract ArcanePact {
     }
 
     function ReviewApplications(uint256 campaignId, ApplicationReview[] calldata reviews) external {
-
+        for(uint256 i = 0; i < reviews.length; i++){
+            address applicant = reviews[i].applicant;
+            ApplicationDecision decision = reviews[i].decision;
+        
+            if(decision == ApplicationDecision.Approved){
+                campaignPlayers[campaignId][applicant].state = PlayerState.AwaitingSignature;
+                emit ApplicationAproved(campaignId, applicant);
+            } else {
+                campaignPlayers[campaignId][applicant].state = PlayerState.Rejected;
+                emit ApplicationRejected(campaignId, applicant);
+            }
+        }
     }
 }
