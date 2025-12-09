@@ -347,7 +347,7 @@ describe('Campaign participation', () => {
 
                 await expect(arcanePact.ReviewApplications(1, reviews))
                     .to.be.revertedWithCustomError(arcanePact, "ApplicantDoesNotExist")
-                    .withArgs(1);
+                    .withArgs(1, account[1].address);
             })
 
             it.skip('should revert with custom error if rejected player is already Signed', async () => {
@@ -371,7 +371,7 @@ describe('Campaign participation', () => {
 
                 await expect(arcanePact.connect(account[0]).ReviewApplications(1, reviews))
                     .to.be.revertedWithCustomError(arcanePact, "ApplicantAlreadyRejected")
-                    .withArgs(1);
+                    .withArgs(1, account[1].address);
             })
 
             it('should revert with ApplicantAlreadyApproved error if rejected player is already Approved', async () => {
@@ -391,7 +391,7 @@ describe('Campaign participation', () => {
 
                 await expect(arcanePact.connect(account[0]).ReviewApplications(1, reviews))
                     .to.be.revertedWithCustomError(arcanePact, "ApplicantAlreadyApproved")
-                    .withArgs(1);
+                    .withArgs(1, account[1].address);
             })
         })
     });

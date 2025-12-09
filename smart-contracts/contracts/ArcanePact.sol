@@ -146,15 +146,34 @@ contract ArcanePact {
     }
 
     function ReviewApplications(uint256 campaignId, ApplicationReview[] calldata reviews) external {
+        Campaign storage campaign = campaigns[campaignId];
+
+        if(campaign.owner == address(0)) 
+            revert CampaignDoesNotExist(campaignId);
+
+        if(campaign.owner != msg.sender) 
+            revert NotOwner(msg.sender);
+
         for(uint256 i = 0; i < reviews.length; i++){
-            address applicant = reviews[i].applicant;
             ApplicationDecision decision = reviews[i].decision;
+            address applicant = reviews[i].applicant;
+
+            Player storage player = campaignPlayers[campaignId][applicant];
+
+            if(player.state == PlayerState.None) 
+                    revert ApplicantDoesNotExist(campaignId, applicant);
         
             if(decision == ApplicationDecision.Approved){
-                campaignPlayers[campaignId][applicant].state = PlayerState.AwaitingSignature;
+                if(player.state == PlayerState.AwaitingSignature)
+                    revert ApplicantAlreadyApproved(campaignId, applicant);
+
+                player.state = PlayerState.AwaitingSignature;
                 emit ApplicationAproved(campaignId, applicant);
             } else {
-                campaignPlayers[campaignId][applicant].state = PlayerState.Rejected;
+                if(player.state == PlayerState.Rejected)
+                    revert ApplicantAlreadyRejected(campaignId, applicant);
+
+                player.state = PlayerState.Rejected;
                 emit ApplicationRejected(campaignId, applicant);
             }
         }
