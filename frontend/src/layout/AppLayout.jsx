@@ -8,7 +8,7 @@ const AppLayout = () => {
       <header>
         <Header/>
       </header>
-      <main>
+      <main className="app-background">
         <Outlet/>
       </main>
       <footer>

@@ -1,0 +1,25 @@
+.walletButton {
+  padding: 10px 16px;
+
+  background: #3a2f22;
+  border: 3px solid #c6a564;
+  color: #ffe6b3;
+
+  font-family: "Press Start 2P", monospace;
+  font-size: 12px;
+
+  cursor: pointer;
+
+  box-shadow: 3px 3px 0px #000;
+  transition: transform 0.1s ease;
+}
+
+.walletButton:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 5px 5px 0px #000;
+}
+
+.walletButton:active {
+  transform: translate(2px, 2px);
+  box-shadow: 1px 1px 0px #000;
+}
