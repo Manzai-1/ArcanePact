@@ -1,7 +1,9 @@
+import { EventIndexer } from "../services/EventIndexer";
+
 const Footer = () => {
   return (
     <>
-      <h2>Footer</h2>
+      <EventIndexer/>
     </>
   );
 };
