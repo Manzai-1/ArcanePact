@@ -1,16 +1,11 @@
-import useWallet from "./useWallet";
-import styles from "./walletButton.module.css";
+import { ConnectButton } from '@rainbow-me/rainbowkit';
 
 export default function WalletButton() {
-
-  const { buttonText, handleConnectWallet } = useWallet();
-
   return (
-    <button 
-      className={styles.walletButton} 
-      onClick={handleConnectWallet}
-    >
-        {buttonText}
-    </button>
+    <ConnectButton
+      accountStatus="address"
+      chainStatus="icon"
+      showBalance={false}
+    />
   );
 }

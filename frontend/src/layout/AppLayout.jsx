@@ -1,13 +1,13 @@
 import { Outlet } from 'react-router';
 import Header from './Header';
 import Footer from './Footer';
-import WalletProvider from '../providers/WalletProvider';
-
+import { Web3Provider } from '../providers/Web3Provider';
+import '@rainbow-me/rainbowkit/styles.css';
 
 const AppLayout = () => {
   return (
     <>
-      <WalletProvider>
+      <Web3Provider>
         <header>
           <Header/>
         </header>
@@ -17,7 +17,7 @@ const AppLayout = () => {
         <footer>
           <Footer/>
         </footer>
-      </WalletProvider>
+      </Web3Provider>
     </>
   );
 };
