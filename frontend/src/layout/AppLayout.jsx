@@ -3,11 +3,13 @@ import Header from './Header';
 import Footer from './Footer';
 import { Web3Provider } from '../providers/Web3Provider';
 import '@rainbow-me/rainbowkit/styles.css';
+import StorageProvider from '../providers/StorageProvider';
 
 const AppLayout = () => {
   return (
     <>
       <Web3Provider>
+        <StorageProvider>
         <header>
           <Header/>
         </header>
@@ -17,6 +19,7 @@ const AppLayout = () => {
         <footer>
           <Footer/>
         </footer>
+        </StorageProvider>
       </Web3Provider>
     </>
   );

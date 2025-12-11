@@ -1,62 +1,78 @@
-import { ethers } from "ethers";
-import { newCampaign } from "../services/arcanePactServices";
-import { abi, contractAddress } from "../config/arcanePact";
-import { useEffect } from "react";
+import { useContext } from "react";
+import Table from "../components/table/Table"
+import styles from './campaignsPage.module.css';
+import { StorageContext } from "../providers/StorageProvider";
+
+const rows = [
+  {
+    title: "Goblin Hunt",
+    description: "Clear out the goblin raiders that have overrun the Western Woods.",
+    fee: "20 GP",
+    collateral: "5 GP",
+    gamemaster: "Arvel the Wise",
+    state: "Open",
+  },
+  {
+    title: "Escort the Merchant Caravan",
+    description: "Safely guide the merchant wagons through the perilous Blackstone Canyon.",
+    fee: "50 GP",
+    collateral: "10 GP",
+    gamemaster: "Mira Stormcloak",
+    state: "Pending",
+  },
+  {
+    title: "Retrieve the Sunken Relic",
+    description: "A sacred relic lies beneath Lake Miredeep. Dive into the depths and return it.",
+    fee: "75 GP",
+    collateral: "15 GP",
+    gamemaster: "Thalos Riversong",
+    state: "Open",
+  },
+  {
+    title: "Slay the Clockwork Beast",
+    description: "A rogue steam-powered monstrosity is terrorizing Brassbend Village.",
+    fee: "120 GP",
+    collateral: "25 GP",
+    gamemaster: "Professor Gearwright",
+    state: "Closed",
+  },
+  {
+    title: "Investigate the Whispering Crypt",
+    description: "Strange voices echo from the ancient catacombs. Discover their source.",
+    fee: "40 GP",
+    collateral: "8 GP",
+    gamemaster: "Elysia Moonshade",
+    state: "Pending",
+  },
+  {
+    title: "Defend the Arcane Observatory",
+    description: "Hostile forces approach the observatory. Hold them back until dawn.",
+    fee: "90 GP",
+    collateral: "20 GP",
+    gamemaster: "Archmage Solanar",
+    state: "Open",
+  }
+];
+
+const headers = [
+  {name: 'state', value: 'State'},
+  {name: 'title', value: 'Title'},
+  {name: 'description', value: 'Description'},
+  {name: 'gamemasterFee', value: 'Fee'},
+  {name: 'collateral', value: 'Collateral'},
+  {name: 'gamemaster', value: 'GameMaster'},
+]
+
 
 const CampaignsPage = () => {
+  const { campaigns } = useContext(StorageContext);
 
-    useEffect(() => {
-      async function listenToEvents() {
-        const provider = new ethers.JsonRpcProvider("http://127.0.0.1:8545");
-        const contract = new ethers.Contract(contractAddress, abi, provider);
-
-        console.log("Listening for ALL contract events...");
-
-        // Listen for ANY event emitted by the contract
-        contract.on("*", (...rawArgs) => {
-          // Ethers v6 passes event data as (...args, event)
-          const event = rawArgs[rawArgs.length - 1];
-          
-          // Parse the log to extract event name + values
-          const parsed = contract.interface.parseLog(event.log);
-          
-
-          console.log("Block:", event.log.blockNumber);
-          console.log("Name:", parsed.name);
-          console.log("CampaignId:", parsed.args[0]);
-          console.log("Gamemaster:", parsed.args[1]);
-          console.log("Values:", {
-            title: parsed.args[2][0],
-            description: parsed.args[2][1],
-            inviteOnly: parsed.args[2][2],
-            gamemasterFee: parsed.args[2][3],
-            collateral: parsed.args[2][4]
-
-          });
-        });
-      }
-
-      listenToEvents();
-    }, []);
-
+  console.log(campaigns);
   return (
     <>
-      <h1>CAMPAIGNS PAGE</h1>
-      <button 
-        onClick={(e)=>{
-          newCampaign({
-            title: 'Blablabla',
-            description: 'My new campaign',
-            inviteOnly: true,
-            gamemasterFee: 0,
-            collateral: 0
-          }).then((tx)=> {
-            console.log(tx);
-          })
-        }}
-      >
-          Click me
-      </button>
+      <div className={styles.container}>
+        <Table headers={headers} rows={campaigns || []}/>
+      </div>
     </>
   );
 };
