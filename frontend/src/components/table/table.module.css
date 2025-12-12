@@ -1,15 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&display=swap');
 
-.tableWrapper {
-    max-width: 60vw;
-    padding: 20px;
-    background: #2c241b;
-    background-size: cover;
-    border: 4px solid #5c3d1e;
-    border-radius: 12px;
-    box-shadow: 0 0 20px rgba(0,0,0,0.6);
-}
-
 .table {
     width: 100%;
     border-collapse: collapse;
@@ -49,4 +39,12 @@
     font-style: italic;
     padding: 20px;
     color: #5a4a39;
+}
+
+/* avoids spilling over parent div */
+.table th,
+.table td {
+  word-wrap: break-word;
+  word-break: break-word;
+  white-space: normal;
 }

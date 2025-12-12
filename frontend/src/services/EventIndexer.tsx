@@ -3,10 +3,10 @@ import { newCampaign } from "./arcanePactServices";
 import { abi, contractAddress } from "../config/arcanePact";
 import { useContext, useEffect } from "react";
 import { StorageContext } from "../providers/StorageProvider";
+import { Campaign, CampaignState } from "../models/IArcanePact";
 
 export const EventIndexer = () => {
-    const { addCampaign } = useContext(StorageContext);
-
+    const { addCampaign, updateCampaignPlayers, updatePlayerCampaigns } = useContext<any>(StorageContext);
 
     useEffect(() => {
         async function listenToEvents() {
@@ -15,29 +15,19 @@ export const EventIndexer = () => {
 
         contract.on("*", (...rawArgs) => {
             const event = rawArgs[rawArgs.length - 1];
-            const parsed = contract.interface.parseLog(event.log);
+            const parsed: any = contract.interface.parseLog(event.log);
 
             switch(parsed.name) {
                 case "CampaignCreated": 
                     addCampaign(mapNewCampaign(parsed.args));
                     break;
-
+                case "InvitationAdded": 
+                    addCampaign(mapNewCampaign(parsed.args));
+                    break;
                 default:
                     console.log('Not identified Event: ', parsed.name);
                     break;
             }
-
-            // console.log("Block:", event.log.blockNumber);
-            // console.log("Name:", parsed.name);
-            // console.log("CampaignId:", parsed.args[0]);
-            // console.log("Gamemaster:", parsed.args[1]);
-            // console.log("Values:", {
-            //     title: parsed.args[2][0],
-            //     description: parsed.args[2][1],
-            //     inviteOnly: parsed.args[2][2],
-            //     gamemasterFee: parsed.args[2][3],
-            //     collateral: parsed.args[2][4]
-            // });
         });
         }
 
@@ -65,7 +55,7 @@ export const EventIndexer = () => {
     );
 }
 
-const mapNewCampaign = (args) => {
+const mapNewCampaign = (args: any): Campaign => {
     return  {
         campaignId:     args[0],
         gamemaster:     args[1],
@@ -73,6 +63,12 @@ const mapNewCampaign = (args) => {
         description:    args[2][1],
         inviteOnly:     args[2][2],
         gamemasterFee:  args[2][3],
-        collateral:     args[2][4]
+        collateral:     args[2][4],
+        state:          CampaignState.Initialized
     }
 }
+
+const mapNewCampaignPlayer = (args: any) => {
+
+}
+
