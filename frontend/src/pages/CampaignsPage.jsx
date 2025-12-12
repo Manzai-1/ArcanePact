@@ -1,77 +1,75 @@
-import { useContext } from "react";
+import { useContext, useState } from "react";
 import Table from "../components/table/Table"
 import styles from './campaignsPage.module.css';
 import { StorageContext } from "../providers/StorageProvider";
-
-const rows = [
-  {
-    title: "Goblin Hunt",
-    description: "Clear out the goblin raiders that have overrun the Western Woods.",
-    fee: "20 GP",
-    collateral: "5 GP",
-    gamemaster: "Arvel the Wise",
-    state: "Open",
-  },
-  {
-    title: "Escort the Merchant Caravan",
-    description: "Safely guide the merchant wagons through the perilous Blackstone Canyon.",
-    fee: "50 GP",
-    collateral: "10 GP",
-    gamemaster: "Mira Stormcloak",
-    state: "Pending",
-  },
-  {
-    title: "Retrieve the Sunken Relic",
-    description: "A sacred relic lies beneath Lake Miredeep. Dive into the depths and return it.",
-    fee: "75 GP",
-    collateral: "15 GP",
-    gamemaster: "Thalos Riversong",
-    state: "Open",
-  },
-  {
-    title: "Slay the Clockwork Beast",
-    description: "A rogue steam-powered monstrosity is terrorizing Brassbend Village.",
-    fee: "120 GP",
-    collateral: "25 GP",
-    gamemaster: "Professor Gearwright",
-    state: "Closed",
-  },
-  {
-    title: "Investigate the Whispering Crypt",
-    description: "Strange voices echo from the ancient catacombs. Discover their source.",
-    fee: "40 GP",
-    collateral: "8 GP",
-    gamemaster: "Elysia Moonshade",
-    state: "Pending",
-  },
-  {
-    title: "Defend the Arcane Observatory",
-    description: "Hostile forces approach the observatory. Hold them back until dawn.",
-    fee: "90 GP",
-    collateral: "20 GP",
-    gamemaster: "Archmage Solanar",
-    state: "Open",
-  }
-];
+import { useAccount } from "wagmi";
+import { TabsDiv } from "../components/tabsDiv/TabsDiv";
+import { NewCampaign } from "../features/campaign/newCampaign/NewCampaign";
+import { newCampaign } from "../services/arcanePactServices";
+import { CampaignModal } from "../features/campaign/campaignModal/CampaignModal";
 
 const headers = [
   {name: 'state', value: 'State'},
   {name: 'title', value: 'Title'},
   {name: 'description', value: 'Description'},
   {name: 'gamemasterFee', value: 'Fee'},
-  {name: 'collateral', value: 'Collateral'},
-  {name: 'gamemaster', value: 'GameMaster'},
+  {name: 'collateral', value: 'Collateral'}
 ]
 
 
 const CampaignsPage = () => {
-  const { campaigns } = useContext(StorageContext);
+  const [activeCampaign, setActiveCampaign] = useState(null);
 
-  console.log(campaigns);
+  const { campaigns } = useContext(StorageContext);
+  const { address } = useAccount();
+
+  const owned = campaigns.filter(campaign => campaign.gamemaster === address);
+  const joined = [];
+  const pending = [];
+  const discover = campaigns.filter(campaign => campaign.gamemaster != address && !campaign.inviteOnly);
+
+  const tabs = [
+    {
+      label: "Owned",
+      content: <Table headers={headers} rows={owned || []} action={(ind)=>{
+        setActiveCampaign(owned[ind]);
+      }} />
+    },
+    {
+      label: "Joined",
+      content: <Table headers={headers} rows={joined || []} action={(ind)=>{
+        setActiveCampaign(joined[ind]);
+      }} />
+    },
+    {
+      label: "Pending",
+      content: <Table headers={headers} rows={pending || []} action={(ind)=>{
+        setActiveCampaign(pending[ind]);
+      }} />
+    },
+    {
+      label: "Discover",
+      content: <Table headers={headers} rows={discover || []} action={(ind)=>{
+        setActiveCampaign(discover[ind]);
+      }} />
+    },
+    {
+      label: "Create New",
+      content: <NewCampaign onSubmit={newCampaign}/>
+    }
+  ];
+
+  const handleCloseModal = () => {
+    setActiveCampaign(null)
+  }
+  
   return (
     <>
+      {activeCampaign && (
+        <CampaignModal campaign={activeCampaign} handleCloseModal={handleCloseModal}/>
+      )}
       <div className={styles.container}>
-        <Table headers={headers} rows={campaigns || []}/>
+        <TabsDiv tabs={tabs}/>
       </div>
     </>
   );
