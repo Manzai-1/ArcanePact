@@ -1,0 +1,50 @@
+services:
+  postgres:
+    image: postgres:14
+    container_name: graph-postgres
+    environment:
+      POSTGRES_USER: graph-node
+      POSTGRES_PASSWORD: letmein
+      POSTGRES_DB: graph-node
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  ipfs:
+    image: ipfs/kubo:v0.26.0
+    container_name: graph-ipfs
+    ports:
+      - "5001:5001"
+      - "8080:8080"
+    volumes:
+      - ipfsdata:/data/ipfs
+
+  graph-node:
+    image: graphprotocol/graph-node:v0.36.0
+    container_name: graph-node
+    depends_on:
+      - postgres
+      - ipfs
+    ports:
+      - "8000:8000"   # GraphQL queries
+      - "8001:8001"   # Admin / status
+      - "8020:8020"   # JSON-RPC (unused usually)
+      - "8030:8030"   # Subgraph indexing status
+      - "8040:8040"   # Prometheus metrics
+    environment:
+      postgres_host: postgres
+      postgres_user: graph-node
+      postgres_pass: letmein
+      postgres_db: graph-node
+      ipfs: "ipfs:5001"
+      # This defines a chain name "hardhat" that your subgraph will reference:
+      ethereum: "hardhat:http://host.docker.internal:8545"
+      GRAPH_LOG: info
+    extra_hosts:
+      # Needed on Linux so containers can reach your host's 127.0.0.1 (Hardhat)
+      - "host.docker.internal:host-gateway"
+
+volumes:
+  pgdata:
+  ipfsdata:
