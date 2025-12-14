@@ -13,6 +13,14 @@ export enum PlayerState {
     InSession
 }
 
+export enum ClientState {
+    None,
+    Owner,
+    Joined,
+    Pending,
+    Rejected
+}
+
 enum ApplicationDecision {
     Approved,
     Rejected

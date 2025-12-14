@@ -1,13 +1,10 @@
 import { useState } from "react";
 import Table from "../components/table/Table"
 import styles from './campaignsPage.module.css';
-import { useAccount } from "wagmi";
 import { TabsDiv } from "../components/tabsDiv/TabsDiv";
 import { NewCampaign } from "../features/campaign/newCampaign/NewCampaign";
 import { newCampaign } from "../services/arcanePactServices";
 import { CampaignModal } from "../features/campaign/campaignModal/CampaignModal";
-import { useCampaignPlayersQuery, useCampaignsQuery } from "../data/graph/queries";
-import { PlayerState } from "../models/IArcanePact";
 import { UseGraph } from "../data/graph/useGraph";
 
 const headers = [
