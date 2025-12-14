@@ -15,29 +15,30 @@ export const UseGraph = () => {
         const campaigns = campaignsQuery.data ?? [];
         const campaignPlayers = campaignPlayersQuery.data ?? [];
 
-        // const playersByCampaignId = new Map();
+        const playersByCampaignId = new Map();
 
-        // for (const cp of campaignPlayers){
-        //     const campaignId = cp.campaign.id;
-        //     const playerId = cp.player.id;
-        //     const state = cp.state;
+        for (const cp of campaignPlayers){
+            const campaignId = cp.campaign.id;
+            const playerId = cp.player.id;
+            const state = cp.state;
 
-        //     if (!playersByCampaignId.has(campaignId)) {
-        //         playersByCampaignId.set(campaignId, []);
-        //     }
+            if (!playersByCampaignId.has(campaignId)) {
+                playersByCampaignId.set(campaignId, []);
+            }
 
-        //     playersByCampaignId.get(campaignId).push({
-        //         playerId,
-        //         state,
-        //     });
-        // }
+            playersByCampaignId.get(campaignId).push({
+                playerId,
+                state,
+            });
+        }
 
         if(!clientAdr) return {
             owned: [], 
             joined: [], 
             pending: [], 
             discover: campaigns.filter(c =>  !c.inviteOnly)
-                .map(c => ({...c, clientState: ClientState.None}))
+                .map(c => ({...c, clientState: ClientState.None})),
+            playersByCampaignId
         };
 
         const owned = campaigns.filter(
@@ -69,7 +70,7 @@ export const UseGraph = () => {
             && !campaign.inviteOnly
         ).map(c => ({...c, clientState: ClientState.None}));
 
-        return { owned, joined, pending, discover,  };
+        return { owned, joined, pending, discover, playersByCampaignId };
     }, [campaignsQuery.data, campaignPlayersQuery.data, address]);
 
     return {

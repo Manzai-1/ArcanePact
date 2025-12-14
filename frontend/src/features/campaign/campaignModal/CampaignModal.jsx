@@ -1,6 +1,7 @@
 import PopupModal from "../../../components/popupModal/PopupModal";
 import { ClientState } from "../../../models/IArcanePact";
 import InvitePlayers from "../invitePlayers/InvitePlayers";
+import { PlayerList } from "../playerList/PlayerList";
 
 export const CampaignModal = ({campaign, handleCloseModal}) => {
     const isOwner = () => campaign.clientState === ClientState.Owner;
@@ -11,6 +12,7 @@ export const CampaignModal = ({campaign, handleCloseModal}) => {
             <p>{campaign.description}</p>
             <p>{campaign.id}</p>
             { isOwner() &&<InvitePlayers campaignId={campaign.id}/> }
+            <PlayerList campaign={campaign}/>
         </PopupModal>
     );
 }
