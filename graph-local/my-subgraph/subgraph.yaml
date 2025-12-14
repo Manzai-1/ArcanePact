@@ -1,0 +1,36 @@
+specVersion: 1.2.0
+indexerHints:
+  prune: auto
+schema:
+  file: ./schema.graphql
+dataSources:
+  - kind: ethereum
+    name: ArcanePact
+    network: hardhat
+    source:
+      address: "0x5FbDB2315678afecb367f032d93F642f64180aa3"
+      abi: ArcanePact
+      startBlock: 1
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.9
+      language: wasm/assemblyscript
+      entities:
+        - Campaigns
+        - Players
+        - CampaignPlayers
+      abis:
+        - name: ArcanePact
+          file: ./abis/ArcanePact.json
+      eventHandlers:
+        - event: ApplicationAdded(indexed uint256,indexed address,indexed uint8)
+          handler: handleApplicationAdded
+        - event: ApplicationAproved(indexed uint256,indexed address,indexed uint8)
+          handler: handleApplicationAproved
+        - event: ApplicationRejected(indexed uint256,indexed address,indexed uint8)
+          handler: handleApplicationRejected
+        - event: CampaignCreated(indexed uint256,indexed address,indexed uint8,(string,string,bool,uint256,uint256))
+          handler: handleCampaignCreated
+        - event: InvitationAdded(indexed uint256,address,indexed uint8)
+          handler: handleInvitationAdded
+      file: ./src/arcane-pact.ts

@@ -127,6 +127,12 @@
           "internalType": "address",
           "name": "player",
           "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "enum ArcanePact.PlayerState",
+          "name": "playerState",
+          "type": "uint8"
         }
       ],
       "name": "ApplicationAdded",
@@ -146,6 +152,12 @@
           "internalType": "address",
           "name": "player",
           "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "enum ArcanePact.PlayerState",
+          "name": "playerState",
+          "type": "uint8"
         }
       ],
       "name": "ApplicationAproved",
@@ -165,6 +177,12 @@
           "internalType": "address",
           "name": "player",
           "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "enum ArcanePact.PlayerState",
+          "name": "playerState",
+          "type": "uint8"
         }
       ],
       "name": "ApplicationRejected",
@@ -184,6 +202,12 @@
           "internalType": "address",
           "name": "owner",
           "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "enum ArcanePact.CampaignState",
+          "name": "campaignState",
+          "type": "uint8"
         },
         {
           "components": [
@@ -236,6 +260,12 @@
           "internalType": "address",
           "name": "player",
           "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "enum ArcanePact.PlayerState",
+          "name": "playerState",
+          "type": "uint8"
         }
       ],
       "name": "InvitationAdded",
