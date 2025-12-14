@@ -12,7 +12,6 @@ contract ArcanePact {
         Running,
         Completed
     }
-
     enum PlayerState {
         None,
         Applied,
@@ -21,7 +20,6 @@ contract ArcanePact {
         Signed,
         InSession
     }
-
     enum ApplicationDecision {
         Approved,
         Rejected
@@ -31,17 +29,14 @@ contract ArcanePact {
         address applicant;
         ApplicationDecision decision;
     }
-
     struct Player {
         PlayerState state;
     }
-
     struct Campaign {
         address owner;
         CampaignState state;
         bool inviteOnly;
     }
-
     struct NewCampaignConfig {
         string title;
         string description;
@@ -58,22 +53,18 @@ contract ArcanePact {
         address indexed owner, 
         NewCampaignConfig config
     );
-
     event ApplicationAdded(
         uint256 indexed campaignId,
         address indexed player
     );
-
     event ApplicationAproved(
         uint256 indexed campaignId,
         address indexed player
     );
-
     event ApplicationRejected(
         uint256 indexed campaignId,
         address indexed player
     );
-
     event InvitationAdded(
         uint256 indexed campaignId,
         address player
@@ -87,6 +78,8 @@ contract ArcanePact {
     error ApplicantDoesNotExist(uint256 campaignId, address applicant);
     error ApplicantAlreadyRejected(uint256 campaignId, address applicant);
     error ApplicantAlreadyApproved(uint256 campaignId, address applicant);
+
+
     constructor () {
         nextId = 1;
     }
@@ -102,7 +95,6 @@ contract ArcanePact {
         emit CampaignCreated(campaignId, msg.sender, config);
     }
 
-    // use if instead of modifier to avoid looking up mapping twice, add to documentation / natspec later
     function invitePlayers (uint256 campaignId, address[] calldata addresses) external {
         Campaign storage campaign = campaigns[campaignId];
 
@@ -162,6 +154,8 @@ contract ArcanePact {
             }
         }
     }
+
+
 
     function checkIsOwner(address owner, address sender) internal pure {
         if(owner != sender) revert NotOwner(sender);

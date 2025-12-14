@@ -1,0 +1,24 @@
+type Campaign @entity(immutable: true) {
+  id: ID!
+  owner: Bytes!
+  title: String!
+  description: String
+  inviteOnly: Boolean!
+  gamemasterFee: BigInt
+  collateral: BigInt
+  state: Int!
+  players: [CampaignPlayer!]! @derivedFrom(field: "campaign")
+}
+
+type Player @entity(immutable: false) {
+  id: ID!
+
+  campaigns: [CampaignPlayer!]! @derivedFrom(field: "player")
+}
+
+type CampaignPlayer @entity (immutable: false) {
+  id: ID!
+  campaign: Campaign!
+  player: Player!
+  state: Int!
+}
