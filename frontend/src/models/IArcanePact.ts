@@ -4,7 +4,7 @@ export enum CampaignState {
     Completed = "Closed"
 }
 
-enum PlayerState {
+export enum PlayerState {
     None,
     Applied,
     Rejected,
