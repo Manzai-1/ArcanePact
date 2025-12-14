@@ -4,6 +4,7 @@ my-subgraph/**
 !my-subgraph/src/**
 !my-subgraph/schema.graphql
 !my-subgraph/subgraph.yaml
+!my-subgraph/src/**
 
 # Graph CLI generated artifacts
 build/
