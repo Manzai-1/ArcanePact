@@ -8,7 +8,7 @@ import { CampaignModal } from "../features/campaign/campaignModal/CampaignModal"
 import { UseGraph } from "../data/graph/useGraph";
 
 const headers = [
-  {name: 'state', value: 'State'},
+  {name: 'stateText', value: 'State'},
   {name: 'title', value: 'Title'},
   {name: 'description', value: 'Description'},
   {name: 'gamemasterFee', value: 'Fee'},
@@ -23,6 +23,8 @@ const CampaignsPage = () => {
 
   if (isLoading) return <div>Loading…</div>;
   if (error) return <pre>{String(error)}</pre>;
+
+  console.log(owned);
 
   const tabs = [
     {

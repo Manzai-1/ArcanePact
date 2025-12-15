@@ -1,14 +1,66 @@
+import { useState } from "react";
+import { ActionButton } from "../../../components/actionButton/ActionButton";
 import Table from "../../../components/table/Table";
 import { UseGraph } from "../../../data/graph/useGraph";
+import styles from './playerList.module.css';
+import { ApplicationDecision, ClientState, PlayerState } from "../../../models/IArcanePact";
+import { reviewApplication } from "../../../services/arcanePactServices";
 
 export const PlayerList = ({campaign}) => {
-    const { playersByCampaignId, isLoading, error } = UseGraph();
+    const [selectedRow, setSelectedRow] = useState(null);
+
+    const { playersByCampaignId } = UseGraph();
     const players = playersByCampaignId.get(campaign.id);
     const headers = [
-        {name: 'state', value: 'State'},
-        {name: 'playerId', value: 'Player Address'},
-    ]
+        {name: 'stateText', value: 'State'},
+        {name: 'id', value: 'Player Address'}
+    ];
+
+    const hasSelectedRow = selectedRow !== null;
+    const isOwner = campaign.clientState === ClientState.Owner;
+
+    const isApplicant = hasSelectedRow ? 
+        players[selectedRow].state === PlayerState.Applied : false;
+
+
+    const handleSelectRow = (index) => {
+        setSelectedRow(selectedRow === index ? null : index);
+    }
+
     return (
-        <Table headers={headers} rows={players} action={()=>{console.log("action")}}/>
+        <div className={styles.root}>
+            <Table 
+                headers={headers} 
+                rows={players} 
+                action={handleSelectRow} 
+                selectedRow={selectedRow}
+            />
+            <div>
+                {hasSelectedRow &&<ActionButton
+                    label={'View Player'}
+                    handleClick={()=>{console.log('Clicked')}}
+                />}
+                {(isOwner && isApplicant) &&<ActionButton
+                    label={'Approve Application'}
+                    handleClick={()=>{reviewApplication(
+                        campaign.id,
+                        [{
+                            applicant: players[selectedRow].id.toLowerCase(),
+                            decision: ApplicationDecision.Approved
+                        }] 
+                    )}}
+                />}
+                {(isOwner && isApplicant) &&<ActionButton
+                    label={'Reject Application'}
+                    handleClick={()=>{reviewApplication(
+                        campaign.id, 
+                        [{
+                            applicant: players[selectedRow].id.toLowerCase(),
+                            decision: ApplicationDecision.Rejected
+                        }]
+                    )}}
+                />}
+            </div>
+        </div>
     );
 }

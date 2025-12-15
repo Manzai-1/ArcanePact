@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import { useCampaignPlayersQuery, useCampaignsQuery } from "./queries";
 import { useAccount } from "wagmi";
-import { ClientState, PlayerState } from "../../models/IArcanePact";
+import { CampaignState, ClientState, PlayerState } from "../../models/IArcanePact";
 
 
 export const UseGraph = () => {
@@ -12,23 +12,31 @@ export const UseGraph = () => {
     const campaignPlayersQuery = useCampaignPlayersQuery(100, 0);
 
     const lists = useMemo(() => {
-        const campaigns = campaignsQuery.data ?? [];
-        const campaignPlayers = campaignPlayersQuery.data ?? [];
+        const campaigns = (campaignsQuery.data ?? []).map(campaign => ({
+            ...campaign,
+            stateText: CampaignState[campaign.state]
+        }));
+        const campaignPlayers = (campaignPlayersQuery.data ?? []).map(cp => ({
+            ...cp,
+            stateText: PlayerState[cp.state]
+        }));
 
         const playersByCampaignId = new Map();
 
         for (const cp of campaignPlayers){
             const campaignId = cp.campaign.id;
-            const playerId = cp.player.id;
+            const id = cp.player.id;
             const state = cp.state;
+            const stateText = cp.stateText;
 
             if (!playersByCampaignId.has(campaignId)) {
                 playersByCampaignId.set(campaignId, []);
             }
 
             playersByCampaignId.get(campaignId).push({
-                playerId,
+                id,
                 state,
+                stateText
             });
         }
 
@@ -55,19 +63,37 @@ export const UseGraph = () => {
                 )
         ).length > 0).map(c => ({...c, clientState: ClientState.Joined}));
 
-        const pending = campaigns.filter(
-            campaign => campaignPlayers.filter(
-                campaignPlayer => campaignPlayer.campaign.id === campaign.id
-                && campaignPlayer.player.id.toLowerCase() === address.toLowerCase()
-                && (
-                    campaignPlayer.state === PlayerState.Applied
-                    || campaignPlayer.state === PlayerState.AwaitingSignature
-                )
-        ).length > 0).map(c => ({...c, clientState: ClientState.Pending}));
+        const pending = campaigns.map(campaign => {
+            const campaignPlayer = campaignPlayers.find((cp) => 
+                cp.campaign.id === campaign.id &&
+                cp.player.id.toLowerCase() === clientAdr &&
+                (
+                    cp.state === PlayerState.Applied || 
+                    cp.state === PlayerState.AwaitingSignature
+                ) 
+            );
+
+            if(!campaignPlayer) return null;
+
+            const clientState = campaignPlayer.state === PlayerState.Applied ? 
+                ClientState.Applied :
+                ClientState.AwaitingSignature;
+
+            return {
+                ...campaign,
+                clientState 
+            }
+        }).filter(Boolean);
+
 
         const discover = campaigns.filter(
-            campaign => campaign.owner.toLowerCase() != address.toLowerCase() 
-            && !campaign.inviteOnly
+            campaign => campaign.owner.toLowerCase() != address.toLowerCase() && 
+            !campaign.inviteOnly &&
+            (
+                !playersByCampaignId.has(campaign.id) || 
+                !playersByCampaignId.get(campaign.id)
+                    .find((cp) => cp.id.toLowerCase() === clientAdr)
+            )
         ).map(c => ({...c, clientState: ClientState.None}));
 
         return { owned, joined, pending, discover, playersByCampaignId };

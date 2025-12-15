@@ -1,7 +1,7 @@
 export enum CampaignState {
-    Initialized = "Open",
-    Running = "Running",
-    Completed = "Closed"
+    Initialized,
+    Running,
+    Completed
 }
 
 export enum PlayerState {
@@ -17,13 +17,19 @@ export enum ClientState {
     None,
     Owner,
     Joined,
-    Pending,
+    Applied,
+    AwaitingSignature,
     Rejected
 }
 
-enum ApplicationDecision {
+export enum ApplicationDecision {
     Approved,
     Rejected
+}
+
+export interface ApplicationReview {
+    address: string;
+    decision: ApplicationDecision;
 }
 
 export interface Campaign {
