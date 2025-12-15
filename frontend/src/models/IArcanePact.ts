@@ -1,10 +1,10 @@
 export enum CampaignState {
-    Initialized = "Open",
-    Running = "Running",
-    Completed = "Closed"
+    Initialized,
+    Running,
+    Completed
 }
 
-enum PlayerState {
+export enum PlayerState {
     None,
     Applied,
     Rejected,
@@ -13,9 +13,23 @@ enum PlayerState {
     InSession
 }
 
-enum ApplicationDecision {
+export enum ClientState {
+    None,
+    Owner,
+    Joined,
+    Applied,
+    AwaitingSignature,
+    Rejected
+}
+
+export enum ApplicationDecision {
     Approved,
     Rejected
+}
+
+export interface ApplicationReview {
+    address: string;
+    decision: ApplicationDecision;
 }
 
 export interface Campaign {

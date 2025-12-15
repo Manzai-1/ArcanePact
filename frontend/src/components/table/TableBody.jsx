@@ -1,4 +1,6 @@
-export default function TableBody({ headers, rows, action = ()=>{} }) {
+import styles from './table.module.css';
+
+export default function TableBody({ headers, rows, action = ()=>{}, selectedRow=null}) {
   if(!rows) {
     return (
       <tbody>
@@ -10,10 +12,10 @@ export default function TableBody({ headers, rows, action = ()=>{} }) {
     <tbody>
       {
         rows.map((row, i)=>(
-          <tr key={i} onClick={()=>{action(i)}}>
+          <tr key={i} onClick={()=>{action(i)}} className={selectedRow === i ? styles.selected : ''}>
             {
-              headers.map((header, i) => (
-                <td key={i}>
+              headers.map((header, j) => (
+                <td key={j}>
                   {row[header.name]}
                 </td>
               ))

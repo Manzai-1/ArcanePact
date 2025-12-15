@@ -1,9 +1,9 @@
 // import { Campaign, CampaignState } from "../../models/IArcanePact";
 
-// export const getCampaignActions = (campaign: Campaign, address: string): string[] => {
-//     const actions: string[] = [];
+// export const getCampaignActions = (campaign, address) => {
+//     const actions = [];
 
-//     const isGamemaster = campaign.gamemaster === address;
+//     const isGamemaster = campaign.owner === address;
 //     const isOpen = campaign.state === CampaignState.Initialized;
 //     const isParticipant = campaign.playerList?.includes(viewerAddress ?? "");
 //     const hasInvite = campaign.invitedList?.includes(viewerAddress ?? "");

@@ -30,3 +30,21 @@ export const newCampaign = async (campaign) => {
     const tx = await contract.newCampaign(campaign);
     return tx; 
 }
+
+export const invitePlayers = async (campaignId, addresses) => {
+    const contract = await getWriter();
+    const tx = await contract.invitePlayers(campaignId, addresses);
+    return tx; 
+}
+
+export const sendApplication = async (campaignId) => {
+    const contract = await getWriter();
+    const tx = await contract.campaignApplication(campaignId);
+    return tx; 
+}
+
+export const reviewApplication = async (campaignId, applicationReview) => {
+    const contract = await getWriter();
+    const tx = await contract.ReviewApplications(campaignId, applicationReview);
+    return tx; 
+}

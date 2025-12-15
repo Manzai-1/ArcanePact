@@ -1,13 +1,6 @@
 import styles from "./actionButton.module.css";
 
-export const TableButton = ({ label, onClick, payload, disabled = false }) => {
-    const handleClick = () => {
-        if (disabled) return;
-        if (onClick) {
-            onClick(payload);
-        }
-    };
-
+export const ActionButton = ({ label, handleClick, disabled = false }) => {
     return (
         <button
             type="button"
