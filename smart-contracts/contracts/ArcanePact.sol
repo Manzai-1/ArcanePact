@@ -50,24 +50,34 @@ contract ArcanePact {
 
     event CampaignCreated(
         uint256 indexed campaignId, 
-        address indexed owner, 
+        address indexed owner,
+        CampaignState indexed campaignState, 
         NewCampaignConfig config
     );
     event ApplicationAdded(
         uint256 indexed campaignId,
-        address indexed player
+        address indexed player,
+        PlayerState indexed playerState
     );
     event ApplicationAproved(
         uint256 indexed campaignId,
-        address indexed player
+        address indexed player,
+        PlayerState indexed playerState
     );
     event ApplicationRejected(
         uint256 indexed campaignId,
-        address indexed player
+        address indexed player,
+        PlayerState indexed playerState
     );
     event InvitationAdded(
         uint256 indexed campaignId,
-        address player
+        address player,
+        PlayerState indexed playerState
+    );
+    event PlayerSigned(
+        uint256 indexed campaignId,
+        address player,
+        PlayerState indexed playerState
     );
 
     error NotOwner(address caller);
@@ -92,7 +102,7 @@ contract ArcanePact {
         campaign.state = CampaignState.Initialized;
         campaign.inviteOnly = config.inviteOnly;
 
-        emit CampaignCreated(campaignId, msg.sender, config);
+        emit CampaignCreated(campaignId, msg.sender, campaign.state, config);
     }
 
     function invitePlayers (uint256 campaignId, address[] calldata addresses) external {
@@ -109,7 +119,7 @@ contract ArcanePact {
             checkPlayerAlreadyInCampaign(player.state, campaignId, adr);
 
             player.state = PlayerState.AwaitingSignature;
-            emit InvitationAdded(campaignId, adr);
+            emit InvitationAdded(campaignId, adr, player.state);
         }
     }
 
@@ -125,7 +135,7 @@ contract ArcanePact {
         checkPlayerAlreadyInCampaign(player.state, campaignId, applicant);
         
         player.state = PlayerState.Applied;
-        emit ApplicationAdded(campaignId, applicant);
+        emit ApplicationAdded(campaignId, applicant, player.state);
     }
 
     function ReviewApplications(uint256 campaignId, ApplicationReview[] calldata reviews) external {
@@ -146,11 +156,11 @@ contract ArcanePact {
             if(decision == ApplicationDecision.Approved){
                 checkApplicantAlreadyApproved(player.state, campaignId, applicant);
                 player.state = PlayerState.AwaitingSignature;
-                emit ApplicationAproved(campaignId, applicant);
+                emit ApplicationAproved(campaignId, applicant, player.state);
             } else {
                 checkApplicantAlreadyRejected(player.state, campaignId, applicant);
                 player.state = PlayerState.Rejected;
-                emit ApplicationRejected(campaignId, applicant);
+                emit ApplicationRejected(campaignId, applicant, player.state);
             }
         }
     }
