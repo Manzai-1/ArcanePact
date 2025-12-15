@@ -20,6 +20,12 @@ const enum PlayerState {
     InSession
 }
 
+const enum CampaignState {
+    Initialized,
+    Running,
+    Completed
+}
+
 enum ApplicationDecision {
     Approved,
     Rejected
@@ -53,6 +59,10 @@ describe('Campaign lifecycle', () => {
                     expect(owner).to.equal(account[0].address);
                     return true;
                 },
+                (campaignState: any) => {
+                    expect(campaignState).to.equal(CampaignState.Initialized);
+                    return true;
+                },
                 (emittedConfig: any) => {
                     expect(emittedConfig.title).to.equal(campaignConfig.title);
                     expect(emittedConfig.description).to.equal(campaignConfig.description);
@@ -74,7 +84,7 @@ describe('Campaign participation', () => {
             await arcanePact.newCampaign(campaignConfig);
             await expect(arcanePact.invitePlayers(1, players))
                 .to.emit(arcanePact, "InvitationAdded")
-                .withArgs(1, account[1].address);
+                .withArgs(1, account[1].address, PlayerState.AwaitingSignature)
         });
 
         it('should take a (campignId, address[]) and emit a invitation to the campaign for each address when multiple addresses', async () => {
@@ -86,8 +96,8 @@ describe('Campaign participation', () => {
 
             await arcanePact.newCampaign(campaignConfig);
             await expect(arcanePact.invitePlayers(1, players))
-                .to.emit(arcanePact, "InvitationAdded").withArgs(1, account[1].address)
-                .and.to.emit(arcanePact, "InvitationAdded").withArgs(1, account[1].address);
+                .to.emit(arcanePact, "InvitationAdded").withArgs(1, account[1].address, PlayerState.AwaitingSignature)
+                .and.to.emit(arcanePact, "InvitationAdded").withArgs(1, account[1].address, PlayerState.AwaitingSignature);
         });
 
         it('should throw a NotOwner error if caller is not owner of the contract', async () => {
@@ -142,7 +152,7 @@ describe('Campaign participation', () => {
 
                 await arcanePact.newCampaign(campaignConfig);
                 await expect(arcanePact.connect(account[1]).campaignApplication(1))
-                    .to.emit(arcanePact, "ApplicationAdded").withArgs(1, account[1].address);
+                    .to.emit(arcanePact, "ApplicationAdded").withArgs(1, account[1].address, PlayerState.Applied);
             })
 
             it('should throw CampaignDoesNotExist error if campaign does not exist', async () => {
@@ -194,7 +204,8 @@ describe('Campaign participation', () => {
                 await expect(arcanePact.connect(account[0]).ReviewApplications(1, reviews))
                     .to.emit(arcanePact, "ApplicationAproved").withArgs(
                         1, 
-                        account[1].address
+                        account[1].address, 
+                        PlayerState.AwaitingSignature
                     );
             })
 
@@ -213,7 +224,8 @@ describe('Campaign participation', () => {
                 await expect(arcanePact.connect(account[0]).ReviewApplications(1, reviews))
                     .to.emit(arcanePact, "ApplicationRejected").withArgs(
                         1, 
-                        account[1].address
+                        account[1].address, 
+                        PlayerState.Rejected
                     );
             })
 
@@ -247,16 +259,20 @@ describe('Campaign participation', () => {
                 await expect(arcanePact.connect(account[0]).ReviewApplications(1, reviews))
                     .to.emit(arcanePact, "ApplicationRejected").withArgs(
                         1, 
-                        account[1].address
+                        account[1].address,
+                        PlayerState.Rejected
                     ).and.to.emit(arcanePact, "ApplicationAproved").withArgs(
                         1, 
-                        account[2].address
+                        account[2].address,
+                        PlayerState.AwaitingSignature
                     ).and.to.emit(arcanePact, "ApplicationRejected").withArgs(
                         1, 
-                        account[3].address
+                        account[3].address,
+                        PlayerState.Rejected
                     ).and.to.emit(arcanePact, "ApplicationAproved").withArgs(
                         1, 
-                        account[4].address
+                        account[4].address,
+                        PlayerState.AwaitingSignature
                     );
             })
 
@@ -279,10 +295,12 @@ describe('Campaign participation', () => {
                 await expect(arcanePact.connect(account[0]).ReviewApplications(1, reviews))
                     .to.emit(arcanePact, "ApplicationRejected").withArgs(
                         1, 
-                        account[1].address
+                        account[1].address,
+                        PlayerState.Rejected
                     ).and.to.emit(arcanePact, "ApplicationAproved").withArgs(
                         1, 
-                        account[1].address
+                        account[1].address,
+                        PlayerState.AwaitingSignature
                     );
             })
 
@@ -397,8 +415,81 @@ describe('Campaign participation', () => {
     });
 
     describe('Player Signing', () => {
-        it.skip('should add player to campaign with state Applied and emit a event', async () => {
+        it('Should reject signing a campaign when player is not AwaitingSignature', async () => {
+            const { arcanePact, account } = await contractFixture();
 
+            await arcanePact.newCampaign(campaignConfig);
+            await arcanePact.invitePlayers(1, [account[1].address]);
+
+            await expect(arcanePact.connect(account[2]).SignCampaign(1))
+                .to.be.revertedWithCustomError(arcanePact, "PlayerNotAwaitingSignature")
+                .withArgs(1, account[2].address);
+        });
+
+        it('Should reject signing a campaign when the campaign does not exist', async () => {
+            const { arcanePact, account } = await contractFixture();
+
+            await arcanePact.newCampaign(campaignConfig);
+            await arcanePact.invitePlayers(1, [account[1].address]);
+
+            await expect(arcanePact.connect(account[1]).SignCampaign(2))
+                .to.be.revertedWithCustomError(arcanePact, "CampaignDoesNotExist")
+                .withArgs(2);
+        });
+
+        it.skip('Should reject signing a campaign when the campaign is locked', async () => {
+            const { arcanePact, account } = await contractFixture();
+
+            await arcanePact.newCampaign(campaignConfig);
+            await arcanePact.invitePlayers(1, [account[1].address]);
+
+            await expect(arcanePact.connect(account[1]).SignCampaign(2))
+                .to.be.revertedWithCustomError(arcanePact, "CampaignDoesNotExist")
+                .withArgs(2);
+        });
+
+        it('Should reject signing a campaign when the transaction value is incorrect', async () => {
+            const { arcanePact, account } = await contractFixture();
+            const val1 = ethers.parseEther("1");
+            const val2 = ethers.parseEther("0.5");
+
+            await arcanePact.newCampaign({
+                ...campaignConfig, 
+                gamemasterFee: val1, 
+                collateral: val1
+            });
+            await arcanePact.invitePlayers(1, [account[1].address]);
+
+            await expect(arcanePact.connect(account[1]).SignCampaign(1, {value: val2}))
+                .to.be.revertedWithCustomError(arcanePact, "IncorrectTransactionValue")
+                .withArgs(val1, val1, val2);
+        })
+
+        it('Should handle signing the campaign and emit PlayerSigned, PlayerLockedCollateral and UpdatedLockedFees events', async () => {
+            const { arcanePact, account } = await contractFixture();
+            const val1 = ethers.parseEther("1");
+            const val2 = ethers.parseEther("2");
+
+            await arcanePact.newCampaign({
+                ...campaignConfig, 
+                gamemasterFee: val1, 
+                collateral: val1
+            });
+            await arcanePact.invitePlayers(1, [account[1].address]);
+
+            await expect(arcanePact.connect(account[1]).SignCampaign(1, {value: val2}))
+                .to.emit(arcanePact, "PlayerSigned").withArgs(
+                    1, 
+                    account[1].address,
+                    PlayerState.Signed
+                ).and.to.emit(arcanePact, "PlayerLockedCollateral").withArgs(
+                    1, 
+                    account[1].address,
+                    val1
+                ).and.to.emit(arcanePact, "UpdatedLockedFees").withArgs(
+                    1, 
+                    val1
+                )
         })
     });
 
