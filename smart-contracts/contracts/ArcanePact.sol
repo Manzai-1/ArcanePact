@@ -17,8 +17,7 @@ contract ArcanePact {
         Applied,
         Rejected,
         AwaitingSignature,
-        Signed,
-        Completed
+        Signed
     }
     enum ApplicationDecision {
         Approved,
@@ -27,6 +26,10 @@ contract ArcanePact {
     enum VoteType {
         StartCampaign,
         StopCampaign
+    }
+    enum ReviewScore {
+        Positive,
+        Negative
     }
 
     struct ApplicationReview {
@@ -52,6 +55,10 @@ contract ArcanePact {
         bool inviteOnly;
         uint256 gamemasterFee;
         uint256 collateral;
+    }
+    struct Review {
+        ReviewScore score;
+        string comment;
     }
 
     event CampaignCreated(
@@ -127,6 +134,13 @@ contract ArcanePact {
         uint256 currentlyLockedAmount
     );
 
+    event ReviewAdded(
+        uint256 indexed campaignId,
+        address indexed recipient,
+        address indexed sender,
+        Review review
+    );
+
     error FunctionNotFound();
     error PaymentDataMissing();
     error NotOwner(address caller);
@@ -146,11 +160,14 @@ contract ArcanePact {
     error BlockedDueToReEntrancy(uint256 campaignId, address caller);
     error TransferFailed(uint256 amount, address recipient);
     error HasNoLockedCollateral(uint256 campaignId, address player);
+    error AlreadyReviewed(uint256 campaignId, address receiver, address caller);
+    error CannotReviewSelf();
 
     mapping(uint256 => Campaign) internal campaigns;
     mapping(uint256 => mapping(address => Player)) internal campaignPlayers;
     mapping(uint256 => mapping(VoteType => uint256)) internal campaignVoteCount; 
     mapping(uint256 => mapping(VoteType => mapping(address => bool))) internal campaignHasVoted;
+    mapping(uint256 => mapping(address => mapping(address => bool))) internal playerHasReviewed;
 
     constructor () {
         nextId = 1;
@@ -264,7 +281,7 @@ contract ArcanePact {
     }
 
     //can be optimized with bit shifting / bitmasks
-    function addVote(uint256 campaignId, VoteType voteType) private {
+    function addVote(uint256 campaignId, VoteType voteType) external {
         Campaign storage campaign = campaigns[campaignId];
 
         checkCampaignExists(campaign.owner, campaignId);
@@ -297,7 +314,7 @@ contract ArcanePact {
         }
     }
 
-    function withdrawFee(uint256 campaignId) external {
+    function withdrawFees(uint256 campaignId) external {
         Campaign storage campaign = campaigns[campaignId];
 
         checkCampaignExists(campaign.owner, campaignId);
@@ -337,6 +354,37 @@ contract ArcanePact {
         locked = false;
 
         emit LockedCollateralWithdrawn(campaignId, amountToTransfer, player.lockedCollateral);
+    }
+
+    function addReview(uint256 campaignId, address recipient, Review calldata review) external {
+        if(recipient == msg.sender) revert CannotReviewSelf();
+
+        Campaign storage campaign = campaigns[campaignId];
+
+        checkCampaignExists(campaign.owner, campaignId);
+        checkIfCampaignCompleted(campaign.state, campaignId);
+
+
+        if(campaign.owner != msg.sender){
+            Player storage player = campaignPlayers[campaignId][msg.sender];
+            checkPlayerSigned(player.state, campaignId, msg.sender);
+        }
+
+        if(campaign.owner != recipient){
+            Player storage player = campaignPlayers[campaignId][recipient];
+            checkPlayerSigned(player.state, campaignId, msg.sender);
+        }
+
+        checkAlreadyReviewed(
+            playerHasReviewed[campaignId][msg.sender][recipient], 
+            campaignId,
+            recipient,
+            msg.sender
+        );
+
+        playerHasReviewed[campaignId][msg.sender][recipient] = true;
+
+        emit ReviewAdded(campaignId, recipient, msg.sender, review);
     }
 
     function transferFunds(uint256 amount, address recipient) private {
@@ -402,5 +450,9 @@ contract ArcanePact {
 
     function checkHasLockedCollateral(uint256 lockedColalteral, uint256 campaignId, address player) internal pure {
         if(!(lockedColalteral > 0)) revert HasNoLockedCollateral(campaignId, player);
+    }
+
+    function checkAlreadyReviewed(bool hasReviewed, uint256 campaignId, address recipient, address caller) internal pure {
+        if(hasReviewed) revert AlreadyReviewed(campaignId, recipient, caller);
     }
 }
