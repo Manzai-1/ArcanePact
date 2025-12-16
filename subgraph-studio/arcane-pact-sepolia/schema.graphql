@@ -1,0 +1,104 @@
+type CampaignCreated @entity(immutable: true) {
+  id: Bytes!
+  campaignId: BigInt! # uint256
+  owner: Bytes! # address
+  campaignState: Int! # uint8
+  participantCount: BigInt! # uint256
+  config_title: String! # string
+  config_description: String! # string
+  config_inviteOnly: Boolean! # bool
+  config_gamemasterFee: BigInt! # uint256
+  config_collateral: BigInt! # uint256
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type CampaignParticipantCountChanged @entity(immutable: true) {
+  id: Bytes!
+  campaignId: BigInt! # uint256
+  participantCount: BigInt! # uint256
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type LockedCollateralWithdrawn @entity(immutable: true) {
+  id: Bytes!
+  campaignId: BigInt! # uint256
+  withdrawnAmount: BigInt! # uint256
+  currentlyLockedAmount: BigInt! # uint256
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type LockedFeesWithdrawn @entity(immutable: true) {
+  id: Bytes!
+  campaignId: BigInt! # uint256
+  withdrawnAmount: BigInt! # uint256
+  currentlyLockedAmount: BigInt! # uint256
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type NewVoteAdded @entity(immutable: true) {
+  id: Bytes!
+  campaignId: BigInt! # uint256
+  voteType: Int! # uint8
+  player: Bytes! # address
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type PlayerLockedCollateral @entity(immutable: true) {
+  id: Bytes!
+  campaignId: BigInt! # uint256
+  player: Bytes! # address
+  collateral: BigInt! # uint256
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type ReviewAdded @entity(immutable: true) {
+  id: Bytes!
+  campaignId: BigInt! # uint256
+  recipient: Bytes! # address
+  sender: Bytes! # address
+  review_score: Int! # uint8
+  review_comment: String! # string
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type UpdatedCampaignPlayer @entity(immutable: true) {
+  id: Bytes!
+  campaignId: BigInt! # uint256
+  player: Bytes! # address
+  playerState: Int! # uint8
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type UpdatedCampaignState @entity(immutable: true) {
+  id: Bytes!
+  campaignId: BigInt! # uint256
+  campaignState: Int! # uint8
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type UpdatedLockedFees @entity(immutable: true) {
+  id: Bytes!
+  campaignId: BigInt! # uint256
+  totalLockedFees: BigInt! # uint256
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}

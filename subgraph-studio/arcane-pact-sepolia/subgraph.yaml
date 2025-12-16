@@ -1,0 +1,53 @@
+specVersion: 1.3.0
+indexerHints:
+  prune: auto
+schema:
+  file: ./schema.graphql
+dataSources:
+  - kind: ethereum
+    name: ArcanePact
+    network: sepolia
+    source:
+      address: "0xe2c2342BF6aADF22D881Cb091691E8126Fa78Efe"
+      abi: ArcanePact
+      startBlock: 9855239
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.9
+      language: wasm/assemblyscript
+      entities:
+        - CampaignCreated
+        - CampaignParticipantCountChanged
+        - LockedCollateralWithdrawn
+        - LockedFeesWithdrawn
+        - NewVoteAdded
+        - PlayerLockedCollateral
+        - ReviewAdded
+        - UpdatedCampaignPlayer
+        - UpdatedCampaignState
+        - UpdatedLockedFees
+      abis:
+        - name: ArcanePact
+          file: ./abis/ArcanePact.json
+      eventHandlers:
+        - event: CampaignCreated(indexed uint256,indexed address,indexed uint8,uint256,(string,string,bool,uint256,uint256))
+          handler: handleCampaignCreated
+        - event: CampaignParticipantCountChanged(indexed uint256,uint256)
+          handler: handleCampaignParticipantCountChanged
+        - event: LockedCollateralWithdrawn(indexed uint256,uint256,uint256)
+          handler: handleLockedCollateralWithdrawn
+        - event: LockedFeesWithdrawn(indexed uint256,uint256,uint256)
+          handler: handleLockedFeesWithdrawn
+        - event: NewVoteAdded(indexed uint256,uint8,address)
+          handler: handleNewVoteAdded
+        - event: PlayerLockedCollateral(indexed uint256,indexed address,uint256)
+          handler: handlePlayerLockedCollateral
+        - event: ReviewAdded(indexed uint256,indexed address,indexed address,(uint8,string))
+          handler: handleReviewAdded
+        - event: UpdatedCampaignPlayer(indexed uint256,indexed address,indexed uint8)
+          handler: handleUpdatedCampaignPlayer
+        - event: UpdatedCampaignState(indexed uint256,uint8)
+          handler: handleUpdatedCampaignState
+        - event: UpdatedLockedFees(indexed uint256,uint256)
+          handler: handleUpdatedLockedFees
+      file: ./src/arcane-pact.ts
