@@ -15,6 +15,27 @@ export const abi = [
         },
         {
           "internalType": "address",
+          "name": "receiver",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "caller",
+          "type": "address"
+        }
+      ],
+      "name": "AlreadyReviewed",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "campaignId",
+          "type": "uint256"
+        },
+        {
+          "internalType": "address",
           "name": "applicant",
           "type": "address"
         }
@@ -60,6 +81,22 @@ export const abi = [
           "internalType": "uint256",
           "name": "campaignId",
           "type": "uint256"
+        },
+        {
+          "internalType": "address",
+          "name": "caller",
+          "type": "address"
+        }
+      ],
+      "name": "BlockedDueToReEntrancy",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "campaignId",
+          "type": "uint256"
         }
       ],
       "name": "CampaignDoesNotExist",
@@ -90,12 +127,107 @@ export const abi = [
     {
       "inputs": [
         {
+          "internalType": "uint256",
+          "name": "campaignId",
+          "type": "uint256"
+        }
+      ],
+      "name": "CampaignNotCompleted",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "CannotReviewSelf",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "FunctionNotFound",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "campaignId",
+          "type": "uint256"
+        },
+        {
+          "internalType": "address",
+          "name": "player",
+          "type": "address"
+        },
+        {
+          "internalType": "enum ArcanePact.VoteType",
+          "name": "voteType",
+          "type": "uint8"
+        }
+      ],
+      "name": "HasAlreadyVoted",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "campaignId",
+          "type": "uint256"
+        },
+        {
+          "internalType": "address",
+          "name": "player",
+          "type": "address"
+        }
+      ],
+      "name": "HasNoLockedCollateral",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "campaignId",
+          "type": "uint256"
+        }
+      ],
+      "name": "HasNoLockedFees",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "gamemasterFee",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "collateral",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "received",
+          "type": "uint256"
+        }
+      ],
+      "name": "IncorrectTransactionValue",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
           "internalType": "address",
           "name": "caller",
           "type": "address"
         }
       ],
       "name": "NotOwner",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "PaymentDataMissing",
       "type": "error"
     },
     {
@@ -115,61 +247,52 @@ export const abi = [
       "type": "error"
     },
     {
-      "anonymous": false,
       "inputs": [
         {
-          "indexed": true,
           "internalType": "uint256",
           "name": "campaignId",
           "type": "uint256"
         },
         {
-          "indexed": true,
           "internalType": "address",
           "name": "player",
           "type": "address"
         }
       ],
-      "name": "ApplicationAdded",
-      "type": "event"
+      "name": "PlayerHasNotSigned",
+      "type": "error"
     },
     {
-      "anonymous": false,
       "inputs": [
         {
-          "indexed": true,
           "internalType": "uint256",
           "name": "campaignId",
           "type": "uint256"
         },
         {
-          "indexed": true,
           "internalType": "address",
           "name": "player",
           "type": "address"
         }
       ],
-      "name": "ApplicationAproved",
-      "type": "event"
+      "name": "PlayerNotAwaitingSignature",
+      "type": "error"
     },
     {
-      "anonymous": false,
       "inputs": [
         {
-          "indexed": true,
           "internalType": "uint256",
-          "name": "campaignId",
+          "name": "amount",
           "type": "uint256"
         },
         {
-          "indexed": true,
           "internalType": "address",
-          "name": "player",
+          "name": "recipient",
           "type": "address"
         }
       ],
-      "name": "ApplicationRejected",
-      "type": "event"
+      "name": "TransferFailed",
+      "type": "error"
     },
     {
       "anonymous": false,
@@ -185,6 +308,18 @@ export const abi = [
           "internalType": "address",
           "name": "owner",
           "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "enum ArcanePact.CampaignState",
+          "name": "campaignState",
+          "type": "uint8"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "participantCount",
+          "type": "uint256"
         },
         {
           "components": [
@@ -234,13 +369,223 @@ export const abi = [
         },
         {
           "indexed": false,
+          "internalType": "uint256",
+          "name": "participantCount",
+          "type": "uint256"
+        }
+      ],
+      "name": "CampaignParticipantCountChanged",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "campaignId",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "withdrawnAmount",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "currentlyLockedAmount",
+          "type": "uint256"
+        }
+      ],
+      "name": "LockedCollateralWithdrawn",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "campaignId",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "withdrawnAmount",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "currentlyLockedAmount",
+          "type": "uint256"
+        }
+      ],
+      "name": "LockedFeesWithdrawn",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "campaignId",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "enum ArcanePact.VoteType",
+          "name": "voteType",
+          "type": "uint8"
+        },
+        {
+          "indexed": false,
           "internalType": "address",
           "name": "player",
           "type": "address"
         }
       ],
-      "name": "InvitationAdded",
+      "name": "NewVoteAdded",
       "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "campaignId",
+          "type": "uint256"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "player",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "collateral",
+          "type": "uint256"
+        }
+      ],
+      "name": "PlayerLockedCollateral",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "campaignId",
+          "type": "uint256"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "recipient",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "sender",
+          "type": "address"
+        },
+        {
+          "components": [
+            {
+              "internalType": "enum ArcanePact.ReviewScore",
+              "name": "score",
+              "type": "uint8"
+            },
+            {
+              "internalType": "string",
+              "name": "comment",
+              "type": "string"
+            }
+          ],
+          "indexed": false,
+          "internalType": "struct ArcanePact.Review",
+          "name": "review",
+          "type": "tuple"
+        }
+      ],
+      "name": "ReviewAdded",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "campaignId",
+          "type": "uint256"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "player",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "enum ArcanePact.PlayerState",
+          "name": "playerState",
+          "type": "uint8"
+        }
+      ],
+      "name": "UpdatedCampaignPlayer",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "campaignId",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "enum ArcanePact.CampaignState",
+          "name": "campaignState",
+          "type": "uint8"
+        }
+      ],
+      "name": "UpdatedCampaignState",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "campaignId",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "totalLockedFees",
+          "type": "uint256"
+        }
+      ],
+      "name": "UpdatedLockedFees",
+      "type": "event"
+    },
+    {
+      "stateMutability": "payable",
+      "type": "fallback"
     },
     {
       "inputs": [
@@ -250,24 +595,47 @@ export const abi = [
           "type": "uint256"
         },
         {
+          "internalType": "address",
+          "name": "recipient",
+          "type": "address"
+        },
+        {
           "components": [
             {
-              "internalType": "address",
-              "name": "applicant",
-              "type": "address"
+              "internalType": "enum ArcanePact.ReviewScore",
+              "name": "score",
+              "type": "uint8"
             },
             {
-              "internalType": "enum ArcanePact.ApplicationDecision",
-              "name": "decision",
-              "type": "uint8"
+              "internalType": "string",
+              "name": "comment",
+              "type": "string"
             }
           ],
-          "internalType": "struct ArcanePact.ApplicationReview[]",
-          "name": "reviews",
-          "type": "tuple[]"
+          "internalType": "struct ArcanePact.Review",
+          "name": "review",
+          "type": "tuple"
         }
       ],
-      "name": "ReviewApplications",
+      "name": "addReview",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "campaignId",
+          "type": "uint256"
+        },
+        {
+          "internalType": "enum ArcanePact.VoteType",
+          "name": "voteType",
+          "type": "uint8"
+        }
+      ],
+      "name": "addVote",
       "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"
@@ -342,5 +710,78 @@ export const abi = [
       "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "campaignId",
+          "type": "uint256"
+        },
+        {
+          "components": [
+            {
+              "internalType": "address",
+              "name": "applicant",
+              "type": "address"
+            },
+            {
+              "internalType": "enum ArcanePact.ApplicationDecision",
+              "name": "decision",
+              "type": "uint8"
+            }
+          ],
+          "internalType": "struct ArcanePact.ApplicationReview[]",
+          "name": "reviews",
+          "type": "tuple[]"
+        }
+      ],
+      "name": "reviewApplications",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "campaignId",
+          "type": "uint256"
+        }
+      ],
+      "name": "signCampaign",
+      "outputs": [],
+      "stateMutability": "payable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "campaignId",
+          "type": "uint256"
+        }
+      ],
+      "name": "withdrawCollateral",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "campaignId",
+          "type": "uint256"
+        }
+      ],
+      "name": "withdrawFees",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "stateMutability": "payable",
+      "type": "receive"
     }
   ];

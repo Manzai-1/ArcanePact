@@ -20,9 +20,25 @@ const enum PlayerState {
     InSession
 }
 
+const enum ReviewScore {
+    Positive,
+    Negative
+}
+
+const enum CampaignState {
+    Initialized,
+    Running,
+    Completed
+}
+
 enum ApplicationDecision {
     Approved,
     Rejected
+}
+
+enum VoteType {
+    StartCampaign,
+    StopCampaign
 }
 
 type ApplicationReview = {
@@ -53,6 +69,14 @@ describe('Campaign lifecycle', () => {
                     expect(owner).to.equal(account[0].address);
                     return true;
                 },
+                (campaignState: any) => {
+                    expect(campaignState).to.equal(CampaignState.Initialized);
+                    return true;
+                },
+                (participantCount: any) => {
+                    expect(participantCount).to.equal(1);
+                    return true;
+                },
                 (emittedConfig: any) => {
                     expect(emittedConfig.title).to.equal(campaignConfig.title);
                     expect(emittedConfig.description).to.equal(campaignConfig.description);
@@ -61,6 +85,58 @@ describe('Campaign lifecycle', () => {
                 }
             )
     });
+
+    it('Should Start Campaign upon majority participant vote', async () => {
+        const { arcanePact, account } = await contractFixture();
+        const val1 = ethers.parseEther("1");
+        const val2 = ethers.parseEther("2");
+
+        await arcanePact.newCampaign({
+            ...campaignConfig, 
+            gamemasterFee: val1, 
+            collateral: val1
+        });
+
+        await arcanePact.invitePlayers(1, [account[1].address]);
+        await arcanePact.invitePlayers(1, [account[2].address]);
+
+        await arcanePact.connect(account[1]).signCampaign(1, {value: val2});
+        await arcanePact.connect(account[2]).signCampaign(1, {value: val2});
+
+        await arcanePact.connect(account[1]).addVote(1, VoteType.StartCampaign);
+
+        await expect(arcanePact.addVote(1, VoteType.StartCampaign))
+            .to.emit(arcanePact, "UpdatedCampaignState").withArgs(
+                1, 
+                CampaignState.Running
+            );
+    })
+
+    it('Should stop Campaign upon majority participant vote', async () => {
+        const { arcanePact, account } = await contractFixture();
+        const val1 = ethers.parseEther("1");
+        const val2 = ethers.parseEther("2");
+
+        await arcanePact.newCampaign({
+            ...campaignConfig, 
+            gamemasterFee: val1, 
+            collateral: val1
+        });
+
+        await arcanePact.invitePlayers(1, [account[1].address]);
+        await arcanePact.invitePlayers(1, [account[2].address]);
+
+        await arcanePact.connect(account[1]).signCampaign(1, {value: val2});
+        await arcanePact.connect(account[2]).signCampaign(1, {value: val2});
+
+        await arcanePact.connect(account[1]).addVote(1, VoteType.StopCampaign);
+
+        await expect(arcanePact.addVote(1, VoteType.StopCampaign))
+            .to.emit(arcanePact, "UpdatedCampaignState").withArgs(
+                1, 
+                CampaignState.Completed
+            );
+    })
 })
 
 describe('Campaign participation', () => {
@@ -73,8 +149,8 @@ describe('Campaign participation', () => {
 
             await arcanePact.newCampaign(campaignConfig);
             await expect(arcanePact.invitePlayers(1, players))
-                .to.emit(arcanePact, "InvitationAdded")
-                .withArgs(1, account[1].address);
+                .to.emit(arcanePact, "UpdatedCampaignPlayer")
+                .withArgs(1, account[1].address, PlayerState.AwaitingSignature)
         });
 
         it('should take a (campignId, address[]) and emit a invitation to the campaign for each address when multiple addresses', async () => {
@@ -86,8 +162,8 @@ describe('Campaign participation', () => {
 
             await arcanePact.newCampaign(campaignConfig);
             await expect(arcanePact.invitePlayers(1, players))
-                .to.emit(arcanePact, "InvitationAdded").withArgs(1, account[1].address)
-                .and.to.emit(arcanePact, "InvitationAdded").withArgs(1, account[1].address);
+                .to.emit(arcanePact, "UpdatedCampaignPlayer").withArgs(1, account[1].address, PlayerState.AwaitingSignature)
+                .and.to.emit(arcanePact, "UpdatedCampaignPlayer").withArgs(1, account[1].address, PlayerState.AwaitingSignature);
         });
 
         it('should throw a NotOwner error if caller is not owner of the contract', async () => {
@@ -142,7 +218,7 @@ describe('Campaign participation', () => {
 
                 await arcanePact.newCampaign(campaignConfig);
                 await expect(arcanePact.connect(account[1]).campaignApplication(1))
-                    .to.emit(arcanePact, "ApplicationAdded").withArgs(1, account[1].address);
+                    .to.emit(arcanePact, "UpdatedCampaignPlayer").withArgs(1, account[1].address, PlayerState.Applied);
             })
 
             it('should throw CampaignDoesNotExist error if campaign does not exist', async () => {
@@ -191,10 +267,11 @@ describe('Campaign participation', () => {
                 await arcanePact.newCampaign(campaignConfig);
                 await arcanePact.connect(account[1]).campaignApplication(1);
 
-                await expect(arcanePact.connect(account[0]).ReviewApplications(1, reviews))
-                    .to.emit(arcanePact, "ApplicationAproved").withArgs(
+                await expect(arcanePact.connect(account[0]).reviewApplications(1, reviews))
+                    .to.emit(arcanePact, "UpdatedCampaignPlayer").withArgs(
                         1, 
-                        account[1].address
+                        account[1].address, 
+                        PlayerState.AwaitingSignature
                     );
             })
 
@@ -210,10 +287,11 @@ describe('Campaign participation', () => {
                 await arcanePact.newCampaign(campaignConfig);
                 await arcanePact.connect(account[1]).campaignApplication(1);
 
-                await expect(arcanePact.connect(account[0]).ReviewApplications(1, reviews))
-                    .to.emit(arcanePact, "ApplicationRejected").withArgs(
+                await expect(arcanePact.connect(account[0]).reviewApplications(1, reviews))
+                    .to.emit(arcanePact, "UpdatedCampaignPlayer").withArgs(
                         1, 
-                        account[1].address
+                        account[1].address, 
+                        PlayerState.Rejected
                     );
             })
 
@@ -244,19 +322,23 @@ describe('Campaign participation', () => {
                 await arcanePact.connect(account[3]).campaignApplication(1);
                 await arcanePact.connect(account[4]).campaignApplication(1);
 
-                await expect(arcanePact.connect(account[0]).ReviewApplications(1, reviews))
-                    .to.emit(arcanePact, "ApplicationRejected").withArgs(
+                await expect(arcanePact.connect(account[0]).reviewApplications(1, reviews))
+                    .to.emit(arcanePact, "UpdatedCampaignPlayer").withArgs(
                         1, 
-                        account[1].address
-                    ).and.to.emit(arcanePact, "ApplicationAproved").withArgs(
+                        account[1].address,
+                        PlayerState.Rejected
+                    ).and.to.emit(arcanePact, "UpdatedCampaignPlayer").withArgs(
                         1, 
-                        account[2].address
-                    ).and.to.emit(arcanePact, "ApplicationRejected").withArgs(
+                        account[2].address,
+                        PlayerState.AwaitingSignature
+                    ).and.to.emit(arcanePact, "UpdatedCampaignPlayer").withArgs(
                         1, 
-                        account[3].address
-                    ).and.to.emit(arcanePact, "ApplicationAproved").withArgs(
+                        account[3].address,
+                        PlayerState.Rejected
+                    ).and.to.emit(arcanePact, "UpdatedCampaignPlayer").withArgs(
                         1, 
-                        account[4].address
+                        account[4].address,
+                        PlayerState.AwaitingSignature
                     );
             })
 
@@ -276,13 +358,15 @@ describe('Campaign participation', () => {
                 await arcanePact.newCampaign(campaignConfig);
                 await arcanePact.connect(account[1]).campaignApplication(1);
 
-                await expect(arcanePact.connect(account[0]).ReviewApplications(1, reviews))
-                    .to.emit(arcanePact, "ApplicationRejected").withArgs(
+                await expect(arcanePact.connect(account[0]).reviewApplications(1, reviews))
+                    .to.emit(arcanePact, "UpdatedCampaignPlayer").withArgs(
                         1, 
-                        account[1].address
-                    ).and.to.emit(arcanePact, "ApplicationAproved").withArgs(
+                        account[1].address,
+                        PlayerState.Rejected
+                    ).and.to.emit(arcanePact, "UpdatedCampaignPlayer").withArgs(
                         1, 
-                        account[1].address
+                        account[1].address,
+                        PlayerState.AwaitingSignature
                     );
             })
 
@@ -295,7 +379,7 @@ describe('Campaign participation', () => {
                     }
                 ];
 
-                await expect(arcanePact.ReviewApplications(1, reviews))
+                await expect(arcanePact.reviewApplications(1, reviews))
                     .to.be.revertedWithCustomError(arcanePact, "CampaignDoesNotExist")
                     .withArgs(1);
             })
@@ -312,7 +396,7 @@ describe('Campaign participation', () => {
                 await arcanePact.newCampaign(campaignConfig);
                 await arcanePact.connect(account[1]).campaignApplication(1);
 
-                await expect(arcanePact.connect(account[1]).ReviewApplications(1, reviews))
+                await expect(arcanePact.connect(account[1]).reviewApplications(1, reviews))
                     .to.be.revertedWithCustomError(arcanePact, "NotOwner")
                     .withArgs(account[1].address);
             })
@@ -329,7 +413,7 @@ describe('Campaign participation', () => {
                 await arcanePact.newCampaign(campaignConfig);
                 await arcanePact.connect(account[1]).campaignApplication(1);
 
-                await expect(arcanePact.connect(account[0]).ReviewApplications(1, reviews))
+                await expect(arcanePact.connect(account[0]).reviewApplications(1, reviews))
                     .to.be.revertedWithCustomError(arcanePact, "CampaignLocked")
                     .withArgs(1);
             })
@@ -345,7 +429,7 @@ describe('Campaign participation', () => {
 
                 await arcanePact.newCampaign(campaignConfig);
 
-                await expect(arcanePact.ReviewApplications(1, reviews))
+                await expect(arcanePact.reviewApplications(1, reviews))
                     .to.be.revertedWithCustomError(arcanePact, "ApplicantDoesNotExist")
                     .withArgs(1, account[1].address);
             })
@@ -369,7 +453,7 @@ describe('Campaign participation', () => {
                 await arcanePact.newCampaign(campaignConfig);
                 await arcanePact.connect(account[1]).campaignApplication(1);
 
-                await expect(arcanePact.connect(account[0]).ReviewApplications(1, reviews))
+                await expect(arcanePact.connect(account[0]).reviewApplications(1, reviews))
                     .to.be.revertedWithCustomError(arcanePact, "ApplicantAlreadyRejected")
                     .withArgs(1, account[1].address);
             })
@@ -389,7 +473,7 @@ describe('Campaign participation', () => {
                 await arcanePact.newCampaign(campaignConfig);
                 await arcanePact.connect(account[1]).campaignApplication(1);
 
-                await expect(arcanePact.connect(account[0]).ReviewApplications(1, reviews))
+                await expect(arcanePact.connect(account[0]).reviewApplications(1, reviews))
                     .to.be.revertedWithCustomError(arcanePact, "ApplicantAlreadyApproved")
                     .withArgs(1, account[1].address);
             })
@@ -397,9 +481,456 @@ describe('Campaign participation', () => {
     });
 
     describe('Player Signing', () => {
-        it.skip('should add player to campaign with state Applied and emit a event', async () => {
+        it('Should reject signing a campaign when player is not AwaitingSignature', async () => {
+            const { arcanePact, account } = await contractFixture();
 
+            await arcanePact.newCampaign(campaignConfig);
+            await arcanePact.invitePlayers(1, [account[1].address]);
+
+            await expect(arcanePact.connect(account[2]).signCampaign(1))
+                .to.be.revertedWithCustomError(arcanePact, "PlayerNotAwaitingSignature")
+                .withArgs(1, account[2].address);
+        });
+
+        it('Should reject signing a campaign when the campaign does not exist', async () => {
+            const { arcanePact, account } = await contractFixture();
+
+            await arcanePact.newCampaign(campaignConfig);
+            await arcanePact.invitePlayers(1, [account[1].address]);
+
+            await expect(arcanePact.connect(account[1]).signCampaign(2))
+                .to.be.revertedWithCustomError(arcanePact, "CampaignDoesNotExist")
+                .withArgs(2);
+        });
+
+        it.skip('Should reject signing a campaign when the campaign is locked', async () => {
+            const { arcanePact, account } = await contractFixture();
+
+            await arcanePact.newCampaign(campaignConfig);
+            await arcanePact.invitePlayers(1, [account[1].address]);
+
+            await expect(arcanePact.connect(account[1]).signCampaign(2))
+                .to.be.revertedWithCustomError(arcanePact, "CampaignDoesNotExist")
+                .withArgs(2);
+        });
+
+        it('Should reject signing a campaign when the transaction value is incorrect', async () => {
+            const { arcanePact, account } = await contractFixture();
+            const val1 = ethers.parseEther("1");
+            const val2 = ethers.parseEther("0.5");
+
+            await arcanePact.newCampaign({
+                ...campaignConfig, 
+                gamemasterFee: val1, 
+                collateral: val1
+            });
+            await arcanePact.invitePlayers(1, [account[1].address]);
+
+            await expect(arcanePact.connect(account[1]).signCampaign(1, {value: val2}))
+                .to.be.revertedWithCustomError(arcanePact, "IncorrectTransactionValue")
+                .withArgs(val1, val1, val2);
+        })
+
+        it('Should handle signing the campaign and emit PlayerSigned, PlayerLockedCollateral and UpdatedLockedFees events', async () => {
+            const { arcanePact, account } = await contractFixture();
+            const val1 = ethers.parseEther("1");
+            const val2 = ethers.parseEther("2");
+
+            await arcanePact.newCampaign({
+                ...campaignConfig, 
+                gamemasterFee: val1, 
+                collateral: val1
+            });
+            await arcanePact.invitePlayers(1, [account[1].address]);
+
+            await expect(arcanePact.connect(account[1]).signCampaign(1, {value: val2}))
+                .to.emit(arcanePact, "UpdatedCampaignPlayer").withArgs(
+                    1, 
+                    account[1].address,
+                    PlayerState.Signed,
+                ).and.to.emit(arcanePact, "CampaignParticipantCountChanged").withArgs(
+                    1, 
+                    2
+                ).and.to.emit(arcanePact, "PlayerLockedCollateral").withArgs(
+                    1, 
+                    account[1].address,
+                    val1
+                ).and.to.emit(arcanePact, "UpdatedLockedFees").withArgs(
+                    1, 
+                    val1
+                )
         })
     });
 
+    describe('Campaign Participant Voting', () => {
+        it('Should reject with custom error when voting if the player is not Signed or owner', async () => {
+            const { arcanePact, account } = await contractFixture();
+
+            await arcanePact.newCampaign(campaignConfig);
+            await arcanePact.invitePlayers(1, [account[1].address]);
+
+            await expect(arcanePact.connect(account[2]).addVote(1, VoteType.StartCampaign))
+                .to.be.revertedWithCustomError(arcanePact, "PlayerHasNotSigned")
+                .withArgs(1, account[2].address);
+        });
+
+        it('Should reject voting when the campaign does not exist', async () => {
+            const { arcanePact, account } = await contractFixture();
+
+            await arcanePact.newCampaign(campaignConfig);
+            await arcanePact.invitePlayers(1, [account[1].address]);
+
+            await expect(arcanePact.connect(account[1]).addVote(2, VoteType.StartCampaign))
+                .to.be.revertedWithCustomError(arcanePact, "CampaignDoesNotExist")
+                .withArgs(2);
+        });
+
+        it.skip('Should reject voting when the campaign is locked', async () => {
+            const { arcanePact, account } = await contractFixture();
+
+            await arcanePact.newCampaign(campaignConfig);
+            await arcanePact.invitePlayers(1, [account[1].address]);
+
+            await expect(arcanePact.connect(account[1]).signCampaign(2))
+                .to.be.revertedWithCustomError(arcanePact, "CampaignDoesNotExist")
+                .withArgs(2);
+        });
+
+        it('Should accept adding a vote when player is signed, should emit correct events', async () => {
+            const { arcanePact, account } = await contractFixture();
+            const val1 = ethers.parseEther("1");
+            const val2 = ethers.parseEther("2");
+
+            await arcanePact.newCampaign({
+                ...campaignConfig, 
+                gamemasterFee: val1, 
+                collateral: val1
+            });
+            await arcanePact.invitePlayers(1, [account[1].address]);
+            await arcanePact.connect(account[1]).signCampaign(1, {value: val2});
+
+            await expect(arcanePact.connect(account[1]).addVote(1, VoteType.StartCampaign))
+                .to.emit(arcanePact, "NewVoteAdded").withArgs(
+                    1, 
+                    VoteType.StartCampaign,
+                    account[1].address
+                );
+        })
+
+        it('Should accept adding a vote from the campaign owner, should emit correct events', async () => {
+            const { arcanePact, account } = await contractFixture();
+            const val1 = ethers.parseEther("1");
+            const val2 = ethers.parseEther("2");
+
+            await arcanePact.newCampaign({
+                ...campaignConfig, 
+                gamemasterFee: val1, 
+                collateral: val1
+            });
+
+            await expect(arcanePact.addVote(1, VoteType.StartCampaign))
+                .to.emit(arcanePact, "NewVoteAdded").withArgs(
+                    1, 
+                    VoteType.StartCampaign,
+                    account[0].address
+                );
+        })
+
+        it('Should reject voting when already voted', async () => {
+            const { arcanePact, account } = await contractFixture();
+            const val1 = ethers.parseEther("1");
+            const val2 = ethers.parseEther("2");
+
+            await arcanePact.newCampaign({
+                ...campaignConfig, 
+                gamemasterFee: val1, 
+                collateral: val1
+            });
+            await arcanePact.invitePlayers(1, [account[1].address]);
+            await arcanePact.connect(account[1]).signCampaign(1, {value: val2});
+            await arcanePact.connect(account[1]).addVote(1, VoteType.StartCampaign);
+
+            await expect(arcanePact.connect(account[1]).addVote(1, VoteType.StartCampaign))
+                .to.be.revertedWithCustomError(arcanePact, "HasAlreadyVoted")
+                .withArgs(1, account[1].address, VoteType.StartCampaign);
+        })
+
+        it('Should reject campaign owner voting when already voted', async () => {
+            const { arcanePact, account } = await contractFixture();
+            const val1 = ethers.parseEther("1");
+            const val2 = ethers.parseEther("2");
+
+            await arcanePact.newCampaign({
+                ...campaignConfig, 
+                gamemasterFee: val1, 
+                collateral: val1
+            });
+
+            await arcanePact.invitePlayers(1, [account[1].address]);
+            await arcanePact.connect(account[1]).signCampaign(1, {value: val2});
+
+            await arcanePact.connect(account[0]).addVote(1, VoteType.StartCampaign);
+
+            await expect(arcanePact.addVote(1, VoteType.StartCampaign))
+                .to.be.revertedWithCustomError(arcanePact, "HasAlreadyVoted")
+                .withArgs(1, account[0].address, VoteType.StartCampaign);
+        })
+    });
+});
+
+describe('Campaign Participant Collateral Withdrawal', () => {
+    it('Should reject withdrawal when the campaign does not exist', async () => {
+        const { arcanePact, account } = await contractFixture();
+
+        await arcanePact.newCampaign(campaignConfig);
+
+        await expect(arcanePact.connect(account[1]).withdrawCollateral(2))
+            .to.be.revertedWithCustomError(arcanePact, "CampaignDoesNotExist")
+            .withArgs(2);
+    });
+
+    it('Should reject withdrawal when the campaign is not completed', async () => {
+        const { arcanePact, account } = await contractFixture();
+        const val1 = ethers.parseEther("1");
+
+        await arcanePact.newCampaign({
+            ...campaignConfig,
+            collateral: val1
+        });
+
+        await arcanePact.invitePlayers(1, [account[1].address]);
+        await arcanePact.connect(account[1]).signCampaign(1, { value: val1 });
+
+        await expect(arcanePact.connect(account[1]).withdrawCollateral(1))
+            .to.be.revertedWithCustomError(arcanePact, "CampaignNotCompleted")
+            .withArgs(1);
+    });
+
+    it('Should reject withdrawal when player has not signed', async () => {
+        const { arcanePact, account } = await contractFixture();
+        const val1 = ethers.parseEther("1");
+        const val2 = ethers.parseEther("2");
+
+        await arcanePact.newCampaign({
+            ...campaignConfig, 
+            gamemasterFee: val1, 
+            collateral: val1
+        });
+
+        await arcanePact.invitePlayers(1, [account[1].address]);
+        await arcanePact.invitePlayers(1, [account[2].address]);
+
+        await arcanePact.connect(account[1]).signCampaign(1, {value: val2});
+
+        await arcanePact.connect(account[0]).addVote(1, VoteType.StopCampaign);
+        await arcanePact.connect(account[1]).addVote(1, VoteType.StopCampaign);
+
+        await expect(arcanePact.connect(account[2]).withdrawCollateral(1))
+            .to.be.revertedWithCustomError(arcanePact, "PlayerHasNotSigned")
+            .withArgs(1, account[2].address);
+    });
+
+    it('Should reject withdrawal when player has no locked collateral', async () => {
+        const { arcanePact, account } = await contractFixture();
+        const val1 = ethers.parseEther("1");
+        const val2 = ethers.parseEther("2");
+
+        await arcanePact.newCampaign({
+            ...campaignConfig, 
+            gamemasterFee: val1, 
+            collateral: val1
+        });
+
+        await arcanePact.invitePlayers(1, [account[1].address]);
+        await arcanePact.invitePlayers(1, [account[2].address]);
+
+        await arcanePact.connect(account[1]).signCampaign(1, {value: val2});
+
+        await arcanePact.connect(account[0]).addVote(1, VoteType.StopCampaign);
+        await arcanePact.connect(account[1]).addVote(1, VoteType.StopCampaign);
+        await arcanePact.connect(account[1]).withdrawCollateral(1);
+
+        await expect(arcanePact.connect(account[1]).withdrawCollateral(1))
+            .to.be.revertedWithCustomError(arcanePact, "HasNoLockedCollateral")
+            .withArgs(1, account[1].address);
+    });
+
+    it('Should accept collateral withdrawal when player is signed and campaign is completed, should emit correct events', async () => {
+        const { arcanePact, account } = await contractFixture();
+        const val1 = ethers.parseEther("1");
+        const val2 = ethers.parseEther("2");
+
+        await arcanePact.newCampaign({
+            ...campaignConfig, 
+            gamemasterFee: val1, 
+            collateral: val1
+        });
+
+        await arcanePact.invitePlayers(1, [account[1].address]);
+        await arcanePact.connect(account[1]).signCampaign(1, {value: val2});
+
+        await arcanePact.connect(account[0]).addVote(1, VoteType.StopCampaign);
+        await arcanePact.connect(account[1]).addVote(1, VoteType.StopCampaign);
+
+        await expect(arcanePact.connect(account[1]).withdrawCollateral(1))
+            .to.emit(arcanePact, "LockedCollateralWithdrawn").withArgs(
+                1,
+                val1,
+                0
+            );
+    });
+
+    it('Should accept gamemaster fee withdrawal when campaign is completed, should emit correct events', async () => {
+        const { arcanePact, account } = await contractFixture();
+        const val1 = ethers.parseEther("1");
+        const val2 = ethers.parseEther("2");
+
+        await arcanePact.newCampaign({
+            ...campaignConfig, 
+            gamemasterFee: val1, 
+            collateral: val1
+        });
+
+        await arcanePact.invitePlayers(1, [account[1].address]);
+        await arcanePact.invitePlayers(1, [account[2].address]);
+        await arcanePact.connect(account[1]).signCampaign(1, {value: val2});
+        await arcanePact.connect(account[2]).signCampaign(1, {value: val2});
+
+        await arcanePact.connect(account[0]).addVote(1, VoteType.StopCampaign);
+        await arcanePact.connect(account[1]).addVote(1, VoteType.StopCampaign);
+
+        await expect(arcanePact.connect(account[0]).withdrawFees(1))
+            .to.emit(arcanePact, "LockedFeesWithdrawn").withArgs(
+                1,
+                val2,
+                0
+            );
+    });
+});
+
+describe('Campaign Participant Reviewing', () => {
+    it('Should reject with custom error if the caller is not Signed or owner', async () => {
+        const { arcanePact, account } = await contractFixture();
+
+        await arcanePact.newCampaign(campaignConfig);
+        await arcanePact.invitePlayers(1, [account[1].address]);
+        await arcanePact.connect(account[0]).addVote(1, VoteType.StopCampaign);
+
+        await expect(arcanePact.connect(account[1]).addReview(
+            1,
+            account[2].address,
+            {
+                score: ReviewScore.Positive,
+                comment: 'Blabla'
+            }
+        ))
+        .to.be.revertedWithCustomError(arcanePact, "PlayerHasNotSigned")
+            .withArgs(1, account[1].address);
+    });
+
+    it('Should reject reviewing when the campaign does not exist', async () => {
+        const { arcanePact, account } = await contractFixture();
+
+        await expect(arcanePact.connect(account[1]).addReview(
+            1,
+            account[2].address,
+            {
+                score: ReviewScore.Positive,
+                comment: 'Blabla'
+            }
+        ))
+            .to.be.revertedWithCustomError(arcanePact, "CampaignDoesNotExist")
+            .withArgs(1);
+    });
+
+    it('Should reject reviewing when the campaign is not completed', async () => {
+        const { arcanePact, account } = await contractFixture();
+
+        await arcanePact.newCampaign(campaignConfig);
+
+        await expect(arcanePact.addReview(
+            1,
+            account[2].address,
+            {
+                score: ReviewScore.Positive,
+                comment: 'Blabla'
+            }
+        ))
+            .to.be.revertedWithCustomError(arcanePact, "CampaignNotCompleted")
+            .withArgs(1);
+    });
+
+    it('Should add review when recipient and sender are either signed or owner and campaign is completed, should emit correct events', async () => {
+        const { arcanePact, account } = await contractFixture();
+        const val1 = ethers.parseEther("1");
+        const val2 = ethers.parseEther("2");
+        const review = {
+                score: ReviewScore.Positive,
+                comment: 'Very good game'
+        };
+
+        await arcanePact.newCampaign({
+            ...campaignConfig, 
+            gamemasterFee: val1, 
+            collateral: val1
+        });
+        await arcanePact.invitePlayers(1, [account[1].address]);
+        await arcanePact.connect(account[1]).signCampaign(1, {value: val2});
+
+        await arcanePact.connect(account[0]).addVote(1, VoteType.StopCampaign);
+        await arcanePact.connect(account[1]).addVote(1, VoteType.StopCampaign);
+
+        await expect(arcanePact.connect(account[1]).addReview(
+            1, account[0].address, review
+        )).to.emit(arcanePact, "ReviewAdded").withArgs(
+            (campaignId: any) => {
+                expect(campaignId).to.equal(1);
+                return true;
+            },
+            (recipient: any) => {
+                expect(recipient).to.equal(account[0].address);
+                return true;
+            },
+            (sender: any) => {
+                expect(sender).to.equal(account[1].address);
+                return true;
+            },
+            (emittedReview: any) => {
+                expect(emittedReview.score).to.equal(ReviewScore.Positive);
+                expect(emittedReview.comment).to.equal('Very good game');
+                return true;
+            }
+        );
+    })
+
+
+    it('Should reject voting when already voted', async () => {
+        const { arcanePact, account } = await contractFixture();
+        const val1 = ethers.parseEther("1");
+        const val2 = ethers.parseEther("2");
+        const review = {
+                score: ReviewScore.Positive,
+                comment: 'Very good game'
+        };
+
+        await arcanePact.newCampaign({
+            ...campaignConfig, 
+            gamemasterFee: val1, 
+            collateral: val1
+        });
+        await arcanePact.invitePlayers(1, [account[1].address]);
+        await arcanePact.connect(account[1]).signCampaign(1, {value: val2});
+
+        await arcanePact.connect(account[0]).addVote(1, VoteType.StopCampaign);
+        await arcanePact.connect(account[1]).addVote(1, VoteType.StopCampaign);
+        await arcanePact.connect(account[1]).addReview(
+            1, account[0].address, review
+        );
+
+        await expect(arcanePact.connect(account[1]).addReview(
+            1, account[0].address, review
+        ))
+            .to.be.revertedWithCustomError(arcanePact, "AlreadyReviewed")
+            .withArgs(1, account[0].address, account[1].address);
+    })
 });
