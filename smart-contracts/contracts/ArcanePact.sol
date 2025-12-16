@@ -68,30 +68,15 @@ contract ArcanePact {
         uint256 participantCount,
         NewCampaignConfig config
     );
-    event ApplicationAdded(
+
+    event UpdatedCampaignPlayer(
         uint256 indexed campaignId,
         address indexed player,
         PlayerState indexed playerState
     );
-    event ApplicationAproved(
+
+    event CampaignParticipantCountChanged(
         uint256 indexed campaignId,
-        address indexed player,
-        PlayerState indexed playerState
-    );
-    event ApplicationRejected(
-        uint256 indexed campaignId,
-        address indexed player,
-        PlayerState indexed playerState
-    );
-    event InvitationAdded(
-        uint256 indexed campaignId,
-        address player,
-        PlayerState indexed playerState
-    );
-    event PlayerSigned(
-        uint256 indexed campaignId,
-        address indexed player,
-        PlayerState indexed playerState,
         uint256 participantCount
     );
 
@@ -112,12 +97,8 @@ contract ArcanePact {
         address player
     );
 
-    event CampaignStarted(
-        uint256 indexed campaignId,
-        CampaignState campaignState
-    );
-
-    event CampaignStopped(
+    // not added to subgraph.yaml yet
+    event UpdatedCampaignState(
         uint256 indexed campaignId,
         CampaignState campaignState
     );
@@ -210,7 +191,7 @@ contract ArcanePact {
             checkPlayerAlreadyInCampaign(player.state, campaignId, adr);
 
             player.state = PlayerState.AwaitingSignature;
-            emit InvitationAdded(campaignId, adr, player.state);
+            emit UpdatedCampaignPlayer(campaignId, adr, player.state);
         }
     }
 
@@ -226,7 +207,7 @@ contract ArcanePact {
         checkPlayerAlreadyInCampaign(player.state, campaignId, applicant);
         
         player.state = PlayerState.Applied;
-        emit ApplicationAdded(campaignId, applicant, player.state);
+        emit UpdatedCampaignPlayer(campaignId, applicant, player.state);
     }
 
     function reviewApplications(uint256 campaignId, ApplicationReview[] calldata reviews) external {
@@ -247,11 +228,11 @@ contract ArcanePact {
             if(decision == ApplicationDecision.Approved){
                 checkApplicantAlreadyApproved(player.state, campaignId, applicant);
                 player.state = PlayerState.AwaitingSignature;
-                emit ApplicationAproved(campaignId, applicant, player.state);
+                emit UpdatedCampaignPlayer(campaignId, applicant, player.state);
             } else {
                 checkApplicantAlreadyRejected(player.state, campaignId, applicant);
                 player.state = PlayerState.Rejected;
-                emit ApplicationRejected(campaignId, applicant, player.state);
+                emit UpdatedCampaignPlayer(campaignId, applicant, player.state);
             }
         }
     }
@@ -275,7 +256,8 @@ contract ArcanePact {
 
         campaign.participantCount += 1;
 
-        emit PlayerSigned(campaignId, msg.sender, player.state, campaign.participantCount);
+        emit UpdatedCampaignPlayer(campaignId, msg.sender, player.state);
+        emit CampaignParticipantCountChanged(campaignId, campaign.participantCount);
         emit PlayerLockedCollateral(campaignId, msg.sender, collateral);
         emit UpdatedLockedFees(campaignId, campaign.lockedFees);
     }
@@ -304,12 +286,12 @@ contract ArcanePact {
         if(campaignVoteCount[campaignId][voteType] > (campaign.participantCount / 2)){
             if(voteType == VoteType.StartCampaign){
                 campaign.state = CampaignState.Running;
-                emit CampaignStarted(campaignId, campaign.state);
+                emit UpdatedCampaignState(campaignId, campaign.state);
             }
 
             if(voteType == VoteType.StopCampaign){
                 campaign.state = CampaignState.Completed;
-                emit CampaignStopped(campaignId, campaign.state);
+                emit UpdatedCampaignState(campaignId, campaign.state);
             }
         }
     }

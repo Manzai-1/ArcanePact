@@ -106,7 +106,7 @@ describe('Campaign lifecycle', () => {
         await arcanePact.connect(account[1]).addVote(1, VoteType.StartCampaign);
 
         await expect(arcanePact.addVote(1, VoteType.StartCampaign))
-            .to.emit(arcanePact, "CampaignStarted").withArgs(
+            .to.emit(arcanePact, "UpdatedCampaignState").withArgs(
                 1, 
                 CampaignState.Running
             );
@@ -132,7 +132,7 @@ describe('Campaign lifecycle', () => {
         await arcanePact.connect(account[1]).addVote(1, VoteType.StopCampaign);
 
         await expect(arcanePact.addVote(1, VoteType.StopCampaign))
-            .to.emit(arcanePact, "CampaignStopped").withArgs(
+            .to.emit(arcanePact, "UpdatedCampaignState").withArgs(
                 1, 
                 CampaignState.Completed
             );
@@ -149,7 +149,7 @@ describe('Campaign participation', () => {
 
             await arcanePact.newCampaign(campaignConfig);
             await expect(arcanePact.invitePlayers(1, players))
-                .to.emit(arcanePact, "InvitationAdded")
+                .to.emit(arcanePact, "UpdatedCampaignPlayer")
                 .withArgs(1, account[1].address, PlayerState.AwaitingSignature)
         });
 
@@ -162,8 +162,8 @@ describe('Campaign participation', () => {
 
             await arcanePact.newCampaign(campaignConfig);
             await expect(arcanePact.invitePlayers(1, players))
-                .to.emit(arcanePact, "InvitationAdded").withArgs(1, account[1].address, PlayerState.AwaitingSignature)
-                .and.to.emit(arcanePact, "InvitationAdded").withArgs(1, account[1].address, PlayerState.AwaitingSignature);
+                .to.emit(arcanePact, "UpdatedCampaignPlayer").withArgs(1, account[1].address, PlayerState.AwaitingSignature)
+                .and.to.emit(arcanePact, "UpdatedCampaignPlayer").withArgs(1, account[1].address, PlayerState.AwaitingSignature);
         });
 
         it('should throw a NotOwner error if caller is not owner of the contract', async () => {
@@ -218,7 +218,7 @@ describe('Campaign participation', () => {
 
                 await arcanePact.newCampaign(campaignConfig);
                 await expect(arcanePact.connect(account[1]).campaignApplication(1))
-                    .to.emit(arcanePact, "ApplicationAdded").withArgs(1, account[1].address, PlayerState.Applied);
+                    .to.emit(arcanePact, "UpdatedCampaignPlayer").withArgs(1, account[1].address, PlayerState.Applied);
             })
 
             it('should throw CampaignDoesNotExist error if campaign does not exist', async () => {
@@ -268,7 +268,7 @@ describe('Campaign participation', () => {
                 await arcanePact.connect(account[1]).campaignApplication(1);
 
                 await expect(arcanePact.connect(account[0]).reviewApplications(1, reviews))
-                    .to.emit(arcanePact, "ApplicationAproved").withArgs(
+                    .to.emit(arcanePact, "UpdatedCampaignPlayer").withArgs(
                         1, 
                         account[1].address, 
                         PlayerState.AwaitingSignature
@@ -288,7 +288,7 @@ describe('Campaign participation', () => {
                 await arcanePact.connect(account[1]).campaignApplication(1);
 
                 await expect(arcanePact.connect(account[0]).reviewApplications(1, reviews))
-                    .to.emit(arcanePact, "ApplicationRejected").withArgs(
+                    .to.emit(arcanePact, "UpdatedCampaignPlayer").withArgs(
                         1, 
                         account[1].address, 
                         PlayerState.Rejected
@@ -323,19 +323,19 @@ describe('Campaign participation', () => {
                 await arcanePact.connect(account[4]).campaignApplication(1);
 
                 await expect(arcanePact.connect(account[0]).reviewApplications(1, reviews))
-                    .to.emit(arcanePact, "ApplicationRejected").withArgs(
+                    .to.emit(arcanePact, "UpdatedCampaignPlayer").withArgs(
                         1, 
                         account[1].address,
                         PlayerState.Rejected
-                    ).and.to.emit(arcanePact, "ApplicationAproved").withArgs(
+                    ).and.to.emit(arcanePact, "UpdatedCampaignPlayer").withArgs(
                         1, 
                         account[2].address,
                         PlayerState.AwaitingSignature
-                    ).and.to.emit(arcanePact, "ApplicationRejected").withArgs(
+                    ).and.to.emit(arcanePact, "UpdatedCampaignPlayer").withArgs(
                         1, 
                         account[3].address,
                         PlayerState.Rejected
-                    ).and.to.emit(arcanePact, "ApplicationAproved").withArgs(
+                    ).and.to.emit(arcanePact, "UpdatedCampaignPlayer").withArgs(
                         1, 
                         account[4].address,
                         PlayerState.AwaitingSignature
@@ -359,11 +359,11 @@ describe('Campaign participation', () => {
                 await arcanePact.connect(account[1]).campaignApplication(1);
 
                 await expect(arcanePact.connect(account[0]).reviewApplications(1, reviews))
-                    .to.emit(arcanePact, "ApplicationRejected").withArgs(
+                    .to.emit(arcanePact, "UpdatedCampaignPlayer").withArgs(
                         1, 
                         account[1].address,
                         PlayerState.Rejected
-                    ).and.to.emit(arcanePact, "ApplicationAproved").withArgs(
+                    ).and.to.emit(arcanePact, "UpdatedCampaignPlayer").withArgs(
                         1, 
                         account[1].address,
                         PlayerState.AwaitingSignature
@@ -544,10 +544,12 @@ describe('Campaign participation', () => {
             await arcanePact.invitePlayers(1, [account[1].address]);
 
             await expect(arcanePact.connect(account[1]).signCampaign(1, {value: val2}))
-                .to.emit(arcanePact, "PlayerSigned").withArgs(
+                .to.emit(arcanePact, "UpdatedCampaignPlayer").withArgs(
                     1, 
                     account[1].address,
                     PlayerState.Signed,
+                ).and.to.emit(arcanePact, "CampaignParticipantCountChanged").withArgs(
+                    1, 
                     2
                 ).and.to.emit(arcanePact, "PlayerLockedCollateral").withArgs(
                     1, 

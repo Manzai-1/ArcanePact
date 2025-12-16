@@ -23,14 +23,8 @@ dataSources:
         - name: ArcanePact
           file: ./abis/ArcanePact.json
       eventHandlers:
-        - event: ApplicationAdded(indexed uint256,indexed address,indexed uint8)
-          handler: handleApplicationAdded
-        - event: ApplicationAproved(indexed uint256,indexed address,indexed uint8)
-          handler: handleApplicationAproved
-        - event: ApplicationRejected(indexed uint256,indexed address,indexed uint8)
-          handler: handleApplicationRejected
-        - event: CampaignCreated(indexed uint256,indexed address,indexed uint8,(string,string,bool,uint256,uint256))
+        - event: CampaignCreated(indexed uint256,indexed address,indexed uint8,uint256,(string,string,bool,uint256,uint256))
           handler: handleCampaignCreated
-        - event: InvitationAdded(indexed uint256,address,indexed uint8)
-          handler: handleInvitationAdded
+        - event: UpdatedCampaignPlayer(indexed uint256,indexed address,indexed uint8)
+          handler: handleCampaignPlayerUpdated
       file: ./src/arcane-pact.ts

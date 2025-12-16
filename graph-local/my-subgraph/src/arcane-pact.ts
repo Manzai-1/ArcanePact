@@ -2,10 +2,7 @@
 import { Address, BigInt } from "@graphprotocol/graph-ts";
 import {
   CampaignCreated,
-  InvitationAdded,
-  ApplicationAdded,
-  ApplicationAproved,
-  ApplicationRejected,
+  UpdatedCampaignPlayer,
 } from "../generated/ArcanePact/ArcanePact";
 
 import { Campaign, Player, CampaignPlayer } from "../generated/schema";
@@ -57,7 +54,7 @@ export function handleCampaignCreated(event: CampaignCreated): void {
   campaign.save();
 }
 
-export function handleInvitationAdded(event: InvitationAdded): void {
+export function handleCampaignPlayerUpdated(event: UpdatedCampaignPlayer): void {
   const campaign = event.params.campaignId.toString();
   const playerAddress = event.params.player.toHexString().toLowerCase();
   const playerState = event.params.playerState;
@@ -66,29 +63,3 @@ export function handleInvitationAdded(event: InvitationAdded): void {
   setCampaignPlayerState(campaign, playerAddress, playerState);
 }
 
-export function handleApplicationAdded(event: ApplicationAdded): void {
-  const campaign = event.params.campaignId.toString();
-  const playerAddress = event.params.player.toHexString().toLowerCase();
-  const playerState = event.params.playerState;
-
-  ensurePlayer(playerAddress);
-  setCampaignPlayerState(campaign, playerAddress, playerState);
-}
-
-export function handleApplicationRejected(event: ApplicationRejected): void {
-  const campaign = event.params.campaignId.toString();
-  const playerAddress = event.params.player.toHexString().toLowerCase();
-  const playerState = event.params.playerState;
-
-  ensurePlayer(playerAddress);
-  setCampaignPlayerState(campaign, playerAddress, playerState);
-}
-
-export function handleApplicationAproved(event: ApplicationAproved): void {
-  const campaign = event.params.campaignId.toString();
-  const playerAddress = event.params.player.toHexString().toLowerCase();
-  const playerState = event.params.playerState;
-
-  ensurePlayer(playerAddress);
-  setCampaignPlayerState(campaign, playerAddress, playerState);
-}

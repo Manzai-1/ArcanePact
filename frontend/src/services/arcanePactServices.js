@@ -45,6 +45,6 @@ export const sendApplication = async (campaignId) => {
 
 export const reviewApplication = async (campaignId, applicationReview) => {
     const contract = await getWriter();
-    const tx = await contract.ReviewApplications(campaignId, applicationReview);
+    const tx = await contract.reviewApplications(campaignId, applicationReview);
     return tx; 
 }
