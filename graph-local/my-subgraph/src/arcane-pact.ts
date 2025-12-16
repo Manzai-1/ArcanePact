@@ -3,35 +3,17 @@ import { Address, BigInt } from "@graphprotocol/graph-ts";
 import {
   CampaignCreated,
   UpdatedCampaignPlayer,
+  CampaignParticipantCountChanged,
+  LockedCollateralWithdrawn,
+  LockedFeesWithdrawn,
+  NewVoteAdded,
+  PlayerLockedCollateral,
+  ReviewAdded,
+  UpdatedCampaignState,
+  UpdatedLockedFees
 } from "../generated/ArcanePact/ArcanePact";
 
 import { Campaign, Player, CampaignPlayer } from "../generated/schema";
-
-function ensurePlayer(id: string): void {
-  let player = Player.load(id);
-  if (player == null) {
-    player = new Player(id);
-    player.save();
-  }
-}
-
-function setCampaignPlayerState(
-  campaign: string,
-  player: string,
-  state: i32,
-): void {
-  const id = campaign+'-'+player;
-
-  let cp = CampaignPlayer.load(id);
-  if (cp == null) {
-    cp = new CampaignPlayer(id);
-    cp.campaign = campaign;
-    cp.player = player;
-  }
-
-  cp.state = state;
-  cp.save();
-}
 
 export function handleCampaignCreated(event: CampaignCreated): void {
   const id = event.params.campaignId.toString();
@@ -43,6 +25,7 @@ export function handleCampaignCreated(event: CampaignCreated): void {
 
   campaign.owner = event.params.owner;
   campaign.state = event.params.campaignState;
+  campaign.participantCount = event.params.participantCount;
 
   const config = event.params.config;
   campaign.title = config.title;
@@ -59,7 +42,85 @@ export function handleCampaignPlayerUpdated(event: UpdatedCampaignPlayer): void 
   const playerAddress = event.params.player.toHexString().toLowerCase();
   const playerState = event.params.playerState;
 
-  ensurePlayer(playerAddress);
-  setCampaignPlayerState(campaign, playerAddress, playerState);
+  let player = Player.load(playerAddress);
+  if (player == null) {
+    player = new Player(playerAddress);
+    player.save();
+  }
+
+  const id = campaign+'-'+playerAddress;
+
+  let campaignPlayer = CampaignPlayer.load(id);
+  if (campaignPlayer == null) {
+    campaignPlayer = new CampaignPlayer(id);
+    campaignPlayer.campaign = campaign;
+    campaignPlayer.player = playerAddress;
+  }
+
+  campaignPlayer.state = playerState;
+  campaignPlayer.save();
 }
 
+export function handleUpdateParticipantCount(event: CampaignParticipantCountChanged): void {
+  const id = event.params.campaignId.toString();
+
+  let campaign = Campaign.load(id);
+  if (campaign == null) {
+    return;
+  }
+
+  campaign.participantCount = event.params.participantCount;
+  campaign.save();
+}
+
+export function handleUpdatedLockedFees(event: UpdatedLockedFees): void {
+  const id = event.params.campaignId.toString();
+
+  let campaign = Campaign.load(id);
+  if (campaign == null) {
+    return;
+  }
+
+  campaign.lockedFees = event.params.totalLockedFees;
+  campaign.save();
+}
+
+export function handlePlayerLockedCollateral(event: PlayerLockedCollateral): void {
+  const campaign = event.params.campaignId.toString();
+  const playerAddress = event.params.player.toHexString().toLowerCase();
+
+  let player = Player.load(playerAddress);
+  if (player == null) {
+    return;
+  }
+
+  const id = campaign+'-'+playerAddress;
+
+  let campaignPlayer = CampaignPlayer.load(id);
+  if (campaignPlayer == null) {
+    return;
+  }
+
+  campaignPlayer.lockedCollateral = event.params.collateral;
+  campaignPlayer.save();
+}
+
+export function handleNewVoteAdded(event: NewVoteAdded): void {
+  
+}
+
+export function handleUpdatedCampaignState(event: UpdatedCampaignState): void {
+
+}
+
+export function handleLockedCollateralWithdrawn(event: LockedCollateralWithdrawn): void {
+
+}
+
+export function handleLockedFeesWithdrawn(event: LockedFeesWithdrawn): void {
+
+}
+
+export function handleReviewAdded(event: ReviewAdded): void {
+
+}

@@ -27,4 +27,20 @@ dataSources:
           handler: handleCampaignCreated
         - event: UpdatedCampaignPlayer(indexed uint256,indexed address,indexed uint8)
           handler: handleCampaignPlayerUpdated
+        - event: CampaignParticipantCountChanged(indexed uint256,uint256)
+          handler: handleUpdateParticipantCount
+        - event: LockedCollateralWithdrawn(indexed uint256,uint256,uint256)
+          handler: handleLockedCollateralWithdrawn
+        - event: LockedFeesWithdrawn(indexed uint256,uint256,uint256)
+          handler: handleLockedFeesWithdrawn
+        - event: NewVoteAdded(indexed uint256,uint8,address)
+          handler: handleNewVoteAdded
+        - event: PlayerLockedCollateral(indexed uint256,indexed address,uint256)
+          handler: handlePlayerLockedCollateral
+        - event: ReviewAdded(indexed uint256,indexed address,indexed address,(uint8,string))
+          handler: handleReviewAdded
+        - event: UpdatedCampaignState(indexed uint256,uint8)
+          handler: handleUpdatedCampaignState
+        - event: UpdatedLockedFees(indexed uint256,uint256)
+          handler: handleUpdatedLockedFees
       file: ./src/arcane-pact.ts

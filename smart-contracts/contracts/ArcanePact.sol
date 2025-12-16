@@ -68,7 +68,7 @@ contract ArcanePact {
         uint256 participantCount,
         NewCampaignConfig config
     );
-
+    
     event UpdatedCampaignPlayer(
         uint256 indexed campaignId,
         address indexed player,
