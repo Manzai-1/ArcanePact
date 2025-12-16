@@ -18,11 +18,15 @@ contract ArcanePact {
         Rejected,
         AwaitingSignature,
         Signed,
-        InSession
+        Completed
     }
     enum ApplicationDecision {
         Approved,
         Rejected
+    }
+    enum VoteType {
+        StartCampaign,
+        StopCampaign
     }
 
     struct ApplicationReview {
@@ -40,6 +44,7 @@ contract ArcanePact {
         uint256 collateral;
         uint256 gamemasterFee;
         uint256 lockedFees;
+        uint256 participantCount;
     }
     struct NewCampaignConfig {
         string title;
@@ -48,14 +53,12 @@ contract ArcanePact {
         uint256 gamemasterFee;
         uint256 collateral;
     }
-    
-    mapping(uint256 => Campaign) internal campaigns;
-    mapping(uint256 => mapping(address => Player)) internal campaignPlayers;
 
     event CampaignCreated(
         uint256 indexed campaignId, 
         address indexed owner, 
         CampaignState indexed campaignState, 
+        uint256 participantCount,
         NewCampaignConfig config
     );
     event ApplicationAdded(
@@ -81,7 +84,8 @@ contract ArcanePact {
     event PlayerSigned(
         uint256 indexed campaignId,
         address indexed player,
-        PlayerState indexed playerState
+        PlayerState indexed playerState,
+        uint256 participantCount
     );
 
     event PlayerLockedCollateral(
@@ -95,6 +99,22 @@ contract ArcanePact {
         uint256 totalLockedFees
     );
 
+    event NewVoteAdded(
+        uint256 indexed campaignId,
+        VoteType voteType,
+        address player
+    );
+
+    event CampaignStarted(
+        uint256 indexed campaignId,
+        CampaignState campaignState
+    );
+
+    event CampaignStopped(
+        uint256 indexed campaignId,
+        CampaignState campaignState
+    );
+
     error FunctionNotFound();
     error PaymentDataMissing();
     error NotOwner(address caller);
@@ -106,7 +126,14 @@ contract ArcanePact {
     error ApplicantAlreadyRejected(uint256 campaignId, address applicant);
     error ApplicantAlreadyApproved(uint256 campaignId, address applicant);
     error PlayerNotAwaitingSignature(uint256 campaignId, address player);
+    error PlayerHasNotSigned(uint256 campaignId, address player);
     error IncorrectTransactionValue(uint256 gamemasterFee, uint256 collateral, uint256 received);
+    error HasAlreadyVoted(uint256 campaignId, address player, VoteType voteType);
+
+    mapping(uint256 => Campaign) internal campaigns;
+    mapping(uint256 => mapping(address => Player)) internal campaignPlayers;
+    mapping(uint256 => mapping(VoteType => uint256)) internal campaignVoteCount; 
+    mapping(uint256 => mapping(VoteType => mapping(address => bool))) internal campaignHasVoted;
 
     constructor () {
         nextId = 1;
@@ -130,8 +157,9 @@ contract ArcanePact {
         campaign.collateral = config.collateral;
         campaign.gamemasterFee = config.gamemasterFee;
         campaign.lockedFees = 0;
+        campaign.participantCount = 1;
 
-        emit CampaignCreated(campaignId, msg.sender, campaign.state, config);
+        emit CampaignCreated(campaignId, msg.sender, campaign.state, campaign.participantCount,config);
     }
 
     function invitePlayers (uint256 campaignId, address[] calldata addresses) external {
@@ -211,11 +239,46 @@ contract ArcanePact {
         player.lockedCollateral += campaign.collateral;
         player.state = PlayerState.Signed;
 
-        emit PlayerSigned(campaignId, msg.sender, player.state);
+        campaign.participantCount += 1;
+
+        emit PlayerSigned(campaignId, msg.sender, player.state, campaign.participantCount);
         emit PlayerLockedCollateral(campaignId, msg.sender, collateral);
         emit UpdatedLockedFees(campaignId, campaign.lockedFees);
     }
 
+    //can be optimized with bit shifting / bitmasks
+    function AddVote(uint256 campaignId, VoteType voteType) external {
+        Campaign storage campaign = campaigns[campaignId];
+
+        checkCampaignExists(campaign.owner, campaignId);
+        checkIfCampaignLocked(campaign.state, campaignId);
+
+        if(campaign.owner != msg.sender){
+            Player storage player = campaignPlayers[campaignId][msg.sender];
+            checkPlayerSigned(player.state, campaignId, msg.sender);
+        }
+
+        if(campaignHasVoted[campaignId][voteType][msg.sender]){
+            revert HasAlreadyVoted(campaignId, msg.sender, voteType);
+        }
+
+        campaignVoteCount[campaignId][voteType] += 1;
+        campaignHasVoted[campaignId][voteType][msg.sender] = true;
+
+        emit NewVoteAdded(campaignId, voteType, msg.sender);
+
+        if(campaignVoteCount[campaignId][voteType] > (campaign.participantCount / 2)){
+            if(voteType == VoteType.StartCampaign){
+                campaign.state = CampaignState.Running;
+                emit CampaignStarted(campaignId, campaign.state);
+            }
+
+            if(voteType == VoteType.StopCampaign){
+                campaign.state = CampaignState.Completed;
+                emit CampaignStopped(campaignId, campaign.state);
+            }
+        }
+    }
 
 
     function checkIsOwner(address owner, address sender) internal pure {
@@ -250,11 +313,19 @@ contract ArcanePact {
         if(state != PlayerState.AwaitingSignature) revert PlayerNotAwaitingSignature(campaignId, player);
     }
 
+    function checkPlayerSigned(PlayerState state, uint256 campaignId, address player) internal pure {
+        if(state != PlayerState.Signed) revert PlayerHasNotSigned(campaignId, player);
+    }
+
     function checkIfCampaignLocked(CampaignState state, uint256 campaignId) internal pure {
         if(state != CampaignState.Initialized) revert CampaignLocked(campaignId);
     }
 
     function checkTransactionValue(uint256 fee, uint256 collateral, uint256 received) internal pure {
         if(received != (fee + collateral)) revert IncorrectTransactionValue(fee, collateral, received);
+    }
+
+    function checkAlreadyVoted(bool hasVoted, uint256 campaignId, address player, VoteType voteType) internal pure {
+        if(hasVoted) revert HasAlreadyVoted(campaignId, player, voteType);
     }
 }
