@@ -95,12 +95,12 @@ describe('Campaign lifecycle', () => {
         await arcanePact.invitePlayers(1, [account[1].address]);
         await arcanePact.invitePlayers(1, [account[2].address]);
 
-        await arcanePact.connect(account[1]).SignCampaign(1, {value: val2});
-        await arcanePact.connect(account[2]).SignCampaign(1, {value: val2});
+        await arcanePact.connect(account[1]).signCampaign(1, {value: val2});
+        await arcanePact.connect(account[2]).signCampaign(1, {value: val2});
 
-        await arcanePact.connect(account[1]).AddVote(1, VoteType.StartCampaign);
+        await arcanePact.connect(account[1]).addVote(1, VoteType.StartCampaign);
 
-        await expect(arcanePact.AddVote(1, VoteType.StartCampaign))
+        await expect(arcanePact.addVote(1, VoteType.StartCampaign))
             .to.emit(arcanePact, "CampaignStarted").withArgs(
                 1, 
                 CampaignState.Running
@@ -121,12 +121,12 @@ describe('Campaign lifecycle', () => {
         await arcanePact.invitePlayers(1, [account[1].address]);
         await arcanePact.invitePlayers(1, [account[2].address]);
 
-        await arcanePact.connect(account[1]).SignCampaign(1, {value: val2});
-        await arcanePact.connect(account[2]).SignCampaign(1, {value: val2});
+        await arcanePact.connect(account[1]).signCampaign(1, {value: val2});
+        await arcanePact.connect(account[2]).signCampaign(1, {value: val2});
 
-        await arcanePact.connect(account[1]).AddVote(1, VoteType.StopCampaign);
+        await arcanePact.connect(account[1]).addVote(1, VoteType.StopCampaign);
 
-        await expect(arcanePact.AddVote(1, VoteType.StopCampaign))
+        await expect(arcanePact.addVote(1, VoteType.StopCampaign))
             .to.emit(arcanePact, "CampaignStopped").withArgs(
                 1, 
                 CampaignState.Completed
@@ -262,7 +262,7 @@ describe('Campaign participation', () => {
                 await arcanePact.newCampaign(campaignConfig);
                 await arcanePact.connect(account[1]).campaignApplication(1);
 
-                await expect(arcanePact.connect(account[0]).ReviewApplications(1, reviews))
+                await expect(arcanePact.connect(account[0]).reviewApplications(1, reviews))
                     .to.emit(arcanePact, "ApplicationAproved").withArgs(
                         1, 
                         account[1].address, 
@@ -282,7 +282,7 @@ describe('Campaign participation', () => {
                 await arcanePact.newCampaign(campaignConfig);
                 await arcanePact.connect(account[1]).campaignApplication(1);
 
-                await expect(arcanePact.connect(account[0]).ReviewApplications(1, reviews))
+                await expect(arcanePact.connect(account[0]).reviewApplications(1, reviews))
                     .to.emit(arcanePact, "ApplicationRejected").withArgs(
                         1, 
                         account[1].address, 
@@ -317,7 +317,7 @@ describe('Campaign participation', () => {
                 await arcanePact.connect(account[3]).campaignApplication(1);
                 await arcanePact.connect(account[4]).campaignApplication(1);
 
-                await expect(arcanePact.connect(account[0]).ReviewApplications(1, reviews))
+                await expect(arcanePact.connect(account[0]).reviewApplications(1, reviews))
                     .to.emit(arcanePact, "ApplicationRejected").withArgs(
                         1, 
                         account[1].address,
@@ -353,7 +353,7 @@ describe('Campaign participation', () => {
                 await arcanePact.newCampaign(campaignConfig);
                 await arcanePact.connect(account[1]).campaignApplication(1);
 
-                await expect(arcanePact.connect(account[0]).ReviewApplications(1, reviews))
+                await expect(arcanePact.connect(account[0]).reviewApplications(1, reviews))
                     .to.emit(arcanePact, "ApplicationRejected").withArgs(
                         1, 
                         account[1].address,
@@ -374,7 +374,7 @@ describe('Campaign participation', () => {
                     }
                 ];
 
-                await expect(arcanePact.ReviewApplications(1, reviews))
+                await expect(arcanePact.reviewApplications(1, reviews))
                     .to.be.revertedWithCustomError(arcanePact, "CampaignDoesNotExist")
                     .withArgs(1);
             })
@@ -391,7 +391,7 @@ describe('Campaign participation', () => {
                 await arcanePact.newCampaign(campaignConfig);
                 await arcanePact.connect(account[1]).campaignApplication(1);
 
-                await expect(arcanePact.connect(account[1]).ReviewApplications(1, reviews))
+                await expect(arcanePact.connect(account[1]).reviewApplications(1, reviews))
                     .to.be.revertedWithCustomError(arcanePact, "NotOwner")
                     .withArgs(account[1].address);
             })
@@ -408,7 +408,7 @@ describe('Campaign participation', () => {
                 await arcanePact.newCampaign(campaignConfig);
                 await arcanePact.connect(account[1]).campaignApplication(1);
 
-                await expect(arcanePact.connect(account[0]).ReviewApplications(1, reviews))
+                await expect(arcanePact.connect(account[0]).reviewApplications(1, reviews))
                     .to.be.revertedWithCustomError(arcanePact, "CampaignLocked")
                     .withArgs(1);
             })
@@ -424,7 +424,7 @@ describe('Campaign participation', () => {
 
                 await arcanePact.newCampaign(campaignConfig);
 
-                await expect(arcanePact.ReviewApplications(1, reviews))
+                await expect(arcanePact.reviewApplications(1, reviews))
                     .to.be.revertedWithCustomError(arcanePact, "ApplicantDoesNotExist")
                     .withArgs(1, account[1].address);
             })
@@ -448,7 +448,7 @@ describe('Campaign participation', () => {
                 await arcanePact.newCampaign(campaignConfig);
                 await arcanePact.connect(account[1]).campaignApplication(1);
 
-                await expect(arcanePact.connect(account[0]).ReviewApplications(1, reviews))
+                await expect(arcanePact.connect(account[0]).reviewApplications(1, reviews))
                     .to.be.revertedWithCustomError(arcanePact, "ApplicantAlreadyRejected")
                     .withArgs(1, account[1].address);
             })
@@ -468,7 +468,7 @@ describe('Campaign participation', () => {
                 await arcanePact.newCampaign(campaignConfig);
                 await arcanePact.connect(account[1]).campaignApplication(1);
 
-                await expect(arcanePact.connect(account[0]).ReviewApplications(1, reviews))
+                await expect(arcanePact.connect(account[0]).reviewApplications(1, reviews))
                     .to.be.revertedWithCustomError(arcanePact, "ApplicantAlreadyApproved")
                     .withArgs(1, account[1].address);
             })
@@ -482,7 +482,7 @@ describe('Campaign participation', () => {
             await arcanePact.newCampaign(campaignConfig);
             await arcanePact.invitePlayers(1, [account[1].address]);
 
-            await expect(arcanePact.connect(account[2]).SignCampaign(1))
+            await expect(arcanePact.connect(account[2]).signCampaign(1))
                 .to.be.revertedWithCustomError(arcanePact, "PlayerNotAwaitingSignature")
                 .withArgs(1, account[2].address);
         });
@@ -493,7 +493,7 @@ describe('Campaign participation', () => {
             await arcanePact.newCampaign(campaignConfig);
             await arcanePact.invitePlayers(1, [account[1].address]);
 
-            await expect(arcanePact.connect(account[1]).SignCampaign(2))
+            await expect(arcanePact.connect(account[1]).signCampaign(2))
                 .to.be.revertedWithCustomError(arcanePact, "CampaignDoesNotExist")
                 .withArgs(2);
         });
@@ -504,7 +504,7 @@ describe('Campaign participation', () => {
             await arcanePact.newCampaign(campaignConfig);
             await arcanePact.invitePlayers(1, [account[1].address]);
 
-            await expect(arcanePact.connect(account[1]).SignCampaign(2))
+            await expect(arcanePact.connect(account[1]).signCampaign(2))
                 .to.be.revertedWithCustomError(arcanePact, "CampaignDoesNotExist")
                 .withArgs(2);
         });
@@ -521,7 +521,7 @@ describe('Campaign participation', () => {
             });
             await arcanePact.invitePlayers(1, [account[1].address]);
 
-            await expect(arcanePact.connect(account[1]).SignCampaign(1, {value: val2}))
+            await expect(arcanePact.connect(account[1]).signCampaign(1, {value: val2}))
                 .to.be.revertedWithCustomError(arcanePact, "IncorrectTransactionValue")
                 .withArgs(val1, val1, val2);
         })
@@ -538,7 +538,7 @@ describe('Campaign participation', () => {
             });
             await arcanePact.invitePlayers(1, [account[1].address]);
 
-            await expect(arcanePact.connect(account[1]).SignCampaign(1, {value: val2}))
+            await expect(arcanePact.connect(account[1]).signCampaign(1, {value: val2}))
                 .to.emit(arcanePact, "PlayerSigned").withArgs(
                     1, 
                     account[1].address,
@@ -562,7 +562,7 @@ describe('Campaign participation', () => {
             await arcanePact.newCampaign(campaignConfig);
             await arcanePact.invitePlayers(1, [account[1].address]);
 
-            await expect(arcanePact.connect(account[2]).AddVote(1, VoteType.StartCampaign))
+            await expect(arcanePact.connect(account[2]).addVote(1, VoteType.StartCampaign))
                 .to.be.revertedWithCustomError(arcanePact, "PlayerHasNotSigned")
                 .withArgs(1, account[2].address);
         });
@@ -573,7 +573,7 @@ describe('Campaign participation', () => {
             await arcanePact.newCampaign(campaignConfig);
             await arcanePact.invitePlayers(1, [account[1].address]);
 
-            await expect(arcanePact.connect(account[1]).AddVote(2, VoteType.StartCampaign))
+            await expect(arcanePact.connect(account[1]).addVote(2, VoteType.StartCampaign))
                 .to.be.revertedWithCustomError(arcanePact, "CampaignDoesNotExist")
                 .withArgs(2);
         });
@@ -584,7 +584,7 @@ describe('Campaign participation', () => {
             await arcanePact.newCampaign(campaignConfig);
             await arcanePact.invitePlayers(1, [account[1].address]);
 
-            await expect(arcanePact.connect(account[1]).SignCampaign(2))
+            await expect(arcanePact.connect(account[1]).signCampaign(2))
                 .to.be.revertedWithCustomError(arcanePact, "CampaignDoesNotExist")
                 .withArgs(2);
         });
@@ -600,9 +600,9 @@ describe('Campaign participation', () => {
                 collateral: val1
             });
             await arcanePact.invitePlayers(1, [account[1].address]);
-            await arcanePact.connect(account[1]).SignCampaign(1, {value: val2});
+            await arcanePact.connect(account[1]).signCampaign(1, {value: val2});
 
-            await expect(arcanePact.connect(account[1]).AddVote(1, VoteType.StartCampaign))
+            await expect(arcanePact.connect(account[1]).addVote(1, VoteType.StartCampaign))
                 .to.emit(arcanePact, "NewVoteAdded").withArgs(
                     1, 
                     VoteType.StartCampaign,
@@ -621,7 +621,7 @@ describe('Campaign participation', () => {
                 collateral: val1
             });
 
-            await expect(arcanePact.AddVote(1, VoteType.StartCampaign))
+            await expect(arcanePact.addVote(1, VoteType.StartCampaign))
                 .to.emit(arcanePact, "NewVoteAdded").withArgs(
                     1, 
                     VoteType.StartCampaign,
@@ -640,10 +640,10 @@ describe('Campaign participation', () => {
                 collateral: val1
             });
             await arcanePact.invitePlayers(1, [account[1].address]);
-            await arcanePact.connect(account[1]).SignCampaign(1, {value: val2});
-            await arcanePact.connect(account[1]).AddVote(1, VoteType.StartCampaign);
+            await arcanePact.connect(account[1]).signCampaign(1, {value: val2});
+            await arcanePact.connect(account[1]).addVote(1, VoteType.StartCampaign);
 
-            await expect(arcanePact.connect(account[1]).AddVote(1, VoteType.StartCampaign))
+            await expect(arcanePact.connect(account[1]).addVote(1, VoteType.StartCampaign))
                 .to.be.revertedWithCustomError(arcanePact, "HasAlreadyVoted")
                 .withArgs(1, account[1].address, VoteType.StartCampaign);
         })
@@ -660,11 +660,11 @@ describe('Campaign participation', () => {
             });
 
             await arcanePact.invitePlayers(1, [account[1].address]);
-            await arcanePact.connect(account[1]).SignCampaign(1, {value: val2});
+            await arcanePact.connect(account[1]).signCampaign(1, {value: val2});
 
-            await arcanePact.connect(account[0]).AddVote(1, VoteType.StartCampaign);
+            await arcanePact.connect(account[0]).addVote(1, VoteType.StartCampaign);
 
-            await expect(arcanePact.AddVote(1, VoteType.StartCampaign))
+            await expect(arcanePact.addVote(1, VoteType.StartCampaign))
                 .to.be.revertedWithCustomError(arcanePact, "HasAlreadyVoted")
                 .withArgs(1, account[0].address, VoteType.StartCampaign);
         })

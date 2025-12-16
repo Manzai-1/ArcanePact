@@ -5,7 +5,7 @@ pragma solidity 0.8.28;
 
 contract ArcanePact {
     uint256 private nextId;
-
+    bool private locked;
 
     enum CampaignState {
         Initialized,
@@ -115,6 +115,18 @@ contract ArcanePact {
         CampaignState campaignState
     );
 
+    event LockedFeesWithdrawn(
+        uint256 indexed campaignId,
+        uint256 withdrawnAmount,
+        uint256 currentlyLockedAmount
+    );
+
+    event LockedCollateralWithdrawn(
+        uint256 indexed campaignId,
+        uint256 withdrawnAmount,
+        uint256 currentlyLockedAmount
+    );
+
     error FunctionNotFound();
     error PaymentDataMissing();
     error NotOwner(address caller);
@@ -129,6 +141,11 @@ contract ArcanePact {
     error PlayerHasNotSigned(uint256 campaignId, address player);
     error IncorrectTransactionValue(uint256 gamemasterFee, uint256 collateral, uint256 received);
     error HasAlreadyVoted(uint256 campaignId, address player, VoteType voteType);
+    error CampaignNotCompleted(uint256 campaignId);
+    error HasNoLockedFees(uint256 campaignId);
+    error BlockedDueToReEntrancy(uint256 campaignId, address caller);
+    error TransferFailed(uint256 amount, address recipient);
+    error HasNoLockedCollateral(uint256 campaignId, address player);
 
     mapping(uint256 => Campaign) internal campaigns;
     mapping(uint256 => mapping(address => Player)) internal campaignPlayers;
@@ -195,7 +212,7 @@ contract ArcanePact {
         emit ApplicationAdded(campaignId, applicant, player.state);
     }
 
-    function ReviewApplications(uint256 campaignId, ApplicationReview[] calldata reviews) external {
+    function reviewApplications(uint256 campaignId, ApplicationReview[] calldata reviews) external {
         Campaign storage campaign = campaigns[campaignId];
 
         checkCampaignExists(campaign.owner, campaignId); 
@@ -222,7 +239,7 @@ contract ArcanePact {
         }
     }
 
-    function SignCampaign(uint256 campaignId) external payable {
+    function signCampaign(uint256 campaignId) external payable {
         Campaign storage campaign = campaigns[campaignId];
 
         checkCampaignExists(campaign.owner, campaignId);
@@ -247,7 +264,7 @@ contract ArcanePact {
     }
 
     //can be optimized with bit shifting / bitmasks
-    function AddVote(uint256 campaignId, VoteType voteType) external {
+    function addVote(uint256 campaignId, VoteType voteType) private {
         Campaign storage campaign = campaigns[campaignId];
 
         checkCampaignExists(campaign.owner, campaignId);
@@ -280,6 +297,52 @@ contract ArcanePact {
         }
     }
 
+    function withdrawFee(uint256 campaignId) external {
+        Campaign storage campaign = campaigns[campaignId];
+
+        checkCampaignExists(campaign.owner, campaignId);
+        checkIsOwner(campaign.owner, msg.sender);
+        checkIfCampaignCompleted(campaign.state, campaignId);
+        checkHasLockedFees(campaign.lockedFees, campaignId);
+
+        if(locked) revert BlockedDueToReEntrancy(campaignId, msg.sender);
+        locked = true;
+
+        uint256 amountToTransfer = campaign.lockedFees;
+        campaign.lockedFees = 0;
+        transferFunds(amountToTransfer, msg.sender);
+
+        locked = false;
+
+        emit LockedFeesWithdrawn(campaignId, amountToTransfer, campaign.lockedFees);
+    }
+
+    function withdrawCollateral(uint256 campaignId) external {
+        Campaign storage campaign = campaigns[campaignId];
+
+        checkCampaignExists(campaign.owner, campaignId);
+        checkIfCampaignCompleted(campaign.state, campaignId);
+
+        Player storage player = campaignPlayers[campaignId][msg.sender];
+        checkPlayerSigned(player.state, campaignId, msg.sender);
+        checkHasLockedCollateral(player.lockedCollateral, campaignId, msg.sender);
+
+        if(locked) revert BlockedDueToReEntrancy(campaignId, msg.sender);
+        locked = true;
+
+        uint256 amountToTransfer = player.lockedCollateral;
+        player.lockedCollateral = 0;
+        transferFunds(amountToTransfer, msg.sender);
+
+        locked = false;
+
+        emit LockedCollateralWithdrawn(campaignId, amountToTransfer, player.lockedCollateral);
+    }
+
+    function transferFunds(uint256 amount, address recipient) private {
+        (bool ok, ) = payable(recipient).call{value: amount}("");
+        if(!ok) revert TransferFailed(amount, recipient);
+    }
 
     function checkIsOwner(address owner, address sender) internal pure {
         if(owner != sender) revert NotOwner(sender);
@@ -321,11 +384,23 @@ contract ArcanePact {
         if(state != CampaignState.Initialized) revert CampaignLocked(campaignId);
     }
 
+    function checkIfCampaignCompleted(CampaignState state, uint256 campaignId) internal pure {
+        if(state != CampaignState.Completed) revert CampaignNotCompleted(campaignId);
+    }
+
     function checkTransactionValue(uint256 fee, uint256 collateral, uint256 received) internal pure {
         if(received != (fee + collateral)) revert IncorrectTransactionValue(fee, collateral, received);
     }
 
     function checkAlreadyVoted(bool hasVoted, uint256 campaignId, address player, VoteType voteType) internal pure {
         if(hasVoted) revert HasAlreadyVoted(campaignId, player, voteType);
+    }
+
+    function checkHasLockedFees(uint256 lockedFees, uint256 campaignId) internal pure {
+        if(!(lockedFees > 0)) revert HasNoLockedFees(campaignId);
+    }
+
+    function checkHasLockedCollateral(uint256 lockedColalteral, uint256 campaignId, address player) internal pure {
+        if(!(lockedColalteral > 0)) revert HasNoLockedCollateral(campaignId, player);
     }
 }
