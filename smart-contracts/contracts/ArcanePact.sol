@@ -32,10 +32,6 @@ contract ArcanePact {
         Negative
     }
 
-    struct ApplicationReview {
-        address applicant;
-        ApplicationDecision decision;
-    }
     struct Player {
         PlayerState state;
         uint256 lockedCollateral;
@@ -66,6 +62,7 @@ contract ArcanePact {
         address indexed owner, 
         CampaignState indexed campaignState, 
         uint256 participantCount,
+        uint256 lockedFees,
         NewCampaignConfig config
     );
     
@@ -174,7 +171,7 @@ contract ArcanePact {
         campaign.lockedFees = 0;
         campaign.participantCount = 1;
 
-        emit CampaignCreated(campaignId, msg.sender, campaign.state, campaign.participantCount,config);
+        emit CampaignCreated(campaignId, msg.sender, campaign.state, campaign.participantCount, campaign.lockedFees,config);
     }
 
     function invitePlayers (uint256 campaignId, address[] calldata addresses) external {
@@ -210,31 +207,23 @@ contract ArcanePact {
         emit UpdatedCampaignPlayer(campaignId, applicant, player.state);
     }
 
-    function reviewApplications(uint256 campaignId, ApplicationReview[] calldata reviews) external {
+    function reviewApplication(uint256 campaignId, address applicant, ApplicationDecision decision) external {
         Campaign storage campaign = campaigns[campaignId];
 
         checkCampaignExists(campaign.owner, campaignId); 
         checkIsOwner(campaign.owner, msg.sender);
         checkIfCampaignLocked(campaign.state, campaignId);
 
-        for(uint256 i = 0; i < reviews.length; i++){
-            ApplicationDecision decision = reviews[i].decision;
-            address applicant = reviews[i].applicant;
+        Player storage player = campaignPlayers[campaignId][applicant];
+        checkApplicantExists(player.state, campaignId, applicant); 
 
-            Player storage player = campaignPlayers[campaignId][applicant];
-
-            checkApplicantExists(player.state, campaignId, applicant); 
-        
-            if(decision == ApplicationDecision.Approved){
-                checkApplicantAlreadyApproved(player.state, campaignId, applicant);
-                player.state = PlayerState.AwaitingSignature;
-                emit UpdatedCampaignPlayer(campaignId, applicant, player.state);
-            } else {
-                checkApplicantAlreadyRejected(player.state, campaignId, applicant);
-                player.state = PlayerState.Rejected;
-                emit UpdatedCampaignPlayer(campaignId, applicant, player.state);
-            }
+        if(decision == ApplicationDecision.Approved) {
+            player.state = PlayerState.AwaitingSignature;
+        } else {
+            player.state = PlayerState.Rejected;
         }
+
+        emit UpdatedCampaignPlayer(campaignId, applicant, player.state);
     }
 
     function signCampaign(uint256 campaignId) external payable {
@@ -383,7 +372,7 @@ contract ArcanePact {
     }
 
     function checkApplicantExists(PlayerState state, uint256 campaignId, address applicant) internal pure {
-        if(state == PlayerState.None) revert ApplicantDoesNotExist(campaignId, applicant);
+        if(state != PlayerState.Applied) revert ApplicantDoesNotExist(campaignId, applicant);
     }
 
     function checkApplicantAlreadyApproved(PlayerState state, uint256 campaignId, address applicant) internal pure {

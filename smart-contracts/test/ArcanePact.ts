@@ -77,6 +77,10 @@ describe('Campaign lifecycle', () => {
                     expect(participantCount).to.equal(1);
                     return true;
                 },
+                (lockedFees: any) => {
+                    expect(lockedFees).to.equal(0);
+                    return true;
+                },
                 (emittedConfig: any) => {
                     expect(emittedConfig.title).to.equal(campaignConfig.title);
                     expect(emittedConfig.description).to.equal(campaignConfig.description);

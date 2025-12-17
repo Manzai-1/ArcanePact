@@ -1,7 +1,7 @@
 import { ActionButton } from "../../../components/actionButton/ActionButton";
 import PopupModal from "../../../components/popupModal/PopupModal";
-import { ClientState } from "../../../models/IArcanePact";
-import { sendApplication } from "../../../services/arcanePactServices";
+import { CampaignState, ClientState, VoteType } from "../../../models/IArcanePact";
+import { addVote, sendApplication, signCampaign, withdrawCollateral, withdrawFees } from "../../../services/arcanePactServices";
 import InvitePlayers from "../invitePlayers/InvitePlayers";
 import { PlayerList } from "../playerList/PlayerList";
 import styles from './campaignModal.module.css';
@@ -10,6 +10,8 @@ export const CampaignModal = ({campaign, handleCloseModal}) => {
     const isOwner = campaign.clientState === ClientState.Owner;
     const isApplicant = campaign.clientState === ClientState.Applied;
     const isAwaitingSignature = campaign.clientState === ClientState.AwaitingSignature;
+    const isJoined = campaign.clientState === ClientState.Joined;
+    const isCompleted = campaign.state === CampaignState.Completed;
     const isDiscovery = campaign.clientState === ClientState.None;
 
     return (
@@ -22,11 +24,27 @@ export const CampaignModal = ({campaign, handleCloseModal}) => {
             <div className={styles.root}>
                 {isAwaitingSignature &&<ActionButton
                     label={'Sign'}
-                    handleClick={()=>{console.log('SIGN')}}
+                    handleClick={()=>{signCampaign(campaign.id, campaign.gamemasterFee, campaign.collateral)}}
                 />}
                 {isDiscovery &&<ActionButton
                     label={'Apply'}
                     handleClick={()=>{sendApplication(campaign.id)}}
+                />}
+                {(isJoined || isOwner) &&<ActionButton
+                    label={'Vote Start'}
+                    handleClick={()=>{addVote(campaign.id, VoteType.StartCampaign)}}
+                />}
+                {(isJoined || isOwner) &&<ActionButton
+                    label={'Vote Stop'}
+                    handleClick={()=>{addVote(campaign.id, VoteType.StopCampaign)}}
+                />}
+                {(isJoined && isCompleted) &&<ActionButton
+                    label={'Withdraw Collateral'}
+                    handleClick={()=>{withdrawCollateral(campaign.id)}}
+                />}
+                {(isOwner && isCompleted) &&<ActionButton
+                    label={'Withdraw Fees'}
+                    handleClick={()=>{withdrawFees(campaign.id)}}
                 />}
             </div>
         </PopupModal>

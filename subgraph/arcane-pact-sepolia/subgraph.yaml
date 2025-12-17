@@ -6,34 +6,27 @@ schema:
 dataSources:
   - kind: ethereum
     name: ArcanePact
-    network: sepolia
+    network: local
     source:
-      address: "0xe2c2342BF6aADF22D881Cb091691E8126Fa78Efe"
+      address: "0x5FbDB2315678afecb367f032d93F642f64180aa3"
       abi: ArcanePact
-      startBlock: 9855239
+      startBlock: 0
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.9
       language: wasm/assemblyscript
       entities:
-        - CampaignCreated
-        - CampaignParticipantCountChanged
-        - LockedCollateralWithdrawn
-        - LockedFeesWithdrawn
-        - NewVoteAdded
-        - PlayerLockedCollateral
-        - ReviewAdded
-        - UpdatedCampaignPlayer
-        - UpdatedCampaignState
-        - UpdatedLockedFees
+        - Campaigns
+        - Players
+        - CampaignPlayers
       abis:
         - name: ArcanePact
           file: ./abis/ArcanePact.json
       eventHandlers:
-        - event: CampaignCreated(indexed uint256,indexed address,indexed uint8,uint256,(string,string,bool,uint256,uint256))
+        - event: CampaignCreated(indexed uint256,indexed address,indexed uint8,uint256,uint256,(string,string,bool,uint256,uint256))
           handler: handleCampaignCreated
         - event: CampaignParticipantCountChanged(indexed uint256,uint256)
-          handler: handleCampaignParticipantCountChanged
+          handler: handleUpdateParticipantCount
         - event: LockedCollateralWithdrawn(indexed uint256,uint256,uint256)
           handler: handleLockedCollateralWithdrawn
         - event: LockedFeesWithdrawn(indexed uint256,uint256,uint256)
@@ -45,7 +38,7 @@ dataSources:
         - event: ReviewAdded(indexed uint256,indexed address,indexed address,(uint8,string))
           handler: handleReviewAdded
         - event: UpdatedCampaignPlayer(indexed uint256,indexed address,indexed uint8)
-          handler: handleUpdatedCampaignPlayer
+          handler: handleCampaignPlayerUpdated
         - event: UpdatedCampaignState(indexed uint256,uint8)
           handler: handleUpdatedCampaignState
         - event: UpdatedLockedFees(indexed uint256,uint256)

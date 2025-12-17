@@ -1,5 +1,6 @@
 import { useState } from "react";
 import styles from "./newCampaign.module.css";
+import { parseEther } from "ethers";
 
 export const NewCampaign = ({ onSubmit }) => {
     const [form, setForm] = useState({
@@ -24,8 +25,8 @@ export const NewCampaign = ({ onSubmit }) => {
 
         const payload = {
             ...form,
-            gamemasterFee: Number(form.gamemasterFee),
-            collateral: Number(form.collateral),
+            gamemasterFee: parseEther(form.gamemasterFee),
+            collateral: parseEther(form.collateral),
         };
 
         if (onSubmit) onSubmit(payload);
@@ -78,7 +79,7 @@ export const NewCampaign = ({ onSubmit }) => {
                 <div className={styles.fieldGroup}>
                     <label className={styles.label}>Gamemaster Fee</label>
                     <input
-                        type="number"
+                        type="text"
                         className={styles.input}
                         name="gamemasterFee"
                         min="0"
@@ -90,9 +91,9 @@ export const NewCampaign = ({ onSubmit }) => {
 
                 {/* Collateral */}
                 <div className={styles.fieldGroup}>
-                    <label className={styles.label}>Collateral</label>
+                    <label className={styles.label}>Collateral ETH</label>
                     <input
-                        type="number"
+                        type="text"
                         className={styles.input}
                         name="collateral"
                         min="0"
