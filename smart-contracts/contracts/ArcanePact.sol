@@ -256,7 +256,7 @@ contract ArcanePact {
         Campaign storage campaign = campaigns[campaignId];
 
         checkCampaignExists(campaign.owner, campaignId);
-        checkIfCampaignLocked(campaign.state, campaignId);
+        checkCampaignNotCompleted(campaign.state, campaignId);
 
         if(campaign.owner != msg.sender){
             Player storage player = campaignPlayers[campaignId][msg.sender];
@@ -401,6 +401,10 @@ contract ArcanePact {
 
     function checkIfCampaignLocked(CampaignState state, uint256 campaignId) internal pure {
         if(state != CampaignState.Initialized) revert CampaignLocked(campaignId);
+    }
+
+    function checkCampaignNotCompleted(CampaignState state, uint256 campaignId) internal pure {
+        if(state == CampaignState.Completed) revert CampaignLocked(campaignId);
     }
 
     function checkIfCampaignCompleted(CampaignState state, uint256 campaignId) internal pure {
