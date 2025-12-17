@@ -19,6 +19,7 @@ dataSources:
         - Campaigns
         - Players
         - CampaignPlayers
+        - Review
       abis:
         - name: ArcanePact
           file: ./abis/ArcanePact.json

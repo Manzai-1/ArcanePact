@@ -12,7 +12,7 @@ import {
   UpdatedLockedFees
 } from "../generated/ArcanePact/ArcanePact";
 
-import { Campaign, Player, CampaignPlayer } from "../generated/schema";
+import { Campaign, Player, CampaignPlayer, Review } from "../generated/schema";
 
 export function handleCampaignCreated(event: CampaignCreated): void {
   const id = event.params.campaignId.toString();
@@ -45,6 +45,8 @@ export function handleCampaignPlayerUpdated(event: UpdatedCampaignPlayer): void 
   let player = Player.load(playerAddress);
   if (player == null) {
     player = new Player(playerAddress);
+    player.likes = BigInt.zero();
+    player.dislikes = BigInt.zero();
     player.save();
   }
 
@@ -131,5 +133,33 @@ export function handleLockedFeesWithdrawn(event: LockedFeesWithdrawn): void {
 }
 
 export function handleReviewAdded(event: ReviewAdded): void {
+  const campaignId = event.params.campaignId.toString();
+  const recipientId = event.params.recipient.toHexString().toLowerCase();
+  const senderId = event.params.sender.toHexString().toLowerCase();
 
+  const eventReview = event.params.review;
+  const score = eventReview.score;
+  const comment = eventReview.comment;
+
+  const id = campaignId+'-'+senderId+'-'+recipientId;
+
+  let review = Review.load(id);
+  if (review == null) review = new Review(id);
+
+  let recipient = Player.load(recipientId);
+  if (recipient == null) return;
+
+  let campaign = Campaign.load(campaignId);
+  if (campaign == null) return;
+
+  if (score == 0) recipient.likes = recipient.likes.plus(BigInt.fromI32(1));
+  if (score == 1) recipient.dislikes = recipient.dislikes.plus(BigInt.fromI32(1));
+
+  review.campaign = campaign.id;
+  review.recipient = recipient.id;
+  review.score = score;
+  review.comment = comment;
+
+  review.save();
+  recipient.save();
 }

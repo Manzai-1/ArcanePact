@@ -14,8 +14,11 @@ type Campaign @entity(immutable: false) {
 
 type Player @entity(immutable: false) {
   id: ID!
+  likes: BigInt!
+  dislikes: BigInt!
 
   campaigns: [CampaignPlayer!]! @derivedFrom(field: "player")
+  reviews: [Review!]! @derivedFrom(field: "recipient")
 }
 
 type CampaignPlayer @entity (immutable: false) {
@@ -24,4 +27,12 @@ type CampaignPlayer @entity (immutable: false) {
   player: Player!
   state: Int!
   lockedCollateral: BigInt!
+}
+
+type Review @entity (immutable: true) {
+  id: ID!
+  campaign: Campaign!
+  recipient: Player!
+  score: Int!
+  comment: String!
 }
