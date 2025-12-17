@@ -20,6 +20,7 @@ dataSources:
         - Players
         - CampaignPlayers
         - Review
+        - Vote
       abis:
         - name: ArcanePact
           file: ./abis/ArcanePact.json

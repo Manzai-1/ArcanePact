@@ -12,7 +12,7 @@ import {
   UpdatedLockedFees
 } from "../generated/ArcanePact/ArcanePact";
 
-import { Campaign, Player, CampaignPlayer, Review } from "../generated/schema";
+import { Campaign, Player, CampaignPlayer, Review, Vote } from "../generated/schema";
 
 export function handleCampaignCreated(event: CampaignCreated): void {
   const id = event.params.campaignId.toString();
@@ -109,7 +109,19 @@ export function handlePlayerLockedCollateral(event: PlayerLockedCollateral): voi
 }
 
 export function handleNewVoteAdded(event: NewVoteAdded): void {
-  
+  const campaignId = event.params.campaignId.toString();
+  const playerId = event.params.player.toHexString().toLowerCase();
+  const voteType = event.params.voteType;
+
+  const id = campaignId + '-' + playerId + '-' + voteType.toString();
+  let vote = Vote.load(id);
+  if(vote == null) vote = new Vote(id);
+
+  vote.campaign = campaignId;
+  vote.player = playerId;
+  vote.voteType = voteType;
+
+  vote.save();
 }
 
 export function handleUpdatedCampaignState(event: UpdatedCampaignState): void {

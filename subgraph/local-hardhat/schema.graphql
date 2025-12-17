@@ -10,6 +10,7 @@ type Campaign @entity(immutable: false) {
   lockedFees: BigInt!
   participantCount: BigInt!
   players: [CampaignPlayer!]! @derivedFrom(field: "campaign")
+  votes: [Vote!]! @derivedFrom(field: "campaign")
 }
 
 type Player @entity(immutable: false) {
@@ -27,6 +28,13 @@ type CampaignPlayer @entity (immutable: false) {
   player: Player!
   state: Int!
   lockedCollateral: BigInt!
+}
+
+type Vote @entity (immutable: true) {
+  id: ID!
+  campaign: Campaign!
+  player: Player!
+  voteType: Int!
 }
 
 type Review @entity (immutable: true) {
