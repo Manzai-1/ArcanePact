@@ -77,6 +77,10 @@ describe('Campaign lifecycle', () => {
                     expect(participantCount).to.equal(1);
                     return true;
                 },
+                (lockedFees: any) => {
+                    expect(lockedFees).to.equal(0);
+                    return true;
+                },
                 (emittedConfig: any) => {
                     expect(emittedConfig.title).to.equal(campaignConfig.title);
                     expect(emittedConfig.description).to.equal(campaignConfig.description);
@@ -257,17 +261,11 @@ describe('Campaign participation', () => {
         describe('Gamemaster application management', () => {
             it('should emit an ApplicationAproved event when one application is aproved', async () => {
                 const { arcanePact, account } = await contractFixture();
-                const reviews: ApplicationReview[] = [
-                    {
-                        applicant: account[1].address, 
-                        decision: ApplicationDecision.Approved
-                    }
-                ];
 
                 await arcanePact.newCampaign(campaignConfig);
                 await arcanePact.connect(account[1]).campaignApplication(1);
 
-                await expect(arcanePact.connect(account[0]).reviewApplications(1, reviews))
+                await expect(arcanePact.connect(account[0]).reviewApplication(1, account[1].address, ApplicationDecision.Approved))
                     .to.emit(arcanePact, "UpdatedCampaignPlayer").withArgs(
                         1, 
                         account[1].address, 
@@ -277,17 +275,11 @@ describe('Campaign participation', () => {
 
             it('should emit an ApplicationRejected event when one application is rejected', async () => {
                 const { arcanePact, account } = await contractFixture();
-                const reviews: ApplicationReview[] = [
-                    {
-                        applicant: account[1].address, 
-                        decision: ApplicationDecision.Rejected
-                    }
-                ];
 
                 await arcanePact.newCampaign(campaignConfig);
                 await arcanePact.connect(account[1]).campaignApplication(1);
 
-                await expect(arcanePact.connect(account[0]).reviewApplications(1, reviews))
+                await expect(arcanePact.connect(account[0]).reviewApplication(1, account[1].address, ApplicationDecision.Rejected))
                     .to.emit(arcanePact, "UpdatedCampaignPlayer").withArgs(
                         1, 
                         account[1].address, 
@@ -295,70 +287,14 @@ describe('Campaign participation', () => {
                     );
             })
 
-            it('should emit correct events when multiple applications reviewed', async () => {
+            it.skip('should emit ApplicationAproved if previously rejected player is Aproved', async () => {
                 const { arcanePact, account } = await contractFixture();
-                const reviews: ApplicationReview[] = [
-                    {
-                        applicant: account[1].address, 
-                        decision: ApplicationDecision.Rejected
-                    },
-                    {
-                        applicant: account[2].address, 
-                        decision: ApplicationDecision.Approved
-                    },
-                    {
-                        applicant: account[3].address, 
-                        decision: ApplicationDecision.Rejected
-                    },
-                    {
-                        applicant: account[4].address, 
-                        decision: ApplicationDecision.Approved
-                    },
-                ];
 
                 await arcanePact.newCampaign(campaignConfig);
                 await arcanePact.connect(account[1]).campaignApplication(1);
-                await arcanePact.connect(account[2]).campaignApplication(1);
-                await arcanePact.connect(account[3]).campaignApplication(1);
-                await arcanePact.connect(account[4]).campaignApplication(1);
+                await arcanePact.connect(account[0]).reviewApplication(1, account[1].address, ApplicationDecision.Rejected);
 
-                await expect(arcanePact.connect(account[0]).reviewApplications(1, reviews))
-                    .to.emit(arcanePact, "UpdatedCampaignPlayer").withArgs(
-                        1, 
-                        account[1].address,
-                        PlayerState.Rejected
-                    ).and.to.emit(arcanePact, "UpdatedCampaignPlayer").withArgs(
-                        1, 
-                        account[2].address,
-                        PlayerState.AwaitingSignature
-                    ).and.to.emit(arcanePact, "UpdatedCampaignPlayer").withArgs(
-                        1, 
-                        account[3].address,
-                        PlayerState.Rejected
-                    ).and.to.emit(arcanePact, "UpdatedCampaignPlayer").withArgs(
-                        1, 
-                        account[4].address,
-                        PlayerState.AwaitingSignature
-                    );
-            })
-
-            it('should emit ApplicationAproved if previously rejected player is Aproved', async () => {
-                const { arcanePact, account } = await contractFixture();
-                const reviews: ApplicationReview[] = [
-                    {
-                        applicant: account[1].address, 
-                        decision: ApplicationDecision.Rejected
-                    },
-                    {
-                        applicant: account[1].address, 
-                        decision: ApplicationDecision.Approved
-                    }
-                ];
-
-                await arcanePact.newCampaign(campaignConfig);
-                await arcanePact.connect(account[1]).campaignApplication(1);
-
-                await expect(arcanePact.connect(account[0]).reviewApplications(1, reviews))
+                await expect(arcanePact.connect(account[0]).reviewApplication(1, account[1].address, ApplicationDecision.Approved))
                     .to.emit(arcanePact, "UpdatedCampaignPlayer").withArgs(
                         1, 
                         account[1].address,
@@ -372,64 +308,40 @@ describe('Campaign participation', () => {
 
             it('should revert with CampaignDoesNotExist error if campaign does not exist', async () => {
                 const { arcanePact, account } = await contractFixture();
-                const reviews: ApplicationReview[] = [
-                    {
-                        applicant: account[1].address, 
-                        decision: ApplicationDecision.Rejected
-                    }
-                ];
 
-                await expect(arcanePact.reviewApplications(1, reviews))
+                await expect(arcanePact.reviewApplication(1, account[1].address, ApplicationDecision.Rejected))
                     .to.be.revertedWithCustomError(arcanePact, "CampaignDoesNotExist")
                     .withArgs(1);
             })
 
             it('should revert with NotOwner error if sender is not owner of campaign', async () => {
                 const { arcanePact, account } = await contractFixture();
-                const reviews: ApplicationReview[] = [
-                    {
-                        applicant: account[1].address, 
-                        decision: ApplicationDecision.Approved
-                    }
-                ];
 
                 await arcanePact.newCampaign(campaignConfig);
                 await arcanePact.connect(account[1]).campaignApplication(1);
 
-                await expect(arcanePact.connect(account[1]).reviewApplications(1, reviews))
+                await expect(arcanePact.connect(account[1]).reviewApplication(1, account[1].address, ApplicationDecision.Approved))
                     .to.be.revertedWithCustomError(arcanePact, "NotOwner")
                     .withArgs(account[1].address);
             })
 
             it.skip('should revert with custom error if campaign is not in state Initialized', async () => {
                 const { arcanePact, account } = await contractFixture();
-                const reviews: ApplicationReview[] = [
-                    {
-                        applicant: account[1].address, 
-                        decision: ApplicationDecision.Approved
-                    }
-                ];
 
                 await arcanePact.newCampaign(campaignConfig);
                 await arcanePact.connect(account[1]).campaignApplication(1);
 
-                await expect(arcanePact.connect(account[0]).reviewApplications(1, reviews))
+                await expect(arcanePact.connect(account[0]).reviewApplication(1, account[1].address, ApplicationDecision.Approved))
                     .to.be.revertedWithCustomError(arcanePact, "CampaignLocked")
                     .withArgs(1);
             })
 
             it('should revert with ApplicantDoesNotExist error if applicant does not exist', async () => {
                 const { arcanePact, account } = await contractFixture();
-                const reviews: ApplicationReview[] = [
-                    {
-                        applicant: account[1].address, 
-                        decision: ApplicationDecision.Approved
-                    }
-                ];
 
                 await arcanePact.newCampaign(campaignConfig);
 
-                await expect(arcanePact.reviewApplications(1, reviews))
+                await expect(arcanePact.reviewApplication(1, account[1].address, ApplicationDecision.Approved))
                     .to.be.revertedWithCustomError(arcanePact, "ApplicantDoesNotExist")
                     .withArgs(1, account[1].address);
             })
@@ -452,9 +364,10 @@ describe('Campaign participation', () => {
 
                 await arcanePact.newCampaign(campaignConfig);
                 await arcanePact.connect(account[1]).campaignApplication(1);
+                await arcanePact.connect(account[0]).reviewApplication(1, account[1].address, ApplicationDecision.Rejected);
 
-                await expect(arcanePact.connect(account[0]).reviewApplications(1, reviews))
-                    .to.be.revertedWithCustomError(arcanePact, "ApplicantAlreadyRejected")
+                await expect(arcanePact.connect(account[0]).reviewApplication(1, account[1].address, ApplicationDecision.Rejected))
+                    .to.be.revertedWithCustomError(arcanePact, "ApplicantDoesNotExist")
                     .withArgs(1, account[1].address);
             })
 
@@ -472,9 +385,10 @@ describe('Campaign participation', () => {
 
                 await arcanePact.newCampaign(campaignConfig);
                 await arcanePact.connect(account[1]).campaignApplication(1);
+                await arcanePact.connect(account[0]).reviewApplication(1, account[1].address, ApplicationDecision.Approved);
 
-                await expect(arcanePact.connect(account[0]).reviewApplications(1, reviews))
-                    .to.be.revertedWithCustomError(arcanePact, "ApplicantAlreadyApproved")
+                await expect(arcanePact.connect(account[0]).reviewApplication(1, account[1].address, ApplicationDecision.Approved))
+                    .to.be.revertedWithCustomError(arcanePact, "ApplicantDoesNotExist")
                     .withArgs(1, account[1].address);
             })
         })

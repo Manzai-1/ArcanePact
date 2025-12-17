@@ -21,6 +21,8 @@ export const UseGraph = () => {
             stateText: PlayerState[cp.state]
         }));
 
+        console.log("RUNNING USE GRAPH");
+
         const playersByCampaignId = new Map();
 
         for (const cp of campaignPlayers){
@@ -57,10 +59,7 @@ export const UseGraph = () => {
             campaign => campaignPlayers.filter(
                 campaignPlayer => campaignPlayer.campaign.id === campaign.id
                 && campaignPlayer.player.id.toLowerCase() === clientAdr
-                && (
-                    campaignPlayer.state === PlayerState.Signed ||
-                    campaignPlayer.state === PlayerState.InSession
-                )
+                && campaignPlayer.state === PlayerState.Signed
         ).length > 0).map(c => ({...c, clientState: ClientState.Joined}));
 
         const pending = campaigns.map(campaign => {

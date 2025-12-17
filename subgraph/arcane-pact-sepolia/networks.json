@@ -1,0 +1,8 @@
+{
+  "sepolia": {
+    "ArcanePact": {
+      "address": "0xe2c2342BF6aADF22D881Cb091691E8126Fa78Efe",
+      "startBlock": 9855239
+    }
+  }
+}

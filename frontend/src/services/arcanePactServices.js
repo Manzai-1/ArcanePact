@@ -1,4 +1,4 @@
-import { ethers } from "ethers";
+import { ethers, formatEther } from "ethers";
 import { getBrowserProvider, getSigner } from "./blockchainClient";
 import { contractAddress, abi } from "../config/arcanePact";
 
@@ -43,8 +43,36 @@ export const sendApplication = async (campaignId) => {
     return tx; 
 }
 
-export const reviewApplication = async (campaignId, applicationReview) => {
+export const reviewApplication = async (campaignId, applicant, decision) => {
     const contract = await getWriter();
-    const tx = await contract.reviewApplications(campaignId, applicationReview);
+    const tx = await contract.reviewApplication(campaignId, applicant, decision);
+    return tx; 
+}
+
+export const signCampaign = async (campaignId, gamemasterFee, collateral) => {
+    const fee = BigInt(gamemasterFee);
+    const col = BigInt(collateral);
+    const value = fee + col;
+
+    const contract = await getWriter();
+    const tx = await contract.signCampaign(campaignId, {value});
+    return tx; 
+}
+
+export const addVote = async (campaignId, voteType) => {
+    const contract = await getWriter();
+    const tx = await contract.addVote(campaignId, voteType);
+    return tx; 
+}
+
+export const withdrawFees = async (campaignId) => {
+    const contract = await getWriter();
+    const tx = await contract.withdrawFees(campaignId);
+    return tx; 
+}
+
+export const withdrawCollateral = async (campaignId) => {
+    const contract = await getWriter();
+    const tx = await contract.withdrawCollateral(campaignId);
     return tx; 
 }

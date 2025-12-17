@@ -9,8 +9,7 @@ export enum PlayerState {
     Applied,
     Rejected,
     AwaitingSignature,
-    Signed,
-    InSession
+    Signed
 }
 
 export enum ClientState {
@@ -27,9 +26,9 @@ export enum ApplicationDecision {
     Rejected
 }
 
-export interface ApplicationReview {
-    address: string;
-    decision: ApplicationDecision;
+export enum VoteType {
+    StartCampaign,
+    StopCampaign
 }
 
 export interface Campaign {

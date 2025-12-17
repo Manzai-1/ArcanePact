@@ -11,6 +11,8 @@ export const CAMPAIGNS_QUERY = gql`
       gamemasterFee
       collateral
       state
+      lockedFees
+      participantCount
     }
   }
 `;

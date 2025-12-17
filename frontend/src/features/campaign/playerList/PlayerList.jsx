@@ -22,7 +22,6 @@ export const PlayerList = ({campaign}) => {
     const isApplicant = hasSelectedRow ? 
         players[selectedRow].state === PlayerState.Applied : false;
 
-
     const handleSelectRow = (index) => {
         setSelectedRow(selectedRow === index ? null : index);
     }
@@ -44,10 +43,8 @@ export const PlayerList = ({campaign}) => {
                     label={'Approve Application'}
                     handleClick={()=>{reviewApplication(
                         campaign.id,
-                        [{
-                            applicant: players[selectedRow].id.toLowerCase(),
-                            decision: ApplicationDecision.Approved
-                        }] 
+                        players[selectedRow].id.toLowerCase(),
+                        ApplicationDecision.Approved
                     )}}
                 />}
                 {(isOwner && isApplicant) &&<ActionButton
