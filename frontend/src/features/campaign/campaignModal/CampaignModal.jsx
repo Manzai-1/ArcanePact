@@ -1,52 +1,64 @@
 import { ActionButton } from "../../../components/actionButton/ActionButton";
 import PopupModal from "../../../components/popupModal/PopupModal";
-import { CampaignState, ClientState, VoteType } from "../../../models/IArcanePact";
+import Table from "../../../components/table/Table";
+import { VoteType } from "../../../models/IArcanePact";
 import { addVote, sendApplication, signCampaign, withdrawCollateral, withdrawFees } from "../../../services/arcanePactServices";
 import InvitePlayers from "../invitePlayers/InvitePlayers";
 import { PlayerList } from "../playerList/PlayerList";
 import styles from './campaignModal.module.css';
-import { getCapabilities } from "./useCampaignModal";
+import { useCampaignModal } from "./useCampaignModal";
 
 export const CampaignModal = ({campaign, handleCloseModal}) => {
-    console.log('CAMPAIGN MODAL: ', campaign);
-    const capabilities = getCapabilities(campaign);
+    const model = useCampaignModal(campaign);
 
     return (
-        <PopupModal onClose={handleCloseModal}>
-            <h2>{campaign.title}</h2>
-            <p>{campaign.description}</p>
-            <p>{campaign.id}</p>
+        <>
+            {model.viewPlayer &&<PopupModal onClose={model.closeViewPlayer}>
+                <h2>{model.viewPlayer.id}</h2>
+                <p>{model.viewPlayer.likes}</p>
+                <p>{model.viewPlayer.dislikes}</p>
 
-            { capabilities.canInvite &&<InvitePlayers campaignId={campaign.id}/> }
+                <Table
+                    headers={[{name: 'score', value: 'Score'}, {name: 'comment', value: 'Comment'}]}
+                    rows={model.viewPlayer.reviews}
+                />
+            </PopupModal>}
+            {!model.viewPlayer &&<PopupModal onClose={handleCloseModal}>
+                <h2>{campaign.title}</h2>
+                <p>{campaign.description}</p>
+                <p>{campaign.id}</p>
 
-            <PlayerList campaign={campaign}/>
-            
-            <div className={styles.root}>
-                {capabilities.canSign &&<ActionButton
-                    label={'Sign'}
-                    handleClick={()=>{signCampaign(campaign.id, campaign.gamemasterFee, campaign.collateral)}}
-                />}
-                {capabilities.canApply &&<ActionButton
-                    label={'Apply'}
-                    handleClick={()=>{sendApplication(campaign.id)}}
-                />}
-                {(capabilities.canVote) &&<ActionButton
-                    label={'Vote Start'}
-                    handleClick={()=>{addVote(campaign.id, VoteType.StartCampaign)}}
-                />}
-                {(capabilities.canVote) &&<ActionButton
-                    label={'Vote Stop'}
-                    handleClick={()=>{addVote(campaign.id, VoteType.StopCampaign)}}
-                />}
-                {(capabilities.canWithdrawCollateral) &&<ActionButton
-                    label={'Withdraw Collateral'}
-                    handleClick={()=>{withdrawCollateral(campaign.id)}}
-                />}
-                {(capabilities.canWithdrawFees) &&<ActionButton
-                    label={'Withdraw Fees'}
-                    handleClick={()=>{withdrawFees(campaign.id)}}
-                />}
-            </div>
-        </PopupModal>
+                { model.canInvite &&<InvitePlayers campaignId={campaign.id}/> }
+
+                <PlayerList campaign={campaign} handleViewPlayer={model.handleViewPlayer}/>
+                
+                <div className={styles.root}>
+                    {model.canSign &&<ActionButton
+                        label={'Sign'}
+                        handleClick={()=>{signCampaign(campaign.id, campaign.gamemasterFee, campaign.collateral)}}
+                    />}
+                    {model.canApply &&<ActionButton
+                        label={'Apply'}
+                        handleClick={()=>{sendApplication(campaign.id)}}
+                    />}
+                    {(model.canVote) &&<ActionButton
+                        label={'Vote Start'}
+                        handleClick={()=>{addVote(campaign.id, VoteType.StartCampaign)}}
+                    />}
+                    {(model.canVote) &&<ActionButton
+                        label={'Vote Stop'}
+                        handleClick={()=>{addVote(campaign.id, VoteType.StopCampaign)}}
+                    />}
+                    {(model.canWithdrawCollateral) &&<ActionButton
+                        label={'Withdraw Collateral'}
+                        handleClick={()=>{withdrawCollateral(campaign.id)}}
+                    />}
+                    {(model.canWithdrawFees) &&<ActionButton
+                        label={'Withdraw Fees'}
+                        handleClick={()=>{withdrawFees(campaign.id)}}
+                    />}
+                </div>
+            </PopupModal>}
+        </>
     );
 }

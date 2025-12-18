@@ -3,7 +3,7 @@ import Table from "../../../components/table/Table";
 import styles from './playerList.module.css';
 import { usePlayerList } from "./usePlayerList";
 
-export const PlayerList = ({campaign}) => {
+export const PlayerList = ({campaign, handleViewPlayer}) => {
     const model = usePlayerList(campaign);
 
     return (
@@ -17,7 +17,9 @@ export const PlayerList = ({campaign}) => {
             <div>
                 {model.selectedPlayer &&<ActionButton
                     label={'View Player'}
-                    handleClick={()=>{console.log('Clicked')}}
+                    handleClick={()=>{
+                        handleViewPlayer(model.selectedPlayer);
+                    }}
                 />}
                 {(model.canReviewApplication) &&<ActionButton
                     label={'Approve Application'}
