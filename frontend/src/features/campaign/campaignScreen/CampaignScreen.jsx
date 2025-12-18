@@ -9,8 +9,8 @@ import { useCampaignScreen } from "./useCampaignScreen";
 export const CampaignScreen = () => {
   const model = useCampaignScreen();
 
-  if (isLoading) return <div>Loading…</div>;
-  if (error) return <pre>{String(error)}</pre>;
+  if (model.isLoading) return <div>Loading…</div>;
+  if (model.error) return <pre>{String(error)}</pre>;
 
   return (
     <>

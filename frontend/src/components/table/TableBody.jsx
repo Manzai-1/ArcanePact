@@ -7,12 +7,13 @@ export default function TableBody({ headers, rows, action = ()=>{}, selectedRow=
       </tbody>
     )
   }
-
+  console.log(selectedRow);
   return (
     <tbody>
       {
         rows.map((row)=>(
-          <tr key={row.id} onClick={()=>{action(row.id)}} className={selectedRow === row.id ? styles.selected : ''}>
+          <tr key={row.id} onClick={()=>{action(row)}} 
+            className={selectedRow && selectedRow.id === row.id ? styles.selected : ''}>
             {
               headers.map((header, j) => (
                 <td key={j}>
