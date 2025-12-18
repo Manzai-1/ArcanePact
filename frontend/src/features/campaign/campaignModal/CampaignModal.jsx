@@ -10,7 +10,7 @@ export const CampaignModal = ({campaign, handleCloseModal}) => {
     const isOwner = campaign.clientState === ClientState.Owner;
     const isApplicant = campaign.clientState === ClientState.Applied;
     const isAwaitingSignature = campaign.clientState === ClientState.AwaitingSignature;
-    const isJoined = campaign.clientState === ClientState.Joined;
+    const isJoined = campaign.clientState === ClientState.Signed;
     const isCompleted = campaign.state === CampaignState.Completed;
     const isDiscovery = campaign.clientState === ClientState.None;
 
@@ -19,8 +19,11 @@ export const CampaignModal = ({campaign, handleCloseModal}) => {
             <h2>{campaign.title}</h2>
             <p>{campaign.description}</p>
             <p>{campaign.id}</p>
+
             { isOwner &&<InvitePlayers campaignId={campaign.id}/> }
+
             <PlayerList campaign={campaign}/>
+            
             <div className={styles.root}>
                 {isAwaitingSignature &&<ActionButton
                     label={'Sign'}

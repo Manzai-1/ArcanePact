@@ -9,11 +9,12 @@ import { reviewApplication } from "../../../services/arcanePactServices";
 export const PlayerList = ({campaign}) => {
     const [selectedRow, setSelectedRow] = useState(null);
 
-    const { playersByCampaignId } = UseGraph();
-    const players = playersByCampaignId.get(campaign.id);
+    const players = campaign.players;
     const headers = [
         {name: 'stateText', value: 'State'},
-        {name: 'id', value: 'Player Address'}
+        {name: 'id', value: 'Player Address'},
+        {name: 'likes', value: '⬆'},
+        {name: 'dislikes', value: '⬇'}
     ];
 
     const hasSelectedRow = selectedRow !== null;

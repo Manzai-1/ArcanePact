@@ -113,12 +113,23 @@ export function handleNewVoteAdded(event: NewVoteAdded): void {
   const playerId = event.params.player.toHexString().toLowerCase();
   const voteType = event.params.voteType;
 
-  const id = campaignId + '-' + playerId + '-' + voteType.toString();
+  const campaign = Campaign.load(campaignId);
+  if (campaign == null) return;
+
+  let player = Player.load(playerId);
+  if (player == null) {
+    player = new Player(playerId);
+    player.likes = BigInt.zero();
+    player.dislikes = BigInt.zero();
+    player.save();
+  };
+
+  const id = campaign.id + '-' + player.id + '-' + voteType.toString();
   let vote = Vote.load(id);
   if(vote == null) vote = new Vote(id);
-
-  vote.campaign = campaignId;
-  vote.player = playerId;
+  
+  vote.campaign = campaign.id;
+  vote.player = player.id;
   vote.voteType = voteType;
 
   vote.save();

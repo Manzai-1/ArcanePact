@@ -14,12 +14,20 @@ export enum PlayerState {
 
 export enum ClientState {
     None,
-    Owner,
-    Joined,
     Applied,
+    Rejected,
     AwaitingSignature,
-    Rejected
+    Signed,
+    Owner
 }
+// export enum ClientState {
+//     None,
+//     Owner,
+//     Joined,
+//     Applied,
+//     AwaitingSignature,
+//     Rejected
+// }
 
 export enum ApplicationDecision {
     Approved,

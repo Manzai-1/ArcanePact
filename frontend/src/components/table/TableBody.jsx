@@ -11,8 +11,8 @@ export default function TableBody({ headers, rows, action = ()=>{}, selectedRow=
   return (
     <tbody>
       {
-        rows.map((row, i)=>(
-          <tr key={i} onClick={()=>{action(i)}} className={selectedRow === i ? styles.selected : ''}>
+        rows.map((row)=>(
+          <tr key={row.id} onClick={()=>{action(row.id)}} className={selectedRow === row.id ? styles.selected : ''}>
             {
               headers.map((header, j) => (
                 <td key={j}>
