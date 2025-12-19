@@ -4,6 +4,7 @@ import Table from "../../../components/table/Table";
 import { TableSectionWithHeader } from "../../../components/tableSection/TableSectionWithHeader";
 import { sendApplication, signCampaign, withdrawCollateral, withdrawFees } from "../../../services/arcanePactServices";
 import { ReviewPlayer } from "../../player/reviewPlayer/ReviewPlayer";
+import { CampaignPlayerView } from "../campaignPlayerView/CampaignPlayerView";
 import InvitePlayers from "../invitePlayers/InvitePlayers";
 import { PlayerList } from "../playerList/PlayerList";
 import { VotesView } from "../votesView/VotesView";
@@ -33,9 +34,7 @@ export const CampaignModal = ({campaign, handleCloseModal}) => {
                 <p>{campaign.description}</p>
                 <p>{campaign.id}</p>
 
-                { model.canInvite &&<InvitePlayers campaignId={campaign.id}/> }
-
-                <PlayerList campaign={campaign} handleViewPlayer={model.handleViewPlayer}/>
+                <CampaignPlayerView campaign={campaign} handleViewPlayer={model.handleViewPlayer}/>
                 <VotesView campaign={campaign}/>
                 
                 <div className={styles.root}>

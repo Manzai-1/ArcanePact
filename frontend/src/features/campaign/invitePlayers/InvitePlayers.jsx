@@ -1,6 +1,7 @@
 import { useState } from "react";
 import styles from "./invitePlayers.module.css";
 import { invitePlayers } from "../../../services/arcanePactServices";
+import { TableSection } from "../../../components/tableSection/TableSection";
 
 export default function InvitePlayers({ campaignId }) {
   const [name, setName] = useState("");
@@ -25,7 +26,7 @@ export default function InvitePlayers({ campaignId }) {
   }
 
   return (
-    <div className={styles.root}>
+    <TableSection aria={'Invite Player Section'}>
       <div className={styles.row}>
         <input
           className={styles.input}
@@ -65,6 +66,6 @@ export default function InvitePlayers({ campaignId }) {
       >
         Invite
       </button>
-    </div>
+    </TableSection>
   );
 }

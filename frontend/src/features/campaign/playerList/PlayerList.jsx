@@ -7,7 +7,7 @@ export const PlayerList = ({campaign, handleViewPlayer}) => {
     const model = usePlayerList(campaign);
 
     return (
-        <div className={styles.root}>
+        <>
             <Table 
                 headers={model.headers} 
                 rows={campaign.players} 
@@ -30,6 +30,6 @@ export const PlayerList = ({campaign, handleViewPlayer}) => {
                     handleClick={model.rejectApplication}
                 />}
             </div>
-        </div>
+        </>
     );
 }
