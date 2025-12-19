@@ -76,3 +76,13 @@ export const withdrawCollateral = async (campaignId) => {
     const tx = await contract.withdrawCollateral(campaignId);
     return tx; 
 }
+
+export const addReview = async (campaignId, playerId, score, comment) => {
+    const contract = await getWriter();
+    const tx = await contract.addReview(
+      campaignId,
+      playerId,
+      {score, comment}
+    );
+    return tx; 
+}

@@ -1,52 +1,54 @@
+import { mode } from "viem/chains";
 import { ActionButton } from "../../../components/actionButton/ActionButton";
 import PopupModal from "../../../components/popupModal/PopupModal";
-import { CampaignState, ClientState, VoteType } from "../../../models/IArcanePact";
-import { addVote, sendApplication, signCampaign, withdrawCollateral, withdrawFees } from "../../../services/arcanePactServices";
-import InvitePlayers from "../invitePlayers/InvitePlayers";
-import { PlayerList } from "../playerList/PlayerList";
+import Table from "../../../components/table/Table";
+import { TableSectionWithHeader } from "../../../components/tableSection/TableSectionWithHeader";
+import { sendApplication, signCampaign, withdrawCollateral, withdrawFees } from "../../../services/arcanePactServices";
+import { PlayerInfoSection } from "../../player/playerInfoSection/PlayerInfoSection";
+import { ReviewPlayer } from "../../player/reviewPlayer/ReviewPlayer";
+import { CampaignInfoSection } from "../campaignInfoSection/CampaignInfoSection";
+import { CampaignPlayerView } from "../campaignPlayerView/CampaignPlayerView";
+import { VotesView } from "../votesView/VotesView";
 import styles from './campaignModal.module.css';
+import { useCampaignModal } from "./useCampaignModal";
 
 export const CampaignModal = ({campaign, handleCloseModal}) => {
-    const isOwner = campaign.clientState === ClientState.Owner;
-    const isApplicant = campaign.clientState === ClientState.Applied;
-    const isAwaitingSignature = campaign.clientState === ClientState.AwaitingSignature;
-    const isJoined = campaign.clientState === ClientState.Joined;
-    const isCompleted = campaign.state === CampaignState.Completed;
-    const isDiscovery = campaign.clientState === ClientState.None;
+    const model = useCampaignModal(campaign);
 
     return (
-        <PopupModal onClose={handleCloseModal}>
-            <h2>{campaign.title}</h2>
-            <p>{campaign.description}</p>
-            <p>{campaign.id}</p>
-            { isOwner &&<InvitePlayers campaignId={campaign.id}/> }
-            <PlayerList campaign={campaign}/>
-            <div className={styles.root}>
-                {isAwaitingSignature &&<ActionButton
-                    label={'Sign'}
-                    handleClick={()=>{signCampaign(campaign.id, campaign.gamemasterFee, campaign.collateral)}}
-                />}
-                {isDiscovery &&<ActionButton
-                    label={'Apply'}
-                    handleClick={()=>{sendApplication(campaign.id)}}
-                />}
-                {(isJoined || isOwner) &&<ActionButton
-                    label={'Vote Start'}
-                    handleClick={()=>{addVote(campaign.id, VoteType.StartCampaign)}}
-                />}
-                {(isJoined || isOwner) &&<ActionButton
-                    label={'Vote Stop'}
-                    handleClick={()=>{addVote(campaign.id, VoteType.StopCampaign)}}
-                />}
-                {(isJoined && isCompleted) &&<ActionButton
-                    label={'Withdraw Collateral'}
-                    handleClick={()=>{withdrawCollateral(campaign.id)}}
-                />}
-                {(isOwner && isCompleted) &&<ActionButton
-                    label={'Withdraw Fees'}
-                    handleClick={()=>{withdrawFees(campaign.id)}}
-                />}
-            </div>
-        </PopupModal>
+        <>
+            {model.viewPlayer &&<PopupModal onClose={model.closeViewPlayer}>
+                <PlayerInfoSection player={model.viewPlayer}/>
+                <TableSectionWithHeader header={'Reviews'} aria={'Review Section'}>
+                {model.rows &&<Table headers={model.headers} rows={model.rows}/>}
+                {!model.rows &&<>No reviews available..</>}
+                {model.canReview &&<ReviewPlayer campaign={campaign} player={model.viewPlayer}/>}
+                </TableSectionWithHeader>
+            </PopupModal>}
+            {!model.viewPlayer &&<PopupModal onClose={handleCloseModal}>
+                <CampaignInfoSection campaign={campaign}/>
+                <CampaignPlayerView campaign={campaign} handleViewPlayer={model.handleViewPlayer}/>
+                <VotesView campaign={campaign}/>
+                
+                <div className={styles.root}>
+                    {model.canSign &&<ActionButton
+                        label={'Sign'}
+                        handleClick={()=>{signCampaign(campaign.id, campaign.gamemasterFee, campaign.collateral)}}
+                    />}
+                    {model.canApply &&<ActionButton
+                        label={'Apply'}
+                        handleClick={()=>{sendApplication(campaign.id)}}
+                    />}
+                    {(model.canWithdrawCollateral) &&<ActionButton
+                        label={'Withdraw Collateral'}
+                        handleClick={()=>{withdrawCollateral(campaign.id)}}
+                    />}
+                    {(model.canWithdrawFees) &&<ActionButton
+                        label={'Withdraw Fees'}
+                        handleClick={()=>{withdrawFees(campaign.id)}}
+                    />}
+                </div>
+            </PopupModal>}
+        </>
     );
 }

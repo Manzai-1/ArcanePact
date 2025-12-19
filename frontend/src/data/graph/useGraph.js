@@ -1,107 +1,99 @@
 import { useMemo } from "react";
-import { useCampaignPlayersQuery, useCampaignsQuery } from "./queries";
+import { useCampaignPlayerQuery, usePlayerCampaignQuery } from "./queries";
 import { useAccount } from "wagmi";
-import { CampaignState, ClientState, PlayerState } from "../../models/IArcanePact";
-
+import { CampaignState, ClientState, PlayerState, VoteType } from "../../models/IArcanePact";
+import { formatEther } from "ethers";
 
 export const UseGraph = () => {
     const { address } = useAccount();
     const clientAdr = address.toLowerCase();
 
-    const campaignsQuery = useCampaignsQuery(100, 0);
-    const campaignPlayersQuery = useCampaignPlayersQuery(100, 0);
+    const campaignPlayerQuery = useCampaignPlayerQuery(1000, 0);
+    const playerCampaignQuery = usePlayerCampaignQuery(1000, 0);
 
     const lists = useMemo(() => {
-        const campaigns = (campaignsQuery.data ?? []).map(campaign => ({
-            ...campaign,
-            stateText: CampaignState[campaign.state]
-        }));
-        const campaignPlayers = (campaignPlayersQuery.data ?? []).map(cp => ({
-            ...cp,
-            stateText: PlayerState[cp.state]
-        }));
+        const noTrailingZero = (value) => value.replace(/\.0+$/, "").replace(/(\.\d*[1-9])0+$/, "$1");
+        const campaigns = (campaignPlayerQuery.data ?? []).map(campaign => {
+            const stateText = CampaignState[campaign.state];
 
-        console.log("RUNNING USE GRAPH");
+            const players = (campaign.players ?? []).map(cp => ({
+                id: cp.player.id,
+                lockedCollateral: cp.lockedCollateral,
+                state: cp.state,
+                stateText: PlayerState[cp.state],
+                likes: cp.player.likes,
+                dislikes: cp.player.dislikes
+            }));
 
-        const playersByCampaignId = new Map();
-
-        for (const cp of campaignPlayers){
-            const campaignId = cp.campaign.id;
-            const id = cp.player.id;
-            const state = cp.state;
-            const stateText = cp.stateText;
-
-            if (!playersByCampaignId.has(campaignId)) {
-                playersByCampaignId.set(campaignId, []);
+            const voteTypeCount = Object.values(VoteType).filter(v => typeof v === 'number').length;
+            const votes = [];
+            for(let i = 0; i < voteTypeCount; i++){
+                const filteredVotes = (campaign.votes ?? []).filter(vote => vote.voteType === i);
+                const voteCount = filteredVotes.length;
+                const voters = filteredVotes.map(v => v.player.id);
+                votes.push({
+                    voteType: i,
+                    voteName: VoteType[i],
+                    voteCount,
+                    voters
+                });
             }
 
-            playersByCampaignId.get(campaignId).push({
-                id,
-                state,
-                stateText
-            });
-        }
-
-        if(!clientAdr) return {
-            owned: [], 
-            joined: [], 
-            pending: [], 
-            discover: campaigns.filter(c =>  !c.inviteOnly)
-                .map(c => ({...c, clientState: ClientState.None})),
-            playersByCampaignId
-        };
-
-        const owned = campaigns.filter(
-            campaign => campaign.owner.toLowerCase() === clientAdr
-        ).map(c => ({...c, clientState: ClientState.Owner}));
-
-        const joined =campaigns.filter(
-            campaign => campaignPlayers.filter(
-                campaignPlayer => campaignPlayer.campaign.id === campaign.id
-                && campaignPlayer.player.id.toLowerCase() === clientAdr
-                && campaignPlayer.state === PlayerState.Signed
-        ).length > 0).map(c => ({...c, clientState: ClientState.Joined}));
-
-        const pending = campaigns.map(campaign => {
-            const campaignPlayer = campaignPlayers.find((cp) => 
-                cp.campaign.id === campaign.id &&
-                cp.player.id.toLowerCase() === clientAdr &&
-                (
-                    cp.state === PlayerState.Applied || 
-                    cp.state === PlayerState.AwaitingSignature
-                ) 
-            );
-
-            if(!campaignPlayer) return null;
-
-            const clientState = campaignPlayer.state === PlayerState.Applied ? 
-                ClientState.Applied :
-                ClientState.AwaitingSignature;
+            let clientState = ClientState.None;
+            if(campaign.owner.toLowerCase() === clientAdr) {
+                clientState = ClientState.Owner;
+            } else {
+                const clientPlayer = players.find(
+                    player => player.id.toLowerCase() === clientAdr
+                );
+                if(clientPlayer) clientState = clientPlayer.state;
+            }
 
             return {
                 ...campaign,
-                clientState 
+                feeEth: noTrailingZero(formatEther(campaign.gamemasterFee)),
+                collateralEth: noTrailingZero(formatEther(campaign.collateral)),
+                clientState,
+                stateText,
+                players,
+                votes
             }
-        }).filter(Boolean);
+        });
 
+        const players = (playerCampaignQuery.data ?? []).map(player => {
+            const campaigns = (player.campaigns ?? []).map(campaignPlayer => ({
+                campaignId: campaignPlayer.campaign.id,
+                campaignState: campaignPlayer.campaign.state,
+                campaignStateText: CampaignState[campaignPlayer.campaign.state],
+                playerState: campaignPlayer.state,
+                playerStateText: PlayerState[campaignPlayer.state]
+            }))
 
-        const discover = campaigns.filter(
-            campaign => campaign.owner.toLowerCase() != address.toLowerCase() && 
-            !campaign.inviteOnly &&
-            (
-                !playersByCampaignId.has(campaign.id) || 
-                !playersByCampaignId.get(campaign.id)
-                    .find((cp) => cp.id.toLowerCase() === clientAdr)
-            )
-        ).map(c => ({...c, clientState: ClientState.None}));
+            const reviews = (player.reviews ?? []).map(review => ({
+                campaignId: review.campaign.id,
+                campaignTitle: review.campaign.title,
+                score: review.score,
+                comment: review.comment
+            }))
 
-        return { owned, joined, pending, discover, playersByCampaignId };
-    }, [campaignsQuery.data, campaignPlayersQuery.data, address]);
+            return {
+                id: player.id,
+                likes: player.likes,
+                dislikes: player.dislikes,
+                campaigns,
+                reviews
+            }
+        })
+
+        console.log(campaigns);
+        console.log(players);
+
+        return { campaigns, players };
+    }, [campaignPlayerQuery.data, playerCampaignQuery.data, address]);
 
     return {
         ...lists,
-        address,
-        isLoading: campaignsQuery.isLoading || campaignPlayersQuery.isLoading,
-        error: campaignsQuery.error || campaignPlayersQuery.error,
+        isLoading: campaignPlayerQuery.isLoading || playerCampaignQuery.isLoading,
+        error: campaignPlayerQuery.error || playerCampaignQuery.error
   };
 }
