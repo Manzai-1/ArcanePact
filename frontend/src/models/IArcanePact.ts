@@ -39,6 +39,11 @@ export enum VoteType {
     StopCampaign
 }
 
+export enum ReviewScore {
+    Positive,
+    Negative
+}
+
 export interface Campaign {
     campaignId: number;
     title: string;

@@ -1,10 +1,8 @@
-import { useAccount } from "wagmi";
 import { CampaignState, ClientState } from "../../../models/IArcanePact";
 import { useState } from "react";
 import { UseGraph } from "../../../data/graph/useGraph";
 
 export const useCampaignModal = (campaign) => {
-    const { address } = useAccount();
     const { players } = UseGraph();
     const [viewPlayer, setViewPlayer] = useState(null);
 
@@ -16,9 +14,12 @@ export const useCampaignModal = (campaign) => {
         canInvite: campaign.clientState === ClientState.Owner,
         canSign: campaign.clientState === ClientState.AwaitingSignature,
         canApply: campaign.clientState === ClientState.None && campaign.state === CampaignState.Initialized,
-        canVote: campaign.clientState === ClientState.Signed || campaign.owner === address,
+        canVote: campaign.clientState === ClientState.Signed || campaign.clientState === ClientState.Owner,
         canWithdrawCollateral: campaign.clientState === ClientState.Signed && campaign.state === CampaignState.Completed,
-        canWithdrawFees: campaign.owner === address && campaign.state === CampaignState.Completed,
+        canWithdrawFees: campaign.clientState === ClientState.Owner && campaign.state === CampaignState.Completed,
+        canReview: viewPlayer && 
+            campaign.state === CampaignState.Completed && 
+            campaign.ClientState === CampaignState.Signed,
         viewPlayer,
         handleViewPlayer,
         closeViewPlayer: ()=>{setViewPlayer(null)}

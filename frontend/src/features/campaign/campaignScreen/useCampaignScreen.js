@@ -13,7 +13,7 @@ export const headers = [
 
 export const filteredTables = (campaigns) => ({
     owned:      campaigns.filter(campaign => campaign.clientState === ClientState.Owner),
-    joined:     campaigns.filter(campaign => campaign.clientState === ClientState.joined),
+    joined:     campaigns.filter(campaign => campaign.clientState === ClientState.Signed),
     pending:    campaigns.filter(campaign => 
         campaign.clientState === ClientState.AwaitingSignature || 
         campaign.clientState === ClientState.Applied

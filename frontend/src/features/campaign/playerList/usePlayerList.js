@@ -19,10 +19,7 @@ export const usePlayerList = (campaign) => {
     
     const rejectApplication = () => submitReview(ApplicationDecision.Rejected);
     const approveApplication = () => submitReview(ApplicationDecision.Approved);
-    const submitReview = (decision) => reviewApplication(campaign.id, [{
-        applicant: selectedPlayer.id,
-        decision
-    }]);
+    const submitReview = (decision) => reviewApplication(campaign.id, selectedPlayer.id, decision);
 
 
     return {
