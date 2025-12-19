@@ -2,7 +2,7 @@ import { useMemo } from "react";
 import { useCampaignPlayerQuery, usePlayerCampaignQuery } from "./queries";
 import { useAccount } from "wagmi";
 import { CampaignState, ClientState, PlayerState, VoteType } from "../../models/IArcanePact";
-
+import { formatEther } from "ethers";
 
 export const UseGraph = () => {
     const { address } = useAccount();
@@ -12,6 +12,7 @@ export const UseGraph = () => {
     const playerCampaignQuery = usePlayerCampaignQuery(1000, 0);
 
     const lists = useMemo(() => {
+        const noTrailingZero = (value) => value.replace(/\.0+$/, "").replace(/(\.\d*[1-9])0+$/, "$1");
         const campaigns = (campaignPlayerQuery.data ?? []).map(campaign => {
             const stateText = CampaignState[campaign.state];
 
@@ -50,6 +51,8 @@ export const UseGraph = () => {
 
             return {
                 ...campaign,
+                feeEth: noTrailingZero(formatEther(campaign.gamemasterFee)),
+                collateralEth: noTrailingZero(formatEther(campaign.collateral)),
                 clientState,
                 stateText,
                 players,

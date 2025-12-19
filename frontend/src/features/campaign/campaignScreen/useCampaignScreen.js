@@ -7,8 +7,8 @@ export const headers = [
   {name: 'stateText', value: 'State'},
   {name: 'title', value: 'Title'},
   {name: 'description', value: 'Description'},
-  {name: 'gamemasterFee', value: 'Fee'},
-  {name: 'collateral', value: 'Collateral'}
+  {name: 'feeEth', value: 'Fee'},
+  {name: 'collateralEth', value: 'Collateral'}
 ]
 
 export const filteredTables = (campaigns) => ({

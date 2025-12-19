@@ -26,7 +26,7 @@ export default function InvitePlayers({ campaignId }) {
   }
 
   return (
-    <TableSection aria={'Invite Player Section'}>
+    <>
       <div className={styles.row}>
         <input
           className={styles.input}
@@ -66,6 +66,6 @@ export default function InvitePlayers({ campaignId }) {
       >
         Invite
       </button>
-    </TableSection>
+    </>
   );
 }

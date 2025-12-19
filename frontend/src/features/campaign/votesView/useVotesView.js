@@ -1,4 +1,5 @@
 import { ClientState, VoteType } from "../../../models/IArcanePact";
+import { addVote } from "../../../services/arcanePactServices";
 
 const headers = [
     { name: 'voteName', value: 'Type' },

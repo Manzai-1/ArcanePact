@@ -1,12 +1,13 @@
+import { mode } from "viem/chains";
 import { ActionButton } from "../../../components/actionButton/ActionButton";
 import PopupModal from "../../../components/popupModal/PopupModal";
 import Table from "../../../components/table/Table";
 import { TableSectionWithHeader } from "../../../components/tableSection/TableSectionWithHeader";
 import { sendApplication, signCampaign, withdrawCollateral, withdrawFees } from "../../../services/arcanePactServices";
+import { PlayerInfoSection } from "../../player/playerInfoSection/PlayerInfoSection";
 import { ReviewPlayer } from "../../player/reviewPlayer/ReviewPlayer";
+import { CampaignInfoSection } from "../campaignInfoSection/CampaignInfoSection";
 import { CampaignPlayerView } from "../campaignPlayerView/CampaignPlayerView";
-import InvitePlayers from "../invitePlayers/InvitePlayers";
-import { PlayerList } from "../playerList/PlayerList";
 import { VotesView } from "../votesView/VotesView";
 import styles from './campaignModal.module.css';
 import { useCampaignModal } from "./useCampaignModal";
@@ -17,23 +18,15 @@ export const CampaignModal = ({campaign, handleCloseModal}) => {
     return (
         <>
             {model.viewPlayer &&<PopupModal onClose={model.closeViewPlayer}>
-                <h2>{model.viewPlayer.id}</h2>
-                <p>{model.viewPlayer.likes}</p>
-                <p>{model.viewPlayer.dislikes}</p>
-
+                <PlayerInfoSection player={model.viewPlayer}/>
                 <TableSectionWithHeader header={'Reviews'} aria={'Review Section'}>
-                <Table
-                    headers={[{name: 'score', value: 'Score'}, {name: 'comment', value: 'Comment'}]}
-                    rows={model.viewPlayer.reviews}
-                />
+                {model.rows &&<Table headers={model.headers} rows={model.rows}/>}
+                {!model.rows &&<>No reviews available..</>}
                 {model.canReview &&<ReviewPlayer campaign={campaign} player={model.viewPlayer}/>}
                 </TableSectionWithHeader>
             </PopupModal>}
             {!model.viewPlayer &&<PopupModal onClose={handleCloseModal}>
-                <h2>{campaign.title}</h2>
-                <p>{campaign.description}</p>
-                <p>{campaign.id}</p>
-
+                <CampaignInfoSection campaign={campaign}/>
                 <CampaignPlayerView campaign={campaign} handleViewPlayer={model.handleViewPlayer}/>
                 <VotesView campaign={campaign}/>
                 

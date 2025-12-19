@@ -1,4 +1,4 @@
-import { CampaignState, ClientState } from "../../../models/IArcanePact";
+import { CampaignState, ClientState, ReviewScore } from "../../../models/IArcanePact";
 import { useState } from "react";
 import { UseGraph } from "../../../data/graph/useGraph";
 
@@ -9,6 +9,12 @@ export const useCampaignModal = (campaign) => {
     const handleViewPlayer = (player) => {
         setViewPlayer(players.find(p => p.id === player.id));
     }
+
+    const headers = [{name: 'score', value: 'Score'}, {name: 'comment', value: 'Comment'}];
+    const rows = ((viewPlayer ?? []).reviews ?? []).map(r => ({
+        ...r,
+        score: ReviewScore[r.score]
+    }));
 
     return {
         canInvite: campaign.clientState === ClientState.Owner,
@@ -22,7 +28,9 @@ export const useCampaignModal = (campaign) => {
             campaign.ClientState === CampaignState.Signed,
         viewPlayer,
         handleViewPlayer,
-        closeViewPlayer: ()=>{setViewPlayer(null)}
+        closeViewPlayer: ()=>{setViewPlayer(null)},
+        headers,
+        rows: rows.length > 0 ? rows : null
     };
 }
 
