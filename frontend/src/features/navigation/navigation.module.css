@@ -11,8 +11,9 @@
   font-size: 14px;
 }
 
-.li,
 .navLink {
+  display: inline-block;
+  padding-inline: 10px;
   font-family: 'Cinzel', serif;
   font-weight: 700;
   font-size: 1.25rem;
@@ -25,5 +26,5 @@
 
 .navLink:hover {
   color: #ffedb5;
-  transform: scale(1.1);
+  transform: scale(1.25);
 }

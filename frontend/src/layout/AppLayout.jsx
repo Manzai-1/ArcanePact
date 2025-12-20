@@ -8,15 +8,17 @@ const AppLayout = () => {
   return (
     <>
       <Web3Provider>
-        <header>
-          <Header/>
-        </header>
-        <main className="app-background">
-          <Outlet/>
-        </main>
-        <footer>
-          <Footer/>
-        </footer>
+        <div className='app-background'>
+          <header>
+            <Header/>
+          </header>
+          <main>
+            <Outlet/>
+          </main>
+          <footer>
+            <Footer/>
+          </footer>
+        </div>
       </Web3Provider>
     </>
   );
