@@ -22,7 +22,7 @@ export const useCampaignModal = (campaign) => {
     const txValue = BigInt(campaign.gamemasterFee) + BigInt(campaign.collateral);
 
     const handleSign = () => sendTx('signCampaign', [campaign.id], txValue);
-    const handleApply = () => sendTx('sendApplication', [campaign.id]);
+    const handleApply = () => sendTx('campaignApplication', [campaign.id]);
     const handleWithdrawCollateral = () => sendTx('withdrawCollateral', [campaign.id]);
     const handleWithDrawFees = () => sendTx('withdrawFees', [campaign.id]);
 
