@@ -1,16 +1,16 @@
-import { useId, useState } from "react";
+import { useContext, useId, useState } from "react";
 import styles from "./reviewPlayer.module.css";
 import { ReviewScore } from "../../../models/IArcanePact";
-import { addReview } from "../../../services/arcanePactServices";
-
+import { TxContext } from "../../../providers/TxProvider";
 
 export const ReviewPlayer = ({ campaign, player }) => {
+  const { sendTx } = useContext(TxContext);
   const groupId = useId();
   const [score, setScore] = useState(ReviewScore.Positive);
   const [comment, setComment] = useState("");
 
   const handleSubmit = async () => {
-    addReview(campaign.id, player.id, score, comment);
+    sendTx('addReview', [campaign.id, player.id, score, comment]);
   };
 
   return (

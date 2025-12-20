@@ -1,9 +1,7 @@
-import { mode } from "viem/chains";
 import { ActionButton } from "../../../components/actionButton/ActionButton";
 import PopupModal from "../../../components/popupModal/PopupModal";
 import Table from "../../../components/table/Table";
 import { TableSectionWithHeader } from "../../../components/tableSection/TableSectionWithHeader";
-import { sendApplication, signCampaign, withdrawCollateral, withdrawFees } from "../../../services/arcanePactServices";
 import { PlayerInfoSection } from "../../player/playerInfoSection/PlayerInfoSection";
 import { ReviewPlayer } from "../../player/reviewPlayer/ReviewPlayer";
 import { CampaignInfoSection } from "../campaignInfoSection/CampaignInfoSection";
@@ -33,19 +31,18 @@ export const CampaignModal = ({campaign, handleCloseModal}) => {
                 <div className={styles.root}>
                     {model.canSign &&<ActionButton
                         label={'Sign'}
-                        handleClick={()=>{signCampaign(campaign.id, campaign.gamemasterFee, campaign.collateral)}}
+                        handleClick={model.handleSign}
                     />}
-                    {model.canApply &&<ActionButton
-                        label={'Apply'}
-                        handleClick={()=>{sendApplication(campaign.id)}}
+                    {model.canApply &&<ActionButton label={'Apply'}
+                        handleClick={model.handleApply}
                     />}
                     {(model.canWithdrawCollateral) &&<ActionButton
                         label={'Withdraw Collateral'}
-                        handleClick={()=>{withdrawCollateral(campaign.id)}}
+                        handleClick={model.handleWithdrawCollateral}
                     />}
                     {(model.canWithdrawFees) &&<ActionButton
                         label={'Withdraw Fees'}
-                        handleClick={()=>{withdrawFees(campaign.id)}}
+                        handleClick={model.handleWithDrawFees}
                     />}
                 </div>
             </PopupModal>}

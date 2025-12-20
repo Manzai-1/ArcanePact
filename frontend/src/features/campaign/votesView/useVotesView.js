@@ -1,5 +1,6 @@
+import { useContext } from "react";
 import { ClientState, VoteType } from "../../../models/IArcanePact";
-import { addVote } from "../../../services/arcanePactServices";
+import { TxContext } from "../../../providers/TxProvider";
 
 const headers = [
     { name: 'voteName', value: 'Type' },
@@ -8,7 +9,8 @@ const headers = [
 ];
 
 export const useVotesView = (campaign) => {
-    console.log('VOTE CAMPAIGN',campaign);
+    const { sendTx } = useContext(TxContext);
+
     const rows = campaign.votes.map(vote => {
         const voteName = vote.voteName;
         const voteCount = vote.voteCount;
@@ -17,8 +19,8 @@ export const useVotesView = (campaign) => {
         return { voteName, voteCount, required };
     })
 
-    const voteStartCampaign = () => addVote(campaign.id, VoteType.StartCampaign);
-    const voteStopCampaign  = () => addVote(campaign.id, VoteType.StopCampaign);
+    const voteStartCampaign = () => sendTx('addVote', [campaign.id, VoteType.StartCampaign]);
+    const voteStopCampaign  = () => sendTx('addVote', [campaign.id, VoteType.StopCampaign]);
 
     return {
         headers,

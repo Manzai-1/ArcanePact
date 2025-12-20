@@ -1,11 +1,11 @@
-import { useState } from "react";
+import { useContext, useState } from "react";
 import styles from "./invitePlayers.module.css";
-import { invitePlayers } from "../../../services/arcanePactServices";
-import { TableSection } from "../../../components/tableSection/TableSection";
+import { TxContext } from "../../../providers/TxProvider";
 
 export default function InvitePlayers({ campaignId }) {
   const [name, setName] = useState("");
   const [names, setNames] = useState([]);
+  const { sendTx } = useContext(TxContext);
 
   const add = () => {
     const n = name.trim();
@@ -17,12 +17,9 @@ export default function InvitePlayers({ campaignId }) {
   const remove = (n) => setNames(names.filter((x) => x !== n));
 
   const handleInvite = async (addresses) => {
-      console.log(`Invite to [${campaignId}] players: ${addresses}`);
-      await invitePlayers(campaignId, addresses).then((tx)=>{
-        console.log(tx.wait());
-        setName('');
-        setNames([]);
-      })
+    sendTx('invitePlayers', [campaignId, addresses]);
+    setName('');
+    setNames([]);
   }
 
   return (

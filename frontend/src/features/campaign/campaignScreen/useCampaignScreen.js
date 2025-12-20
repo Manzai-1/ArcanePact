@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { UseGraph } from "../../../data/graph/useGraph";
 import { ClientState } from "../../../models/IArcanePact";
-import { newCampaign } from "../../../services/arcanePactServices";
 
 export const headers = [
   {name: 'stateText', value: 'State'},
@@ -23,7 +22,7 @@ export const filteredTables = (campaigns) => ({
 
 export const useCampaignScreen = () => {
   const [selectedCampaign, setSelectedCampaign] = useState(null);
-  
+
   const { campaigns, isLoading, error } = UseGraph();
   const { owned, joined, pending, discover } = filteredTables(campaigns);
 
@@ -43,6 +42,5 @@ export const useCampaignScreen = () => {
     selectedCampaign,
     setSelectedCampaign,
     closeModal: ()=>{setSelectedCampaign(null)},
-    submitNewCampaign: newCampaign
   }
 }
