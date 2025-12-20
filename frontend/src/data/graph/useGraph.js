@@ -12,6 +12,7 @@ export const UseGraph = () => {
     const playerCampaignQuery = usePlayerCampaignQuery(1000, 0);
 
     const lists = useMemo(() => {
+        console.log("USE GRAPH");
         const noTrailingZero = (value) => value.replace(/\.0+$/, "").replace(/(\.\d*[1-9])0+$/, "$1");
         const campaigns = (campaignPlayerQuery.data ?? []).map(campaign => {
             const stateText = CampaignState[campaign.state];
@@ -84,9 +85,6 @@ export const UseGraph = () => {
                 reviews
             }
         })
-
-        console.log(campaigns);
-        console.log(players);
 
         return { campaigns, players };
     }, [campaignPlayerQuery.data, playerCampaignQuery.data, address]);

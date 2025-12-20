@@ -7,7 +7,7 @@ export default function TableBody({ headers, rows, action = ()=>{}, selectedRow=
       </tbody>
     )
   }
-  console.log(selectedRow);
+
   return (
     <tbody>
       {

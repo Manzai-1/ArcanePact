@@ -5,6 +5,7 @@ import {
   darkTheme,
 } from '@rainbow-me/rainbowkit';
 import { wagmiConfig } from '../wagmi/config';
+import TxProvider from './TxProvider';
 
 const queryClient = new QueryClient();
 
@@ -13,7 +14,9 @@ export function Web3Provider({ children }) {
     <WagmiProvider config={wagmiConfig}>
       <QueryClientProvider client={queryClient}>
         <RainbowKitProvider theme={darkTheme()}>
-          {children}
+          <TxProvider>
+            {children}
+          </TxProvider>
         </RainbowKitProvider>
       </QueryClientProvider>
     </WagmiProvider>

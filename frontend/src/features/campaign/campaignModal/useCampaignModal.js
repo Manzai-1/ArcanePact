@@ -1,10 +1,13 @@
 import { CampaignState, ClientState, ReviewScore } from "../../../models/IArcanePact";
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { UseGraph } from "../../../data/graph/useGraph";
+import { TxContext } from "../../../providers/TxProvider";
+import { formatEther } from "viem";
 
 export const useCampaignModal = (campaign) => {
     const { players } = UseGraph();
     const [viewPlayer, setViewPlayer] = useState(null);
+    const { sendTx } = useContext(TxContext);
 
     const handleViewPlayer = (player) => {
         setViewPlayer(players.find(p => p.id === player.id));
@@ -15,6 +18,13 @@ export const useCampaignModal = (campaign) => {
         ...r,
         score: ReviewScore[r.score]
     }));
+
+    const txValue = BigInt(campaign.gamemasterFee) + BigInt(campaign.collateral);
+
+    const handleSign = () => sendTx('signCampaign', [campaign.id], txValue);
+    const handleApply = () => sendTx('sendApplication', [campaign.id]);
+    const handleWithdrawCollateral = () => sendTx('withdrawCollateral', [campaign.id]);
+    const handleWithDrawFees = () => sendTx('withdrawFees', [campaign.id]);
 
     return {
         canInvite: campaign.clientState === ClientState.Owner,
@@ -30,7 +40,11 @@ export const useCampaignModal = (campaign) => {
         handleViewPlayer,
         closeViewPlayer: ()=>{setViewPlayer(null)},
         headers,
-        rows: rows.length > 0 ? rows : null
+        rows: rows.length > 0 ? rows : null,
+        handleSign,
+        handleApply,
+        handleWithdrawCollateral,
+        handleWithDrawFees
     };
 }
 

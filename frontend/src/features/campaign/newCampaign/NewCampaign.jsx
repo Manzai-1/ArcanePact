@@ -1,15 +1,19 @@
-import { useState } from "react";
+import { useContext, useState } from "react";
 import styles from "./newCampaign.module.css";
 import { parseEther } from "ethers";
+import { TxContext } from "../../../providers/TxProvider";
 
 export const NewCampaign = ({ onSubmit }) => {
-    const [form, setForm] = useState({
+    const { sendTx } = useContext(TxContext);
+    const formDefaultValues = {
         title: "",
         description: "",
         inviteOnly: false,
         gamemasterFee: 0,
         collateral: 0
-    });
+    };
+
+    const [form, setForm] = useState(formDefaultValues);
 
     const handleChange = (e) => {
         const { name, value, type, checked } = e.target;
@@ -20,16 +24,21 @@ export const NewCampaign = ({ onSubmit }) => {
         }));
     };
 
-    const handleSubmit = (e) => {
+    const resetForm = () => {
+        setForm(formDefaultValues);
+    }
+
+    const handleSubmit = async (e) => {
         e.preventDefault();
 
-        const payload = {
+        const newCampaign = {
             ...form,
             gamemasterFee: parseEther(form.gamemasterFee),
             collateral: parseEther(form.collateral),
         };
-
-        if (onSubmit) onSubmit(payload);
+        
+        sendTx('newCampaign', [newCampaign]);
+        resetForm();
     };
 
     return (

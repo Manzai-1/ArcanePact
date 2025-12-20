@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { ApplicationDecision, ClientState, PlayerState } from "../../../models/IArcanePact";
-import { reviewApplication } from "../../../services/arcanePactServices";
+import { TxContext } from "../../../providers/TxProvider";
 
 const headers = [
     { name: 'stateText', value: 'State' },
@@ -11,6 +11,7 @@ const headers = [
 
 export const usePlayerList = (campaign) => {
     const [selectedPlayer, setSelectedPlayer] = useState(null);
+    const { sendTx } = useContext(TxContext);
 
     const canReviewApplication = 
         selectedPlayer &&
@@ -19,7 +20,7 @@ export const usePlayerList = (campaign) => {
     
     const rejectApplication = () => submitReview(ApplicationDecision.Rejected);
     const approveApplication = () => submitReview(ApplicationDecision.Approved);
-    const submitReview = (decision) => reviewApplication(campaign.id, selectedPlayer.id, decision);
+    const submitReview = (decision) => sendTx('reviewApplication', [campaign.id, selectedPlayer.id, decision]);
 
 
     return {
