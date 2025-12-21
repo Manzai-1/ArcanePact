@@ -4,7 +4,7 @@
   
   gap: 6px;
   font-family: inherit;
-  color: #3d2c1a;
+  color: #fdf1d0;
 
   padding-bottom: 16px;
   padding-inline: 14px;
@@ -26,5 +26,6 @@
 .root h2 {
   text-align: left;
   margin: 0px;
+  margin-top: 6px;
   padding: 6px;
 }

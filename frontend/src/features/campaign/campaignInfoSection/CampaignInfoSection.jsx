@@ -1,21 +1,25 @@
 import campaignDefault from '../../../assets/default_campaign.jpg';
-import styles from './campaignInfoSection.module.css';
+import { InfoSection } from '../../../components/infoSection/InfoSection';
 
 export const CampaignInfoSection = ({ campaign }) => {
+    const items = [
+        {label: 'State', value: campaign.stateText},
+        {label: 'Joined', value: campaign.participantCount},
+        {label: 'Fee', value: campaign.feeEth},
+        {label: 'Collateral', value: campaign.collateralEth}
+    ]
+
+    const footer = {
+        label: 'Description',
+        value: campaign.description
+    }
 
     return (
-        <div className={styles.root}>
-            <div className='styles.text'>
-                <h2>{campaign.title}</h2>
-                <h3>{campaign.description}</h3>
-                <h3>{campaign.stateText}</h3>
-                <h3>{campaign.participantCount}  Joined</h3>
-                <h3>{campaign.feeEth}  Fee</h3>
-                <h3>{campaign.collateralEth}  Collateral</h3>
-            </div>
-            <div className={styles.image}>
-                <img src={campaignDefault} />
-            </div>
-        </div>
+        <InfoSection 
+            img={campaignDefault} 
+            title={campaign.title}
+            items={items}
+            footer={footer}
+        />
     )
 }

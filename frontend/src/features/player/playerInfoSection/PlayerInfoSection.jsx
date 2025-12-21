@@ -1,20 +1,25 @@
-import styles from './playerInfoSection.module.css';
 import profileDefault from '../../../assets/default_profile.jpg';
+import { InfoSection } from '../../../components/infoSection/InfoSection';
 
 export const PlayerInfoSection = ({player}) => {
-    console.log(player);
+    const items = [
+        {label: 'Likes', value: player.likes},
+        {label: 'Dislikes', value: player.dislikes},
+        {label: 'Completed', value: '?'},
+        {label: 'Running', value: '?'}
+    ]
+
+    const footer = {
+        label: 'Address',
+        value: player.id
+    }
+
     return (
-        <div className={styles.root}>
-            <div className='styles.text'>
-                <h2>{player.name}</h2>
-                <h3>{player.likes}  Likes</h3>
-                <h3>{player.dislikes}  Dislikes</h3>
-                <h3>? Completed</h3>
-                <h3>? Running</h3>
-            </div>
-            <div className={styles.image}>
-                <img src={profileDefault}/>
-            </div>
-        </div>
+        <InfoSection 
+            img={profileDefault} 
+            title={player.name}
+            items={items}
+            footer={footer}
+        />
     )
 }
