@@ -31,9 +31,8 @@
 /* --- MODAL CONTAINER --- */
 .modal {
   position: relative;
-  width: 600px;
+  width: 800;
   max-width: 90vw;
-  max-height: 80vh;
 
   border: 4px solid #5c3d1e;
   border-radius: 12px;

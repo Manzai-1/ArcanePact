@@ -3,28 +3,24 @@
 .table {
     width: 100%;
     border-collapse: collapse;
-    background: rgba(255, 244, 224, 0.92);
+    background: rgba(255, 244, 224, 0.0);
     font-family: 'Cinzel', serif;
-    border: 3px solid #3a2a18;
-    border-radius: 8px;
     overflow: hidden;
 }
 
 .table th {
-    background: linear-gradient(#6b4f2f, #4a341f);
+    background: rgba(255, 244, 224, 0.0);
     color: #f7e7c1;
     padding: 12px;
     font-size: 1.1rem;
-    border-bottom: 3px solid #3a2a18;
-    text-shadow: 1px 1px 2px black;
     text-align: left;
 }
 
 .table td {
-    padding: 12px;
-    border-bottom: 2px solid #d5c3a1;
-    color: #3d2c1a;
-    font-size: 0.95rem;
+    color: #f7e7c1;
+    padding: 6px;
+    border-bottom: 2px solid rgb(255, 248, 235);
+    font-size: 1rem;
     text-align: left;
 }
 
@@ -35,17 +31,4 @@
     cursor: pointer;
 }
 
-.noData {
-    text-align: center;
-    font-style: italic;
-    padding: 20px;
-    color: #5a4a39;
-}
 
-/* avoids spilling over parent div */
-.table th,
-.table td {
-  word-wrap: break-word;
-  word-break: break-word;
-  white-space: normal;
-}
