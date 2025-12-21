@@ -1,10 +1,9 @@
-// import { EventIndexer } from "../services/EventIndexer";
+import styles from './footer.module.css';
 
 const Footer = () => {
   return (
-    <>
-      {/* <EventIndexer/> */}
-    </>
+    <div className={styles.footer}> 
+    </div>
   );
 };
 

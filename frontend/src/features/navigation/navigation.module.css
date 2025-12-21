@@ -11,7 +11,7 @@
   font-size: 14px;
 }
 
-.navLink {
+.navLink, .selected {
   display: inline-block;
   padding-inline: 10px;
   font-family: 'Cinzel', serif;

@@ -5,9 +5,9 @@ import { ClientState } from "../../../models/IArcanePact";
 export const headers = [
   {name: 'stateText', value: 'State'},
   {name: 'title', value: 'Title'},
-  {name: 'description', value: 'Description'},
   {name: 'feeEth', value: 'Fee'},
-  {name: 'collateralEth', value: 'Collateral'}
+  {name: 'collateralEth', value: 'Collateral'},
+  {name: 'participantCount', value: 'Joined'}
 ]
 
 export const filteredTables = (campaigns) => ({

@@ -1,13 +1,14 @@
 import { ActionButton } from "../../../components/actionButton/ActionButton";
 import PopupModal from "../../../components/popupModal/PopupModal";
 import Table from "../../../components/table/Table";
+import { TableSection } from "../../../components/tableSection/TableSection";
 import { TableSectionWithHeader } from "../../../components/tableSection/TableSectionWithHeader";
 import { PlayerInfoSection } from "../../player/playerInfoSection/PlayerInfoSection";
+import { PlayerReviews } from "../../player/playerReviews/PlayerReviews";
 import { ReviewPlayer } from "../../player/reviewPlayer/ReviewPlayer";
 import { CampaignInfoSection } from "../campaignInfoSection/CampaignInfoSection";
 import { CampaignPlayerView } from "../campaignPlayerView/CampaignPlayerView";
 import { VotesView } from "../votesView/VotesView";
-import styles from './campaignModal.module.css';
 import { useCampaignModal } from "./useCampaignModal";
 
 export const CampaignModal = ({campaign, handleCloseModal}) => {
@@ -18,8 +19,7 @@ export const CampaignModal = ({campaign, handleCloseModal}) => {
             {model.viewPlayer &&<PopupModal onClose={model.closeViewPlayer}>
                 <PlayerInfoSection player={model.viewPlayer}/>
                 <TableSectionWithHeader header={'Reviews'} aria={'Review Section'}>
-                {model.rows &&<Table headers={model.headers} rows={model.rows}/>}
-                {!model.rows &&<>No reviews available..</>}
+                <PlayerReviews player={model.viewPlayer} />
                 {model.canReview &&<ReviewPlayer campaign={campaign} player={model.viewPlayer}/>}
                 </TableSectionWithHeader>
             </PopupModal>}
@@ -28,7 +28,7 @@ export const CampaignModal = ({campaign, handleCloseModal}) => {
                 <CampaignPlayerView campaign={campaign} handleViewPlayer={model.handleViewPlayer}/>
                 <VotesView campaign={campaign}/>
                 
-                <div className={styles.root}>
+                <TableSection aria={'section for available campaign actions'}>
                     {model.canSign &&<ActionButton
                         label={'Sign'}
                         handleClick={model.handleSign}
@@ -44,7 +44,7 @@ export const CampaignModal = ({campaign, handleCloseModal}) => {
                         label={'Withdraw Fees'}
                         handleClick={model.handleWithDrawFees}
                     />}
-                </div>
+                </TableSection>
             </PopupModal>}
         </>
     );

@@ -5,7 +5,7 @@ import Logo from '../components/logo/Logo';
 
 const Header = () => {
   return (
-    <div className={styles.header}>
+    <header className={styles.header}>
       <div className={styles.left}>
         <Logo />
       </div>
@@ -15,7 +15,7 @@ const Header = () => {
       <div className={styles.right}>
         <WalletButton />
       </div>
-    </div>
+    </header>
   );
 };
 

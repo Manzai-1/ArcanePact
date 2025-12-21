@@ -2,7 +2,6 @@ import { CampaignState, ClientState, ReviewScore } from "../../../models/IArcane
 import { useContext, useState } from "react";
 import { UseGraph } from "../../../data/graph/useGraph";
 import { TxContext } from "../../../providers/TxProvider";
-import { formatEther } from "viem";
 
 export const useCampaignModal = (campaign) => {
     const { players } = UseGraph();
@@ -12,12 +11,6 @@ export const useCampaignModal = (campaign) => {
     const handleViewPlayer = (player) => {
         setViewPlayer(players.find(p => p.id === player.id));
     }
-
-    const headers = [{name: 'score', value: 'Score'}, {name: 'comment', value: 'Comment'}];
-    const rows = ((viewPlayer ?? []).reviews ?? []).map(r => ({
-        ...r,
-        score: ReviewScore[r.score]
-    }));
 
     const txValue = BigInt(campaign.gamemasterFee) + BigInt(campaign.collateral);
 
@@ -39,8 +32,6 @@ export const useCampaignModal = (campaign) => {
         viewPlayer,
         handleViewPlayer,
         closeViewPlayer: ()=>{setViewPlayer(null)},
-        headers,
-        rows: rows.length > 0 ? rows : null,
         handleSign,
         handleApply,
         handleWithdrawCollateral,

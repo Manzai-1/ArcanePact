@@ -18,6 +18,7 @@ export const UseGraph = () => {
             const stateText = CampaignState[campaign.state];
 
             const players = (campaign.players ?? []).map(cp => ({
+                name: 'No Name',
                 id: cp.player.id,
                 lockedCollateral: cp.lockedCollateral,
                 state: cp.state,
@@ -52,8 +53,8 @@ export const UseGraph = () => {
 
             return {
                 ...campaign,
-                feeEth: noTrailingZero(formatEther(campaign.gamemasterFee)),
-                collateralEth: noTrailingZero(formatEther(campaign.collateral)),
+                feeEth: `${noTrailingZero(formatEther(campaign.gamemasterFee))} Ξ`,
+                collateralEth: `${noTrailingZero(formatEther(campaign.collateral))} Ξ`,
                 clientState,
                 stateText,
                 players,
@@ -78,6 +79,7 @@ export const UseGraph = () => {
             }))
 
             return {
+                name: 'No Name',
                 id: player.id,
                 likes: player.likes,
                 dislikes: player.dislikes,

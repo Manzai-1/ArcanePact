@@ -1,7 +1,9 @@
+import { PlayerScreen } from "../features/player/playerScreen/PlayerScreen";
+
 const AdventurersPage = () => {
   return (
     <>
-      <h1>ADVENTURERS PAGE</h1>
+      <PlayerScreen/>
     </>
   );
 };
