@@ -53,11 +53,13 @@ export default function InvitePlayers({ campaignId }) {
         </div>
       )}
 
-      <ActionButton
-        label="Invite Players"
-        disabled={addresses.length === 0}
-        handleClick={handleInvite}
-      />
+      <div className={styles.actionButton}>
+        <ActionButton
+          label="Invite Players"
+          disabled={addresses.length === 0}
+          handleClick={handleInvite}
+        />
+      </div>
     </>
   );
 }

@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { UseGraph } from "../../../data/graph/useGraph";
-import { ClientState } from "../../../models/IArcanePact";
 
 export const headers = [
     {name: 'name', value: 'Name'},

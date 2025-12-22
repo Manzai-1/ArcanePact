@@ -1,12 +1,14 @@
-import { CampaignState, ClientState, ReviewScore } from "../../../models/IArcanePact";
+import { CampaignState, ClientState } from "../../../models/IArcanePact";
 import { useContext, useState } from "react";
 import { UseGraph } from "../../../data/graph/useGraph";
 import { TxContext } from "../../../providers/TxProvider";
 
 export const useCampaignModal = (campaign) => {
-    const { players } = UseGraph();
+    const { players, isLoading, error } = UseGraph();
     const [viewPlayer, setViewPlayer] = useState(null);
     const { sendTx } = useContext(TxContext);
+
+    if(isLoading || error || !sendTx) return null;
 
     const handleViewPlayer = (player) => {
         setViewPlayer(players.find(p => p.id === player.id));
@@ -35,7 +37,7 @@ export const useCampaignModal = (campaign) => {
         handleSign,
         handleApply,
         handleWithdrawCollateral,
-        handleWithDrawFees
+        handleWithDrawFees,
     };
 }
 

@@ -12,6 +12,7 @@ import { useCampaignModal } from "./useCampaignModal";
 
 export const CampaignModal = ({campaign, handleCloseModal}) => {
     const model = useCampaignModal(campaign);
+    if(!model) return <>Error</>
 
     return (
         <>

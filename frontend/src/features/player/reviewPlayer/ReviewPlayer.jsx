@@ -46,7 +46,7 @@ export const ReviewPlayer = ({ campaign, player }) => {
         <div className={styles.button}>
           <ActionButton
             label="Submit"
-            disabled={!comment.trim()}
+            disabled={!comment}
             handleClick={handleSubmit}
           />
         </div>

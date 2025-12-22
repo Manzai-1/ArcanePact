@@ -10,8 +10,8 @@ export const NewCampaign = () => {
         <div className={styles.wrapper}>
             <form className={styles.formContainer} onSubmit={model.handleSubmit}>
 
-                {model.inputFields.map(item => (
-                    <InputFieldWithTitle 
+                {model.inputFields.map((item, i) => (
+                    <InputFieldWithTitle key={i}
                         title={item.title}
                         value={item.value}
                         placeholder={item.placeholder}

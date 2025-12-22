@@ -7,7 +7,7 @@
 .toggle {
   display: inline-flex;
   gap: 8px;
-  padding: 6px;
+  padding-inline: 6px;
 }
 
 .radio {
@@ -52,3 +52,7 @@
 .input {
   flex: 1;
 }
+
+/* .button button {
+  margin-top: 0px;
+} */
