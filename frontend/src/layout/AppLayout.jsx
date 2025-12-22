@@ -3,20 +3,21 @@ import Header from './Header';
 import Footer from './Footer';
 import { Web3Provider } from '../providers/Web3Provider';
 import '@rainbow-me/rainbowkit/styles.css';
+import styles from './layout.module.css';
 
 const AppLayout = () => {
   return (
     <>
       <Web3Provider>
-        <header>
+        <div className={styles.background}>
           <Header/>
-        </header>
-        <main className="app-background">
-          <Outlet/>
-        </main>
-        <footer>
-          <Footer/>
-        </footer>
+          <main className={styles.main}>
+            <Outlet/>
+          </main>
+          <footer className={styles.footer}>
+            <Footer/>
+          </footer>
+        </div>
       </Web3Provider>
     </>
   );

@@ -11,12 +11,12 @@ const headers = [
 export const useVotesView = (campaign) => {
     const { sendTx } = useContext(TxContext);
 
-    const rows = campaign.votes.map(vote => {
+    const rows = campaign.votes.map((vote,i) => {
         const voteName = vote.voteName;
         const voteCount = vote.voteCount;
         const required = Math.ceil(+campaign.participantCount / 2);
 
-        return { voteName, voteCount, required };
+        return { voteName, voteCount, required, id: i };
     })
 
     const voteStartCampaign = () => sendTx('addVote', [campaign.id, VoteType.StartCampaign]);

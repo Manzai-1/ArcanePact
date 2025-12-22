@@ -3,6 +3,9 @@ import { useWaitForTransactionReceipt, useWriteContract } from "wagmi";
 import { contractAddress, abi } from "../config/arcanePact";
 import { stringify } from "viem";
 import PopupModal from "../components/popupModal/PopupModal";
+import { TxPending } from "../features/txInfoModals/TxPending";
+import { TxFailed } from "../features/txInfoModals/TxFailed";
+import TxReceipt from "../features/txInfoModals/txReceipt";
 
 export const TxContext = createContext(null);
 
@@ -36,9 +39,9 @@ export default function TxProvider({ children }) {
             <>
                 {children}
                 {viewDialog &&<PopupModal onClose={closeDialog}>
-                    {isPending &&<>Pending...</>}
-                    {isSuccess &&<>Transaction Receipt: <pre>{stringify(receipt, null, 2)}</pre></>}
-                    {isError   &&<>Error: {(error).shortMessage || error.message}</>}
+                    {isPending &&<TxPending/>}
+                    {isSuccess &&<TxReceipt receipt={receipt} />}
+                    {isError   &&<TxFailed error={(error).shortMessage || error.message}/>}
                 </PopupModal>}
             </>
         </TxContext.Provider>

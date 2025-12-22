@@ -11,13 +11,14 @@ export const UseGraph = () => {
     const campaignPlayerQuery = useCampaignPlayerQuery(1000, 0);
     const playerCampaignQuery = usePlayerCampaignQuery(1000, 0);
 
-    const lists = useMemo(() => {
+    // const lists = useMemo(() => {
         console.log("USE GRAPH");
         const noTrailingZero = (value) => value.replace(/\.0+$/, "").replace(/(\.\d*[1-9])0+$/, "$1");
         const campaigns = (campaignPlayerQuery.data ?? []).map(campaign => {
             const stateText = CampaignState[campaign.state];
 
             const players = (campaign.players ?? []).map(cp => ({
+                name: 'No Name',
                 id: cp.player.id,
                 lockedCollateral: cp.lockedCollateral,
                 state: cp.state,
@@ -52,8 +53,8 @@ export const UseGraph = () => {
 
             return {
                 ...campaign,
-                feeEth: noTrailingZero(formatEther(campaign.gamemasterFee)),
-                collateralEth: noTrailingZero(formatEther(campaign.collateral)),
+                feeEth: `${noTrailingZero(formatEther(campaign.gamemasterFee))} Ξ`,
+                collateralEth: `${noTrailingZero(formatEther(campaign.collateral))} Ξ`,
                 clientState,
                 stateText,
                 players,
@@ -78,6 +79,7 @@ export const UseGraph = () => {
             }))
 
             return {
+                name: 'No Name',
                 id: player.id,
                 likes: player.likes,
                 dislikes: player.dislikes,
@@ -86,11 +88,13 @@ export const UseGraph = () => {
             }
         })
 
-        return { campaigns, players };
-    }, [campaignPlayerQuery.data, playerCampaignQuery.data, address]);
+    //     return { campaigns, players };
+    // }, [campaignPlayerQuery.data, playerCampaignQuery.data, address]);
 
     return {
-        ...lists,
+        // ...lists,
+        players,
+        campaigns,
         isLoading: campaignPlayerQuery.isLoading || playerCampaignQuery.isLoading,
         error: campaignPlayerQuery.error || playerCampaignQuery.error
   };

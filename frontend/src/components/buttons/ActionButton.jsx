@@ -1,4 +1,4 @@
-import styles from "./actionButton.module.css";
+import styles from "./button.module.css";
 
 export const ActionButton = ({ label, handleClick, disabled = false }) => {
     return (

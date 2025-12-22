@@ -1,0 +1,62 @@
+.wrapper {
+  display: grid;
+  grid-template-columns: 140px 1fr;
+  column-gap: 12px;
+  align-items: center;
+  margin-bottom: 14px;
+
+  font-family: 'Cinzel', serif;
+}
+
+.title {
+  color: rgba(247, 231, 193, 0.9);
+  font-weight: 700;
+  white-space: nowrap;
+  text-align: left;
+}
+
+.inputColumn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.input {
+  flex: 1 1 auto;
+  min-width: 0;
+
+  color: #f7e7c1;
+  padding: 6px 8px;
+  font-size: 1.0rem;
+  text-align: left;
+
+  background: rgba(32, 25, 18, 0.6);
+  border-radius: 10px;
+  border-bottom: 1px solid #f7e7c1;
+  box-shadow: inset 0 0 12px rgba(0, 0, 0, 0.4);
+
+  transition:
+    border-color 0.2s ease,
+    background-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.input::placeholder {
+  color: rgba(247, 231, 193, 0.55);
+}
+
+.input:focus {
+  outline: none;
+  border-color: rgba(255, 200, 120, 0.6);
+  background-color: rgba(255, 240, 200, 0.04);
+  box-shadow: 0 0 0 3px rgba(255, 200, 120, 0.12);
+}
+
+.error {
+  flex: 0 0 auto;
+  white-space: nowrap;
+
+  font-size: 0.85rem;
+  color: rgba(255, 200, 120, 0.85);
+}

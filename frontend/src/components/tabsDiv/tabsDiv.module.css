@@ -6,71 +6,59 @@
   width: 60vw;
   margin: 0 auto;
   padding: 16px 20px 20px 20px;
+
   background: rgba(44, 36, 27, 0.8);
-  /* background: #2c241b; */
-  border: 4px solid #5c3d1e;
+  border: 2px solid #000000;
   border-radius: 12px;
   box-shadow: 0 0 20px rgba(0, 0, 0, 0.6);
+
   font-family: 'Cinzel', serif;
+  color: #f7e7c1;
 }
 
-/* Top bar that holds the tab buttons */
 .tabsHeader {
   display: flex;
-  gap: 8px;
-  margin-bottom: 16px;
-  border-bottom: 3px solid #3a2a18;
-  padding-bottom: 6px;
+  margin-bottom: 6px;
+  gap: 6px;
+  border-bottom: 1px solid #f7e7c1;;
 }
 
-/* Base style for each tab button */
 .tabButton {
   position: relative;
   padding: 8px 14px;
-  background: linear-gradient(#6b4f2f, #4a341f);
-  border: 2px solid #3a2a18;
-  border-radius: 8px 8px 0 0;
+
+  background: rgba(255, 244, 224, 0.0);
+
+  border-bottom: none;
+  border-radius: 10px 10px 0 0;
+
   color: #f7e7c1;
-  font-size: 0.9rem;
+  font-size: 1.0rem;
   font-weight: 700;
-  text-shadow: 1px 1px 2px black;
   cursor: pointer;
   outline: none;
+
   transition:
-    background 0.2s ease,
-    transform 0.1s ease,
-    box-shadow 0.1s ease,
+    color 0.2s ease,
+    background-color 0.2s ease,
+    box-shadow 0.2s ease,
     border-color 0.2s ease;
 }
 
-/* Inactive tab look */
 .tabButtonInactive {
-  background: linear-gradient(#4a341f, #2e2114);
-  color: #d8c59f;
-  border-color: #2b1b0f;
-  opacity: 0.8;
+  color: rgba(247, 231, 193, 0.75);
+  background: rgba(255, 244, 224, 0.0);
 }
 
-/* Active tab */
 .tabButtonActive {
-  background: linear-gradient(#8a6238, #6b4f2f);
-  color: #fdf1d0;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.7);
-  border-bottom-color: #2c241b; /* visually connects to content area */
+  color: #fff2d2;
+  background-color: rgba(255, 240, 200, 0.04);
+  border-color: #f7e7c1;
+
+  box-shadow: inset 0 1px 0 #f7e7c1;
 }
 
-/* Hover/press effects for all tabs */
 .tabButton:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 0 8px rgba(0, 0, 0, 0.6);
-}
-
-.tabButton:active {
-  transform: translateY(0);
-  box-shadow: 0 0 4px rgba(0, 0, 0, 0.5);
-}
-
-/* Area that contains whatever you render (e.g. your Table) */
-.tabsContent {
-  margin-top: 4px;
+  color: #fff2d2;
+  background-color: rgba(255, 240, 200, 0.04);
 }

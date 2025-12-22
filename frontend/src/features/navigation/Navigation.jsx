@@ -7,8 +7,8 @@ export default function Navigation() {
     <nav>
       <ul className={styles.pixelNav}>
         {menu.map(item => (
-            <li key={item.id} className={styles.navLink}>
-                <NavLink
+            <li key={item.id}>
+                <NavLink key={item.id} className={styles.navLink}
                     to={item.path}>
                     {item.name}
                 </NavLink>

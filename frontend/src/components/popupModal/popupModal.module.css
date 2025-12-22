@@ -1,6 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&display=swap');
 
-/* --- BACKDROP --- */
 .backdrop {
   position: fixed;
   inset: 0;
@@ -13,17 +12,16 @@
   z-index: 999;
 }
 
-/* --- MODAL CONTAINER --- */
 .modal {
   position: relative;
-  width: 600px;
+  width: 1024;
+  min-width: 800px;
   max-width: 90vw;
-  max-height: 80vh;
 
-  background: #2c241b;
-  border: 4px solid #5c3d1e;
+  background: rgba(44, 36, 27, 0.8);
+  border: 2px solid #000000;
   border-radius: 12px;
-  box-shadow: 0 0 25px rgba(0,0,0,0.75);
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.6);
 
   display: flex;
   flex-direction: column;
@@ -31,24 +29,26 @@
   font-family: 'Cinzel', serif;
 }
 
-/* --- CLOSE BUTTON --- */
 .closeButton {
   position: absolute;
-  top: 10px;
-  right: 12px;
+  top: 6px;
+  right: 6px;
 
-  background: linear-gradient(#6b4f2f, #4a341f);
-  border: 2px solid #3a2a18;
-  border-radius: 6px;
+  background: transparent;
+  border-radius: 8px;
 
-  color: #f7e7c1;
-  font-weight: bold;
-  font-size: 1.1rem;
-  text-shadow: 1px 1px 2px black;
-  padding: 4px 10px;
+  color: rgba(247, 231, 193, 0.75);
+  font-family: 'Cinzel', serif;
+  font-size: 2rem;
+  font-weight: 700;
 
   cursor: pointer;
-  transition: transform 0.1s ease, box-shadow 0.1s ease;
+
+  transition:
+    color 0.2s ease,
+    border-color 0.2s ease,
+    background-color 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
 .closeButton:hover {
@@ -61,9 +61,8 @@
   box-shadow: 0 0 4px rgba(0,0,0,0.4);
 }
 
-/* --- MODAL CONTENT AREA --- */
 .content {
-  background: rgba(255, 244, 224, 0.92);
+  background: rgba(44, 36, 27, 0.8);
   border-top: 3px solid #3a2a18;
 
   padding: 24px;
