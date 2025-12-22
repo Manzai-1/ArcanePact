@@ -4,8 +4,9 @@ import { ReviewScore } from "../../../models/IArcanePact";
 
 export const PlayerReviews = ({player}) => {
     const headers = [{name: 'score', value: 'Score'}, {name: 'comment', value: 'Comment'}];
-    const rows = (player?.reviews ?? []).map(r => ({
+    const rows = (player?.reviews ?? []).map((r,i)=> ({
         ...r,
+        id: i,
         score: ReviewScore[r.score]
     }));
 

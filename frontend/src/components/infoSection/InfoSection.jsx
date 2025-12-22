@@ -8,8 +8,8 @@ export const InfoSection = ({img, title, items, footer=null}) => {
             </div>
             <div className={styles.text}>
                 <span className={styles.title}>{title}</span>
-                {items.map(item => {
-                    return (<div className={styles.item}>
+                {items.map((item, i) => {
+                    return (<div className={styles.item} key={i}>
                         <span className={styles.label}>{item.label}</span>
                         <span className={styles.value}>{item.value}</span>
                     </div>)

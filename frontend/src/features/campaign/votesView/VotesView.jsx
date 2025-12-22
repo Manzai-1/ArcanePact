@@ -1,4 +1,4 @@
-import { ActionButton } from "../../../components/actionButton/ActionButton";
+import { ActionButton } from "../../../components/buttons/ActionButton";
 import Table from "../../../components/table/Table";
 import { TableSectionWithHeader } from "../../../components/tableSection/TableSectionWithHeader";
 import { useVotesView } from "./useVotesView"

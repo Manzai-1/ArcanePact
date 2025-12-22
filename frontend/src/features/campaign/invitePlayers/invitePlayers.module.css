@@ -1,69 +1,31 @@
 .row {
   display: flex;
+  align-items: flex-start;
   gap: 10px;
 }
 
 .input {
   flex: 1;
-  padding: 10px 12px;
-  border-radius: 10px;
-  border: 2px solid #5c3d1e;
-  background: rgba(255, 250, 240, 0.95);
-  font-family: inherit;
+  min-width: 0; 
 }
 
 .button {
-  padding: 10px 14px;
-  border-radius: 10px;
-  border: 2px solid #3a2a18;
-  background: linear-gradient(#6b4f2f, #4a341f);
-  color: #f7e7c1;
-  font-weight: 700;
-  font-family: inherit;
-  text-shadow: 1px 1px 2px black;
-  cursor: pointer;
+  flex-shrink: 0;
 }
 
 .list {
-  list-style: none;
-  margin: 0;
+  margin: 6px 0 12px;
   padding: 0;
+
   display: grid;
-  gap: 8px;
+  gap: 6px;
 }
 
-.item {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 10px 12px;
-  border-radius: 12px;
-  border: 2px solid rgba(92, 61, 30, 0.35);
-  background: rgba(255, 244, 224, 0.92);
-}
+.listItem {
+  padding: 6px;
+  text-align: left;
 
-.iconButton {
-  width: 34px;
-  height: 34px;
-  border-radius: 10px;
-  border: 2px solid rgba(58, 42, 24, 0.35);
-  background: rgba(92, 61, 30, 0.06);
-  cursor: pointer;
-}
-
-.invite {
-  padding: 10px 16px;
-  border-radius: 10px;
-  border: 2px solid #3a2a18;
-  background: linear-gradient(#7b5a33, #4a341f);
   color: #f7e7c1;
-  font-weight: 800;
-  font-family: inherit;
-  text-shadow: 1px 1px 2px black;
-  cursor: pointer;
-}
-
-.invite:disabled {
-  opacity: 0.55;
-  cursor: not-allowed;
+  font-size: 1rem;
+  word-break: break-all;
 }

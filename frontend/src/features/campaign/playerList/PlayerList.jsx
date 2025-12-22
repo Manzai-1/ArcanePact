@@ -1,6 +1,5 @@
-import { ActionButton } from "../../../components/actionButton/ActionButton";
+import { ActionButton } from "../../../components/buttons/ActionButton";
 import Table from "../../../components/table/Table";
-import styles from './playerList.module.css';
 import { usePlayerList } from "./usePlayerList";
 
 export const PlayerList = ({campaign, handleViewPlayer}) => {

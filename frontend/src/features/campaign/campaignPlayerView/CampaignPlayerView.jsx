@@ -11,7 +11,6 @@ export const CampaignPlayerView = ({campaign, handleViewPlayer}) => {
         <TableSectionWithHeader header={'Players'} aria={'Campaign Players Section'}>
             { model.canInvite &&<InvitePlayers campaignId={campaign.id}/> }
             { model.hasPlayers &&<PlayerList campaign={campaign} handleViewPlayer={handleViewPlayer}/>}
-            { !model.hasPlayers &&<>No players have been added yet.</>}
         </TableSectionWithHeader>
     )
 }

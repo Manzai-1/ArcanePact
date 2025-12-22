@@ -5,8 +5,8 @@ import { TxContext } from "../../../providers/TxProvider";
 const headers = [
     { name: 'stateText', value: 'State' },
     { name: 'id', value: 'Player Address' },
-    { name: 'likes', value: '👍🏾' },
-    { name: 'dislikes', value: '👎🏾' }
+    { name: 'likes', value: 'Likes' },
+    { name: 'dislikes', value: 'Dislikes' }
 ];
 
 export const usePlayerList = (campaign) => {

@@ -1,6 +1,5 @@
-import { ActionButton } from "../../../components/actionButton/ActionButton";
+import { ActionButton } from "../../../components/buttons/ActionButton";
 import PopupModal from "../../../components/popupModal/PopupModal";
-import Table from "../../../components/table/Table";
 import { TableSection } from "../../../components/tableSection/TableSection";
 import { TableSectionWithHeader } from "../../../components/tableSection/TableSectionWithHeader";
 import { PlayerInfoSection } from "../../player/playerInfoSection/PlayerInfoSection";

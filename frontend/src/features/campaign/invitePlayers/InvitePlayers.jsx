@@ -1,68 +1,63 @@
 import { useContext, useState } from "react";
 import styles from "./invitePlayers.module.css";
 import { TxContext } from "../../../providers/TxProvider";
+import { ActionButton } from "../../../components/buttons/ActionButton";
+import { InputField } from "../../../components/inputField/InputField";
+
 
 export default function InvitePlayers({ campaignId }) {
-  const [name, setName] = useState("");
-  const [names, setNames] = useState([]);
+  const [address, setAddress] = useState("");
+  const [addresses, setAddresses] = useState([]);
+
   const { sendTx } = useContext(TxContext);
 
-  const add = () => {
-    const n = name.trim();
-    if (!n || names.includes(n)) return;
-    setNames([...names, n]);
-    setName("");
+  const addAddress = () => {
+    setAddresses((prev) => [...prev, address]);
+    setAddress("");
   };
 
-  const remove = (n) => setNames(names.filter((x) => x !== n));
+  const handleInvite = () => {
+    if (addresses.length === 0) return;
 
-  const handleInvite = async (addresses) => {
-    sendTx('invitePlayers', [campaignId, addresses]);
-    setName('');
-    setNames([]);
-  }
+    sendTx("invitePlayers", [campaignId, addresses]);
+    setAddresses([]);
+    setAddress("");
+  };
 
   return (
     <>
       <div className={styles.row}>
-        <input
-          className={styles.input}
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && add()}
-          placeholder="0x… wallet address"
-        />
-        <button className={styles.button} type="button" onClick={add}>
-          Add
-        </button>
+        <div className={styles.input}>
+          <InputField
+            value={address}
+            placeholder="0x… wallet address"
+            onChange={setAddress}
+          />
+        </div>
+          <div className={styles.button}>
+          <ActionButton
+            label="Add Player"
+            disabled={!address}
+            handleClick={addAddress}
+          />
+        </div>
       </div>
 
-      {names.length > 0 && (
-        <ul className={styles.list}>
-          {names.map((n) => (
-            <li key={n} className={styles.item}>
-              <span>{n}</span>
-              <button
-                className={styles.iconButton}
-                type="button"
-                onClick={() => remove(n)}
-                aria-label={`Remove ${n}`}
-              >
-                ✕
-              </button>
-            </li>
+      {addresses.length > 0 && (
+        <div className={styles.list}>
+          {addresses.map((addr) => (
+            <div key={addr} className={styles.listItem}>
+              <span>{addr}</span>
+            </div>
           ))}
-        </ul>
+        </div>
       )}
 
-      <button
-        className={styles.invite}
-        type="button"
-        disabled={names.length === 0}
-        onClick={() => handleInvite(names)}
-      >
-        Invite
-      </button>
+      <ActionButton
+        label="Invite Players"
+        disabled={addresses.length === 0}
+        handleClick={handleInvite}
+      />
     </>
   );
 }

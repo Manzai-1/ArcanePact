@@ -63,7 +63,7 @@ export const useNewCampaign = () => {
     
     const inputFields = [
         {
-            label: 'Title', 
+            title: 'Title', 
             type: 'text', 
             value: form.title.value, 
             error: form.title.error,
@@ -71,7 +71,7 @@ export const useNewCampaign = () => {
             onChange: titleOnChange,
         },
         {
-            label: 'Description', 
+            title: 'Description', 
             type: 'text', 
             value: form.description.value, 
             error: form.description.error,
@@ -79,7 +79,7 @@ export const useNewCampaign = () => {
             onChange: descriptionOnChange,
         },
         {
-            label: 'Gamemaster Fee', 
+            title: 'Gamemaster Fee', 
             type: 'text', 
             value: form.fee.value, 
             error: form.fee.error,
@@ -87,7 +87,7 @@ export const useNewCampaign = () => {
             onChange: feeOnChange,
         },
         {
-            label: 'Collateral', 
+            title: 'Collateral', 
             type: 'text', 
             value: form.collateral.value, 
             error: form.collateral.error,
