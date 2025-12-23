@@ -10,20 +10,22 @@ import { CampaignPlayerView } from "../campaignPlayerView/CampaignPlayerView";
 import { VotesView } from "../votesView/VotesView";
 import { useCampaignModal } from "./useCampaignModal";
 
-export const CampaignModal = ({campaign, handleCloseModal}) => {
-    const model = useCampaignModal(campaign);
+export const CampaignModal = ({campaignId, handleCloseModal}) => {
+    const model = useCampaignModal(campaignId);
+
     if(!model) return <>Error</>
+    const campaign = model.campaign;
 
     return (
         <>
-            {model.viewPlayer &&<PopupModal onClose={model.closeViewPlayer}>
-                <PlayerInfoSection player={model.viewPlayer}/>
+            {model.selectedPlayerId &&<PopupModal onClose={model.closeViewPlayer}>
+                <PlayerInfoSection player={model.selectedPlayer}/>
                 <TableSectionWithHeader header={'Reviews'} aria={'Review Section'}>
-                <PlayerReviews player={model.viewPlayer} />
-                {model.canReview &&<ReviewPlayer campaign={campaign} player={model.viewPlayer}/>}
+                <PlayerReviews player={model.selectedPlayer} />
+                {model.canReview &&<ReviewPlayer campaign={campaign} player={model.selectedPlayer}/>}
                 </TableSectionWithHeader>
             </PopupModal>}
-            {!model.viewPlayer &&<PopupModal onClose={handleCloseModal}>
+            {!model.selectedPlayerId &&<PopupModal onClose={handleCloseModal}>
                 <CampaignInfoSection campaign={campaign}/>
                 <CampaignPlayerView campaign={campaign} handleViewPlayer={model.handleViewPlayer}/>
                 <VotesView campaign={campaign}/>
