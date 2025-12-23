@@ -4,9 +4,10 @@ import { TableSectionWithHeader } from "../../../components/tableSection/TableSe
 import { useVotesView } from "./useVotesView"
 
 
-export const VotesView = ({campaign}) => {
-    const model = useVotesView(campaign);
-
+export const VotesView = ({campaignId}) => {
+    const model = useVotesView(campaignId);
+    if(!model) return (<div>Error</div>);
+    
     return (
         <TableSectionWithHeader header={'Votes'} aria={'Votes Section'}>
             <Table headers={model.headers} rows={model.rows}/>

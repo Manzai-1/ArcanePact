@@ -24,6 +24,8 @@ export const useCampaignScreen = () => {
   const [selectedCampaign, setSelectedCampaign] = useState(null);
 
   const { campaigns, isLoading, error } = UseGraph();
+  if(isLoading || error || !campaigns) return null;
+  
   const { owned, joined, pending, discover } = filteredTables(campaigns);
 
   const tabs = [
@@ -35,8 +37,6 @@ export const useCampaignScreen = () => {
   ];
 
   return {
-    isLoading,
-    error,
     headers,
     tabs,
     selectedCampaign,

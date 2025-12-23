@@ -3,15 +3,16 @@ import { useContext, useState } from "react";
 import { UseGraph } from "../../../data/graph/useGraph";
 import { TxContext } from "../../../providers/TxProvider";
 
-export const useCampaignModal = (campaign) => {
-    const { players, isLoading, error } = UseGraph();
-    const [viewPlayer, setViewPlayer] = useState(null);
+export const useCampaignModal = (campaignId) => {
+    const { campaigns, isLoading, error } = UseGraph();
+    const [viewPlayerId, setViewPlayerId] = useState(null);
     const { sendTx } = useContext(TxContext);
 
-    if(isLoading || error || !sendTx) return null;
+    if(isLoading || error || !sendTx || !campaigns) return null;
 
-    const handleViewPlayer = (player) => {
-        setViewPlayer(players.find(p => p.id === player.id));
+    const campaign = campaigns.find(c => c.id === campaignId);
+    const handleViewPlayer = (playerId) => {
+        setViewPlayerId(playerId);
     }
 
     const txValue = BigInt(campaign.gamemasterFee) + BigInt(campaign.collateral);
@@ -28,16 +29,17 @@ export const useCampaignModal = (campaign) => {
         canVote: campaign.clientState === ClientState.Signed || campaign.clientState === ClientState.Owner,
         canWithdrawCollateral: campaign.clientState === ClientState.Signed && campaign.state === CampaignState.Completed,
         canWithdrawFees: campaign.clientState === ClientState.Owner && campaign.state === CampaignState.Completed,
-        canReview: viewPlayer && 
+        canReview: viewPlayerId && 
             campaign.state === CampaignState.Completed && 
             campaign.ClientState === CampaignState.Signed,
-        viewPlayer,
+        viewPlayerId,
         handleViewPlayer,
-        closeViewPlayer: ()=>{setViewPlayer(null)},
+        closeViewPlayer: ()=>{setViewPlayerId(null)},
         handleSign,
         handleApply,
         handleWithdrawCollateral,
         handleWithDrawFees,
+        campaign
     };
 }
 

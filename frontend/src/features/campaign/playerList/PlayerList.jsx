@@ -2,22 +2,22 @@ import { ActionButton } from "../../../components/buttons/ActionButton";
 import Table from "../../../components/table/Table";
 import { usePlayerList } from "./usePlayerList";
 
-export const PlayerList = ({campaign, handleViewPlayer}) => {
-    const model = usePlayerList(campaign);
+export const PlayerList = ({campaignId, handleViewPlayer}) => {
+    const model = usePlayerList(campaignId);
 
     return (
         <>
             <Table 
                 headers={model.headers} 
-                rows={campaign.players} 
-                action={model.setSelectedPlayer} 
-                selectedRow={model.selectedPlayer}
+                rows={model.players} 
+                action={model.setSelectedPlayerId} 
+                selectedRowId={model.selectedPlayerId}
             />
             <div>
-                {model.selectedPlayer &&<ActionButton
+                {model.selectedPlayerId &&<ActionButton
                     label={'View Player'}
                     handleClick={()=>{
-                        handleViewPlayer(model.selectedPlayer);
+                        handleViewPlayer(model.selectedPlayerId);
                     }}
                 />}
                 {(model.canReviewApplication) &&<ActionButton

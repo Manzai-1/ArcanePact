@@ -8,14 +8,12 @@ import { useCampaignScreen } from "./useCampaignScreen";
 
 export const CampaignScreen = () => {
   const model = useCampaignScreen();
-
-  if (model.isLoading) return <div>Loading…</div>;
-  if (model.error) return <pre>{String(error)}</pre>;
+  if(!model) return <div>Error</div>
 
   return (
     <>
       {model.selectedCampaign &&(
-        <CampaignModal campaign={model.selectedCampaign} handleCloseModal={model.closeModal}/>
+        <CampaignModal campaignId={model.selectedCampaign} handleCloseModal={model.closeModal}/>
       )}
       <div className={styles.container}>
         <TabsDiv tabs={model.tabs.map(tab => {

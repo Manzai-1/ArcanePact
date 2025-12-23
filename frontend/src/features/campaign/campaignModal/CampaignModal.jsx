@@ -10,23 +10,25 @@ import { CampaignPlayerView } from "../campaignPlayerView/CampaignPlayerView";
 import { VotesView } from "../votesView/VotesView";
 import { useCampaignModal } from "./useCampaignModal";
 
-export const CampaignModal = ({campaign, handleCloseModal}) => {
-    const model = useCampaignModal(campaign);
+export const CampaignModal = ({campaignId, handleCloseModal}) => {
+    const model = useCampaignModal(campaignId);
+    const campaign = model.campaign;
+    
     if(!model) return <>Error</>
 
     return (
         <>
-            {model.viewPlayer &&<PopupModal onClose={model.closeViewPlayer}>
-                <PlayerInfoSection player={model.viewPlayer}/>
+            {model.viewPlayerId &&<PopupModal onClose={model.closeViewPlayer}>
+                <PlayerInfoSection playerId={model.viewPlayerId}/>
                 <TableSectionWithHeader header={'Reviews'} aria={'Review Section'}>
-                <PlayerReviews player={model.viewPlayer} />
-                {model.canReview &&<ReviewPlayer campaign={campaign} player={model.viewPlayer}/>}
+                <PlayerReviews playerId={model.viewPlayerId} />
+                {model.canReview &&<ReviewPlayer campaignId={campaignId} playerId={model.viewPlayerId}/>}
                 </TableSectionWithHeader>
             </PopupModal>}
-            {!model.viewPlayer &&<PopupModal onClose={handleCloseModal}>
-                <CampaignInfoSection campaign={campaign}/>
-                <CampaignPlayerView campaign={campaign} handleViewPlayer={model.handleViewPlayer}/>
-                <VotesView campaign={campaign}/>
+            {!model.viewPlayerId &&<PopupModal onClose={handleCloseModal}>
+                <CampaignInfoSection campaignId={campaignId}/>
+                <CampaignPlayerView campaignId={campaignId} handleViewPlayer={model.handleViewPlayer}/>
+                <VotesView campaignId={campaignId}/>
                 
                 <TableSection aria={'section for available campaign actions'}>
                     {model.canSign &&<ActionButton

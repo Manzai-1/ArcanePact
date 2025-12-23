@@ -1,6 +1,7 @@
 import { useContext } from "react";
 import { ClientState, VoteType } from "../../../models/IArcanePact";
 import { TxContext } from "../../../providers/TxProvider";
+import { UseGraph } from "../../../data/graph/useGraph";
 
 const headers = [
     { name: 'voteName', value: 'Type' },
@@ -8,8 +9,12 @@ const headers = [
     { name: 'required', value: 'Required' }
 ];
 
-export const useVotesView = (campaign) => {
+export const useVotesView = (campaignId) => {
     const { sendTx } = useContext(TxContext);
+    const { campaigns, isLoading, error } = UseGraph();
+    if(isLoading || error || !campaigns || !sendTx) return null;
+
+    const campaign = campaigns.find(c => c.id === campaignId);
 
     const rows = campaign.votes.map((vote,i) => {
         const voteName = vote.voteName;
@@ -19,8 +24,8 @@ export const useVotesView = (campaign) => {
         return { voteName, voteCount, required, id: i };
     })
 
-    const voteStartCampaign = () => sendTx('addVote', [campaign.id, VoteType.StartCampaign]);
-    const voteStopCampaign  = () => sendTx('addVote', [campaign.id, VoteType.StopCampaign]);
+    const voteStartCampaign = () => sendTx('addVote', [campaignId, VoteType.StartCampaign]);
+    const voteStopCampaign  = () => sendTx('addVote', [campaignId, VoteType.StopCampaign]);
 
     return {
         headers,

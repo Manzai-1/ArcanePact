@@ -5,14 +5,16 @@ import { TxContext } from "../../../providers/TxProvider";
 import { InputField } from "../../../components/inputField/InputField";
 import { ActionButton } from "../../../components/buttons/ActionButton";
 
-export const ReviewPlayer = ({ campaign, player }) => {
+export const ReviewPlayer = ({ campaignId, playerId }) => {
   const { sendTx } = useContext(TxContext);
 
   const [score, setScore] = useState(ReviewScore.Positive);
   const [comment, setComment] = useState("");
 
+  console.log(`ReviewPlayer ${campaignId} ${playerId}`);
+
   const handleSubmit = () => {
-    sendTx("addReview", [campaign.id, player.id, { score, comment }]);
+    sendTx("addReview", [campaignId, playerId, { score, comment }]);
     setComment("");
   };
 

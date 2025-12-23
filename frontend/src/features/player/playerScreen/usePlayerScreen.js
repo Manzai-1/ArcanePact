@@ -9,17 +9,18 @@ export const headers = [
 ]
 
 export const usePlayerScreen = () => {
-    const [selectedPlayer, setSelectedPlayer] = useState(null);
+    const [selectedPlayerId, setSelectedPlayerId] = useState(null);
 
     const { players, isLoading, error } = UseGraph();
+    if(isLoading || error || !players) return null;
 
     return {
         isLoading,
         error,
         headers,
         players,
-        selectedPlayer,
-        setSelectedPlayer,
-        closeModal: () => { setSelectedPlayer(null) },
+        selectedPlayerId,
+        setSelectedPlayerId,
+        closeModal: () => { setSelectedPlayerId(null) },
     }
 }

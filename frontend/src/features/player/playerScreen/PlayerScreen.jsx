@@ -6,17 +6,15 @@ import { PlayerModal } from '../playerModal/PlayerModal';
 
 export const PlayerScreen = () => {
     const model = usePlayerScreen();
-
-    if (model.isLoading) return <div>Loading…</div>;
-    if (model.error) return <pre>{String(error)}</pre>;
+    if(!model) return (<div>Error</div>);
 
     return (
         <>
-            {model.selectedPlayer && (
-                <PlayerModal player={model.selectedPlayer} handleCloseModal={model.closeModal} />
+            {model.selectedPlayerId && (
+                <PlayerModal playerId={model.selectedPlayerId} handleCloseModal={model.closeModal} />
             )}
             <div className={styles.container}>
-                <Table headers={model.headers} rows={model.players} action={model.setSelectedPlayer} />
+                <Table headers={model.headers} rows={model.players} action={model.setSelectedPlayerId} />
             </div>
         </>
     );

@@ -4,13 +4,14 @@ import { PlayerList } from "../playerList/PlayerList"
 import { useCampaignPlayerView } from "./useCampaignPlayerView"
 
 
-export const CampaignPlayerView = ({campaign, handleViewPlayer}) => {
-    const model = useCampaignPlayerView(campaign);
+export const CampaignPlayerView = ({campaignId, handleViewPlayer}) => {
+    const model = useCampaignPlayerView(campaignId);
+    if(!model) return (<div>Error</div>);
 
     return (
         <TableSectionWithHeader header={'Players'} aria={'Campaign Players Section'}>
-            { model.canInvite &&<InvitePlayers campaignId={campaign.id}/> }
-            { model.hasPlayers &&<PlayerList campaign={campaign} handleViewPlayer={handleViewPlayer}/>}
+            { model.canInvite &&<InvitePlayers campaignId={campaignId}/> }
+            { model.hasPlayers &&<PlayerList campaignId={campaignId} handleViewPlayer={handleViewPlayer}/>}
         </TableSectionWithHeader>
     )
 }
