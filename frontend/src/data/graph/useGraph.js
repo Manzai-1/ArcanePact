@@ -5,7 +5,7 @@ import { formatEther } from "ethers";
 
 export const UseGraph = () => {
     const { address } = useAccount();
-    const clientAdr = address.toLowerCase();
+    const clientAdr = address ? address.toLowerCase() : null;
 
     const campaignPlayerQuery = useCampaignPlayerQuery(1000, 0);
     const playerCampaignQuery = usePlayerCampaignQuery(1000, 0);
@@ -29,7 +29,7 @@ export const UseGraph = () => {
         }))
 
         return {
-            name: 'No Name',
+            name: player.name,
             id: player.id,
             likes: player.likes,
             dislikes: player.dislikes,
@@ -42,7 +42,7 @@ export const UseGraph = () => {
         const stateText = CampaignState[campaign.state];
 
         const campaignPlayers = (campaign.players ?? []).map(cp => ({
-            name: 'No Name',
+            name: cp.player.name,
             id: cp.player.id,
             lockedCollateral: cp.lockedCollateral,
             state: cp.state,
@@ -52,8 +52,8 @@ export const UseGraph = () => {
         }));
 
         const owner = players.find(player => player.id === campaign.owner);
-        campaignPlayers.push({
-            name: 'No Name',
+        if(owner) campaignPlayers.push({
+            name: owner.name,
             id: owner.id,
             lockedCollateral: 0,
             state: PlayerState.Owner,

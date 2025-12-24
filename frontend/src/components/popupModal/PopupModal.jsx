@@ -7,9 +7,9 @@ export default function PopupModal({ children, onClose }) {
         <button className={styles.closeButton} onClick={onClose}>
           ✕
         </button>
-        <div className={styles.content}>
+
           {children}
-        </div>
+
       </div>
     </div>
   );

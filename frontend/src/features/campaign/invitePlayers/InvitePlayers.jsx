@@ -10,6 +10,7 @@ export default function InvitePlayers({ campaignId }) {
   const [addresses, setAddresses] = useState([]);
 
   const { sendTx } = useContext(TxContext);
+  if(!sendTx) return (<></>);
 
   const addAddress = () => {
     setAddresses((prev) => [...prev, address]);

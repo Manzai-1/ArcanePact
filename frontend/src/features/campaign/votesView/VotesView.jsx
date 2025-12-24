@@ -6,6 +6,7 @@ import { useVotesView } from "./useVotesView"
 
 export const VotesView = ({campaign}) => {
     const model = useVotesView(campaign);
+    if(!model) return (<></>);
 
     return (
         <TableSectionWithHeader header={'Votes'} aria={'Votes Section'}>

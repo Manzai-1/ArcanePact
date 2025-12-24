@@ -4,6 +4,8 @@ import { PlayerInfoSection } from "../player/playerInfoSection/PlayerInfoSection
 import styles from './profileScreen.module.css';
 import { PlayerReviews } from "../player/playerReviews/PlayerReviews";
 import { TableSectionWithHeader } from "../../components/tableSection/TableSectionWithHeader";
+import { TableSection } from "../../components/tableSection/TableSection";
+import { ChangeName } from "../player/changeName/ChangeName";
 
 
 export const ProfileScreen = () => {
@@ -12,7 +14,9 @@ export const ProfileScreen = () => {
 
   if (isLoading) return (<>Loading...</>);
   if (error) return (<>Error: {error}</>);
-  if (!address) return <>Connect your wallet to view your profile.</>;
+  if (!address) return <TableSection aria={'Profile info section'}><h2>
+      Connect your wallet to view your profile.
+    </h2></TableSection>;
 
   const clientAdr = address.toLowerCase();
   const client = (players ?? []).find(player => player.id.toLowerCase() === clientAdr);
@@ -20,6 +24,7 @@ export const ProfileScreen = () => {
   return (
     <div className={styles.root}>
       <PlayerInfoSection player={client} />
+      <ChangeName/>
       {client &&
         <TableSectionWithHeader header={'Reviews'} aria={'Review section'}>
             <PlayerReviews player={client} />

@@ -6,7 +6,7 @@
 
   background: rgba(70, 52, 34, 0.2);
 
-  border: 2px solid rgba(58, 42, 24, 0.72);
+  border: 2px solid rgb(12, 0, 102);
   border-radius: 10px;
 
   color: rgba(255, 240, 205, 1);
@@ -37,13 +37,13 @@
   inset: 2px;
   border-radius: 8px;
 
-  border: 1px solid rgba(255, 230, 185, 0.10);
+  border: 1px solid rgb(0, 0, 0);
   pointer-events: none;
 }
 
 .button:hover {
   background: rgba(90, 65, 42, 0.34);
-  border-color: rgba(255, 220, 160, 0.28);
+  border-color: rgb(12, 0, 102);
   color: #fff3cf;
 
   transform: translateY(-2px);

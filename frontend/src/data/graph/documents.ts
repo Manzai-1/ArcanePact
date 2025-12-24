@@ -20,6 +20,7 @@ export const CAMPAIGNS_WITH_PLAYERS_AND_VOTES = gql`
         lockedCollateral
         player {
           id
+          name
           likes
           dislikes
         }
@@ -40,6 +41,7 @@ export const PLAYERS_WITH_CAMPAIGNS_AND_REVIEWS = gql`
   query PlayersWithCampaignsAndReviews {
     players(first: 1000, orderBy: id, orderDirection: asc) {
       id
+      name
       likes
       dislikes
 

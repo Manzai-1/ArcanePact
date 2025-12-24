@@ -10,6 +10,7 @@ const headers = [
 
 export const useVotesView = (campaign) => {
     const { sendTx } = useContext(TxContext);
+    if(!sendTx) return null;
 
     const rows = campaign.votes.map((vote,i) => {
         const voteName = vote.voteName;

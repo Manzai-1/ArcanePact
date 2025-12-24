@@ -5,6 +5,7 @@ import { InputFieldWithTitle } from "../../../components/inputField/InputFieldWi
 
 export const NewCampaign = () => {
     const model = useNewCampaign();
+    if(!model) return (<></>);
 
     return (
         <div className={styles.wrapper}>

@@ -4,7 +4,7 @@ import { TxContext } from "../../../providers/TxProvider";
 
 const headers = [
     { name: 'stateText', value: 'State' },
-    { name: 'id', value: 'Player Address' },
+    { name: 'name', value: 'Name' },
     { name: 'likes', value: 'Likes' },
     { name: 'dislikes', value: 'Dislikes' }
 ];
@@ -12,6 +12,7 @@ const headers = [
 export const usePlayerList = (campaign) => {
     const [selectedPlayer, setSelectedPlayer] = useState(null);
     const { sendTx } = useContext(TxContext);
+    if(!sendTx) return null;
 
     const canReviewApplication = 
         selectedPlayer &&
