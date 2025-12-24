@@ -1,8 +1,9 @@
 .wrapper {
     position: relative;
-    width: auto;
+    width: 70vw;
     height: auto;
-    margin: 3rem;
+    margin: auto;
+    margin-top: 10vh;
 
     border-radius: 128px;
     box-shadow:

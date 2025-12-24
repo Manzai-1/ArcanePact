@@ -13,9 +13,11 @@ export const useVotesView = (campaign) => {
     if(!sendTx) return null;
 
     const rows = campaign.votes.map((vote,i) => {
+        const count = +campaign.participantCount;
+        const required = Math.floor(count / 2) +1;
+
         const voteName = vote.voteName;
         const voteCount = vote.voteCount;
-        const required = Math.ceil(+campaign.participantCount / 2);
 
         return { voteName, voteCount, required, id: i };
     })
