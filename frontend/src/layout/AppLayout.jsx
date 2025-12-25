@@ -4,19 +4,22 @@ import Footer from './Footer';
 import { Web3Provider } from '../providers/Web3Provider';
 import '@rainbow-me/rainbowkit/styles.css';
 import styles from './layout.module.css';
+import { SiteAgreement } from '../features/siteAgreement/SiteAgreement';
+import { useState } from 'react';
 
 const AppLayout = () => {
+  const [hasAgreed, setHasAgreed] = useState(localStorage.getItem("legalAccepted"));
+
   return (
     <>
       <Web3Provider>
         <div className={styles.background}>
           <Header/>
           <main className={styles.main}>
-            <Outlet/>
+             {hasAgreed  &&<Outlet/>}
+             {!hasAgreed &&<SiteAgreement setHasAgreed={setHasAgreed}/>}
           </main>
-          <footer className={styles.footer}>
-            <Footer/>
-          </footer>
+          <footer className={styles.footer}> <Footer/> </footer>
         </div>
       </Web3Provider>
     </>

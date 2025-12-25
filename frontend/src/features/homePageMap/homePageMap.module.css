@@ -3,16 +3,10 @@
     width: 70vw;
     height: auto;
     margin: auto;
-    margin-top: 10vh;
+    max-width: 1556px;
+    margin-block: auto;
 
-    border-radius: 128px;
-    box-shadow:
-        0 10px 30px rgba(0, 0, 0, 1.0),
-        0 2px 30px rgba(0, 0, 0, 1.0);
 
-    transition:
-        transform 0.25s ease,
-        box-shadow 0.25s ease;
     cursor: pointer;
 }
 
@@ -21,9 +15,6 @@
     height: 100%;
     object-fit: cover;
     display: block;
-
-    border-radius: 128px;
-    border: 3px solid #000000;
 
     user-select: none;
     pointer-events: none;
