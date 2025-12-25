@@ -9,7 +9,8 @@ import {
   PlayerLockedCollateral,
   ReviewAdded,
   UpdatedCampaignState,
-  UpdatedLockedFees
+  UpdatedLockedFees,
+  ChangedName
 } from "../generated/ArcanePact/ArcanePact";
 
 import { Campaign, Player, CampaignPlayer, Review, Vote } from "../generated/schema";
@@ -45,6 +46,7 @@ export function handleCampaignPlayerUpdated(event: UpdatedCampaignPlayer): void 
   let player = Player.load(playerAddress);
   if (player == null) {
     player = new Player(playerAddress);
+    player.name = 'No Name';
     player.likes = BigInt.zero();
     player.dislikes = BigInt.zero();
     player.save();
@@ -119,6 +121,7 @@ export function handleNewVoteAdded(event: NewVoteAdded): void {
   let player = Player.load(playerId);
   if (player == null) {
     player = new Player(playerId);
+    player.name = 'No Name';
     player.likes = BigInt.zero();
     player.dislikes = BigInt.zero();
     player.save();
@@ -185,4 +188,19 @@ export function handleReviewAdded(event: ReviewAdded): void {
 
   review.save();
   recipient.save();
+}
+
+export function handleChangedName(event: ChangedName): void {
+  const playerAddress = event.params.player.toHexString().toLowerCase();
+
+
+  let player = Player.load(playerAddress);
+  if (player == null) {
+    player = new Player(playerAddress);
+    player.likes = BigInt.zero();
+    player.dislikes = BigInt.zero();
+  }
+
+  player.name = event.params.name;
+  player.save();
 }

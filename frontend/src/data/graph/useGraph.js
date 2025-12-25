@@ -7,8 +7,8 @@ export const UseGraph = () => {
     const { address } = useAccount();
     const clientAdr = address ? address.toLowerCase() : null;
 
-    const campaignPlayerQuery = useCampaignPlayerQuery(1000, 0);
-    const playerCampaignQuery = usePlayerCampaignQuery(1000, 0);
+    const campaignPlayerQuery = useCampaignPlayerQuery(60000, 0);
+    const playerCampaignQuery = usePlayerCampaignQuery(60000, 0);
 
     const noTrailingZero = (value) => value.replace(/\.0+$/, "").replace(/(\.\d*[1-9])0+$/, "$1");
 

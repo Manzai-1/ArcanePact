@@ -45,4 +45,6 @@ dataSources:
           handler: handleUpdatedCampaignState
         - event: UpdatedLockedFees(indexed uint256,uint256)
           handler: handleUpdatedLockedFees
+        - event: ChangedName(string,indexed address)
+          handler: handleChangedName
       file: ./src/arcane-pact.ts

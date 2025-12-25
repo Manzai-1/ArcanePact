@@ -94,7 +94,6 @@ contract ArcanePact {
         address player
     );
 
-    // not added to subgraph.yaml yet
     event UpdatedCampaignState(
         uint256 indexed campaignId,
         CampaignState campaignState
@@ -117,6 +116,11 @@ contract ArcanePact {
         address indexed recipient,
         address indexed sender,
         Review review
+    );
+
+    event ChangedName (
+        string name,
+        address indexed player
     );
 
     error FunctionNotFound();
@@ -356,6 +360,10 @@ contract ArcanePact {
         playerHasReviewed[campaignId][msg.sender][recipient] = true;
 
         emit ReviewAdded(campaignId, recipient, msg.sender, review);
+    }
+
+    function ChangePlayerName(string memory name) external {
+        emit ChangedName(name, msg.sender);
     }
 
     function transferFunds(uint256 amount, address recipient) private {
