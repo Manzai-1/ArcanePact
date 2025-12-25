@@ -14,7 +14,7 @@
 
   background: linear-gradient(rgba(255, 248, 235, 0.2),
       rgba(255, 242, 220, 0.1));
-  border: 3px solid #3a2a18;
+  border: 3px solid rgb(0, 0, 0);
   border-radius: 12px;
 
   box-shadow:

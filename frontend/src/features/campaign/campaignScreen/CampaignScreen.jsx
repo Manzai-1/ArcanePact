@@ -15,7 +15,7 @@ export const CampaignScreen = () => {
   return (
     <>
       {model.selectedCampaign &&(
-        <CampaignModal campaign={model.selectedCampaign} handleCloseModal={model.closeModal}/>
+        <CampaignModal campaignId={model.selectedCampaign.id} handleCloseModal={model.closeModal}/>
       )}
       <div className={styles.container}>
         <TabsDiv tabs={model.tabs.map(tab => {

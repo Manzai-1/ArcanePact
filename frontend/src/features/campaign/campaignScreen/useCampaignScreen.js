@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { UseGraph } from "../../../data/graph/useGraph";
-import { ClientState } from "../../../models/IArcanePact";
+import { CampaignState, ClientState } from "../../../models/IArcanePact";
 
 export const headers = [
   {name: 'stateText', value: 'State'},
@@ -14,16 +14,22 @@ export const filteredTables = (campaigns) => ({
     owned:      campaigns.filter(campaign => campaign.clientState === ClientState.Owner),
     joined:     campaigns.filter(campaign => campaign.clientState === ClientState.Signed),
     pending:    campaigns.filter(campaign => 
-        campaign.clientState === ClientState.AwaitingSignature || 
-        campaign.clientState === ClientState.Applied
+        (campaign.clientState === ClientState.AwaitingSignature || 
+        campaign.clientState === ClientState.Applied ) &&
+        campaign.state === CampaignState.Initialized
     ),
-    discover:   campaigns.filter(campaign => campaign.clientState === ClientState.None),
+    discover:   campaigns.filter(campaign => 
+      campaign.clientState === ClientState.None &&
+      campaign.state === CampaignState.Initialized
+    ),
 });
 
 export const useCampaignScreen = () => {
   const [selectedCampaign, setSelectedCampaign] = useState(null);
 
   const { campaigns, isLoading, error } = UseGraph();
+  if(isLoading || error ) return {isLoading, error};
+
   const { owned, joined, pending, discover } = filteredTables(campaigns);
 
   const tabs = [

@@ -1,4 +1,4 @@
-export const contractAddress = '0x5FbDB2315678afecb367f032d93F642f64180aa3';
+export const contractAddress = '0xC718839424fBa62D9F9aF12258D80ff20f3915d9';
 
 export const abi = [
     {
@@ -387,6 +387,25 @@ export const abi = [
       "anonymous": false,
       "inputs": [
         {
+          "indexed": false,
+          "internalType": "string",
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "player",
+          "type": "address"
+        }
+      ],
+      "name": "ChangedName",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
           "indexed": true,
           "internalType": "uint256",
           "name": "campaignId",
@@ -592,6 +611,19 @@ export const abi = [
     {
       "stateMutability": "payable",
       "type": "fallback"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "string",
+          "name": "name",
+          "type": "string"
+        }
+      ],
+      "name": "ChangePlayerName",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
     },
     {
       "inputs": [

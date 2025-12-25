@@ -5,6 +5,8 @@ import { parseEther } from "viem";
 
 export const useNewCampaign = () => {
     const { sendTx } = useContext(TxContext);
+    if(!sendTx) return null;
+
     const formDefaultValues = {
         title: {value: '', error: 'TEsting'},
         description: {value: '', error: ''},

@@ -20,6 +20,7 @@ export const CAMPAIGNS_WITH_PLAYERS_AND_VOTES = gql`
         lockedCollateral
         player {
           id
+          name
           likes
           dislikes
         }
@@ -40,6 +41,7 @@ export const PLAYERS_WITH_CAMPAIGNS_AND_REVIEWS = gql`
   query PlayersWithCampaignsAndReviews {
     players(first: 1000, orderBy: id, orderDirection: asc) {
       id
+      name
       likes
       dislikes
 
@@ -62,56 +64,6 @@ export const PLAYERS_WITH_CAMPAIGNS_AND_REVIEWS = gql`
           id
           title
         }
-      }
-    }
-  }
-`;
-
-export const CAMPAIGNS_QUERY = gql`
-  query Campaigns($first: Int!, $skip: Int!) {
-    campaigns(first: $first, skip: $skip, orderBy: id, orderDirection: desc) {
-      id
-      owner
-      title
-      description
-      inviteOnly
-      gamemasterFee
-      collateral
-      state
-      lockedFees
-      participantCount
-    }
-  }
-`;
-
-export const PLAYERS_QUERY = gql`
-  query Players($first: Int!, $skip: Int!) {
-    players(
-      first: $first
-      skip: $skip
-      orderBy: id
-      orderDirection: desc
-    ) {
-      id
-    }
-  }
-`;
-
-export const CAMPAIGN_PLAYERS_QUERY = gql`
-  query CampaignPlayers($first: Int!, $skip: Int!) {
-    campaignPlayers(
-      first: $first
-      skip: $skip
-      orderBy: id
-      orderDirection: desc
-    ) {
-      id
-      state
-      player {
-        id
-      }
-      campaign {
-        id
       }
     }
   }

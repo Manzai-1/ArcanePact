@@ -1,0 +1,33 @@
+.wrapper {
+    position: relative;
+    width: 70vw;
+    height: auto;
+    margin: auto;
+    max-width: 1556px;
+    margin-block: auto;
+
+
+    cursor: pointer;
+}
+
+.image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+
+    user-select: none;
+    pointer-events: none;
+}
+
+.zones {
+    position: absolute;
+    inset: 3rem;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    border-radius: 14px;
+}
+
+.zone {
+    height: 100%;
+}

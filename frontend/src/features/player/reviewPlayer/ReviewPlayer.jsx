@@ -7,7 +7,8 @@ import { ActionButton } from "../../../components/buttons/ActionButton";
 
 export const ReviewPlayer = ({ campaign, player }) => {
   const { sendTx } = useContext(TxContext);
-
+  if(!sendTx) return (<></>);
+  
   const [score, setScore] = useState(ReviewScore.Positive);
   const [comment, setComment] = useState("");
 

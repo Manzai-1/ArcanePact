@@ -3,6 +3,7 @@
 .backdrop {
   position: fixed;
   inset: 0;
+  
   background: rgba(0, 0, 0, 0.75);
   backdrop-filter: blur(3px);
   display: flex;
@@ -16,9 +17,10 @@
   position: relative;
   width: 1024;
   min-width: 800px;
-  max-width: 90vw;
+  max-width: 1000px;
+  padding: 24px;
 
-  background: rgba(44, 36, 27, 0.8);
+  background: rgba(27, 28, 44, 0.8);
   border: 2px solid #000000;
   border-radius: 12px;
   box-shadow: 0 0 20px rgba(0, 0, 0, 0.6);
@@ -59,15 +61,4 @@
 .closeButton:active {
   transform: translateY(0px);
   box-shadow: 0 0 4px rgba(0,0,0,0.4);
-}
-
-.content {
-  background: rgba(44, 36, 27, 0.8);
-  border-top: 3px solid #3a2a18;
-
-  padding: 24px;
-  overflow-y: auto;
-  flex-grow: 1;
-  color: #3d2c1a;
-  font-size: 1rem;
 }

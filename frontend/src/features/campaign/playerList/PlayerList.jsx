@@ -4,7 +4,8 @@ import { usePlayerList } from "./usePlayerList";
 
 export const PlayerList = ({campaign, handleViewPlayer}) => {
     const model = usePlayerList(campaign);
-
+    if(!model) return (<></>);
+    
     return (
         <>
             <Table 

@@ -15,6 +15,7 @@ type Campaign @entity(immutable: false) {
 
 type Player @entity(immutable: false) {
   id: ID!
+  name: String!
   likes: BigInt!
   dislikes: BigInt!
 

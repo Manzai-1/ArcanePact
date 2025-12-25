@@ -1,2 +1,2 @@
-export const SUBGRAPH_URL = "http://localhost:8000/subgraphs/name/subgraph-0/"//"http://127.0.0.1:8000/subgraphs/name/my-subgraph";
-export const INTERVAL = 2000;
+export const SUBGRAPH_URL = "https://api.goldsky.com/api/public/project_cmjjyectf9b3x01u8hkz5aewf/subgraphs/arcane-pact/1.0.0/gn";
+export const INTERVAL = 5000;

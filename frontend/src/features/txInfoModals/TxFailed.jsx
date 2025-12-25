@@ -2,7 +2,6 @@ import { TableSectionWithHeader } from '../../components/tableSection/TableSecti
 import styles from './txInfoModals.module.css';
 
 export const TxFailed = ({ error }) => {
-    console.log(error);
     return (
         <TableSectionWithHeader header={'Transaction Failed'}>
             <div className={styles.grid}>
