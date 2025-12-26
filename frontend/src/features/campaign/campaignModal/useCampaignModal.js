@@ -2,14 +2,16 @@ import { CampaignState, ClientState } from "../../../models/IArcanePact";
 import { useContext, useState } from "react";
 import { UseGraph } from "../../../data/graph/useGraph";
 import { TxContext } from "../../../providers/TxProvider";
+import { useAccount } from "wagmi";
 
 export const useCampaignModal = (campaignId) => {
+    const { address } = useAccount();
     const { campaigns, players, isLoading, error } = UseGraph();
     const [selectedPlayerId, setSelectedPlayerId] = useState(null);
     const { sendTx } = useContext(TxContext);
 
-    if(isLoading || error || !sendTx) return null;
-
+    if(isLoading || error || !sendTx || !address) return null;
+    const clientAdr = address ? address.toLowerCase() : null;
     const campaign = campaigns.find(c => c.id === campaignId);
 
     const handleViewPlayer = (player) => {
@@ -49,13 +51,17 @@ export const useCampaignModal = (campaignId) => {
         })
     }
 
+    const canReview = 
+            selectedPlayerId && 
+            campaign.state === CampaignState.Completed && 
+            campaign.ClientState === CampaignState.Signed &&
+            selectedPlayerId !== clientAdr &&
+            !players.find(p => p.id === selectedPlayerId).reviews.find(r => r.sender === clientAdr);
 
     return {
         actions,
         canInvite: campaign.clientState === ClientState.Owner,
-        canReview: selectedPlayerId && 
-            campaign.state === CampaignState.Completed && 
-            campaign.ClientState === CampaignState.Signed,
+        canReview,
         handleViewPlayer,
         selectedPlayerId,
         closeViewPlayer: ()=>{setSelectedPlayerId(null)},
