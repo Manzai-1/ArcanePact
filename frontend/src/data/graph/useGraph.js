@@ -25,7 +25,8 @@ export const UseGraph = () => {
             campaignId: review.campaign.id,
             campaignTitle: review.campaign.title,
             score: review.score,
-            comment: review.comment
+            comment: review.comment,
+            sender: review.sender
         }))
 
         return {

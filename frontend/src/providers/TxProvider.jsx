@@ -6,6 +6,7 @@ import PopupModal from "../components/popupModal/PopupModal";
 import { TxPending } from "../features/txInfoModals/TxPending";
 import { TxFailed } from "../features/txInfoModals/TxFailed";
 import TxReceipt from "../features/txInfoModals/txReceipt";
+import { TxLoading } from "../features/txInfoModals/TxLoading";
 
 export const TxContext = createContext(null);
 
@@ -40,6 +41,7 @@ export default function TxProvider({ children }) {
                 {children}
                 {viewDialog &&<PopupModal onClose={closeDialog}>
                     {isPending &&<TxPending/>}
+                    {isLoading &&<TxLoading/>}
                     {isSuccess &&<TxReceipt receipt={receipt} />}
                     {isError   &&<TxFailed error={(error).shortMessage || error.message}/>}
                 </PopupModal>}

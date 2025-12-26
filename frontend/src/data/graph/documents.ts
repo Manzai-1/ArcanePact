@@ -60,6 +60,7 @@ export const PLAYERS_WITH_CAMPAIGNS_AND_REVIEWS = gql`
         id
         score
         comment
+        sender
         campaign {
           id
           title
