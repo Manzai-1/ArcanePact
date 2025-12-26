@@ -31,21 +31,12 @@ export const CampaignModal = ({campaignId, handleCloseModal}) => {
                 <VotesView campaign={campaign}/>
                 
                 <TableSection aria={'section for available campaign actions'}>
-                    {model.canSign &&<ActionButton
-                        label={'Sign'}
-                        handleClick={model.handleSign}
-                    />}
-                    {model.canApply &&<ActionButton label={'Apply'}
-                        handleClick={model.handleApply}
-                    />}
-                    {(model.canWithdrawCollateral) &&<ActionButton
-                        label={'Withdraw Collateral'}
-                        handleClick={model.handleWithdrawCollateral}
-                    />}
-                    {(model.canWithdrawFees) &&<ActionButton
-                        label={'Withdraw Fees'}
-                        handleClick={model.handleWithDrawFees}
-                    />}
+                    {model.actions.map((action, i) => (<ActionButton
+                        key={i}
+                        label={action.label}
+                        handleClick={action.handleClick}
+                        disabled={action.disabled}
+                    />))}
                 </TableSection>
             </PopupModal>}
         </>

@@ -25,13 +25,36 @@ export const useCampaignModal = (campaignId) => {
     const handleWithdrawCollateral = () => sendTx('withdrawCollateral', [campaign.id]);
     const handleWithDrawFees = () => sendTx('withdrawFees', [campaign.id]);
 
+    const actions = [];
+    if(campaign.clientState === ClientState.AwaitingSignature) {
+        actions.push({ label: 'Sign', handleClick: handleSign, disabled: false });
+    }
+    if(campaign.clientState === ClientState.None && campaign.state === CampaignState.Initialized){
+        actions.push({ label: 'Apply', handleClick: handleApply, disabled: false});
+    }
+    if(campaign.clientState === ClientState.Signed && campaign.state === CampaignState.Completed){
+        actions.push({
+            label: `Withdraw Collateral [${campaign.collateralEth}]`,
+            handleClick: handleWithdrawCollateral,
+            disabled: +campaign.collateral === 0
+        })
+    }
+    if(campaign.clientState === ClientState.Owner && campaign.state === CampaignState.Completed){
+        const totalFees = +campaign.gamemasterFee * (+campaign.participantCount -1);
+
+        actions.push({
+            label: `Withdraw Fees [ ${totalFees}Ξ ]`,
+            handleClick: handleWithdrawCollateral,
+            disabled: totalFees === 0
+        })
+    }
+
+
+
     return {
+        actions,
         canInvite: campaign.clientState === ClientState.Owner,
-        canSign: campaign.clientState === ClientState.AwaitingSignature,
-        canApply: campaign.clientState === ClientState.None && campaign.state === CampaignState.Initialized,
         canVote: campaign.clientState === ClientState.Signed || campaign.clientState === ClientState.Owner,
-        canWithdrawCollateral: campaign.clientState === ClientState.Signed && campaign.state === CampaignState.Completed,
-        canWithdrawFees: campaign.clientState === ClientState.Owner && campaign.state === CampaignState.Completed,
         canReview: selectedPlayerId && 
             campaign.state === CampaignState.Completed && 
             campaign.ClientState === CampaignState.Signed,
