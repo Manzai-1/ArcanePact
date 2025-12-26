@@ -50,11 +50,9 @@ export const useCampaignModal = (campaignId) => {
     }
 
 
-
     return {
         actions,
         canInvite: campaign.clientState === ClientState.Owner,
-        canVote: campaign.clientState === ClientState.Signed || campaign.clientState === ClientState.Owner,
         canReview: selectedPlayerId && 
             campaign.state === CampaignState.Completed && 
             campaign.ClientState === CampaignState.Signed,

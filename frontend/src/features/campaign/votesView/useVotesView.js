@@ -1,5 +1,5 @@
 import { useContext } from "react";
-import { ClientState, VoteType } from "../../../models/IArcanePact";
+import { CampaignState, ClientState, VoteType } from "../../../models/IArcanePact";
 import { TxContext } from "../../../providers/TxProvider";
 
 const headers = [
@@ -22,14 +22,21 @@ export const useVotesView = (campaign) => {
         return { voteName, voteCount, required, id: i };
     })
 
+    const canVote = campaign.clientState === ClientState.Signed || campaign.clientState === ClientState.Owner;
     const voteStartCampaign = () => sendTx('addVote', [campaign.id, VoteType.StartCampaign]);
     const voteStopCampaign  = () => sendTx('addVote', [campaign.id, VoteType.StopCampaign]);
+    const disableVoteStart = campaign.state !== CampaignState.Initialized;
+    const disableVoteStop = campaign.state !== CampaignState.Running; 
+
+    const actions = [
+        { label: 'Vote Start', handleClick: voteStartCampaign, disabled: disableVoteStart },
+        { label: 'Vote Stop', handleClick: voteStopCampaign, disabled: disableVoteStop }
+    ];
 
     return {
+        actions,
         headers,
         rows,
-        canVote: campaign.clientState === ClientState.Signed || campaign.clientState === ClientState.Owner,
-        voteStartCampaign,
-        voteStopCampaign
+        canVote,
     }
 }
