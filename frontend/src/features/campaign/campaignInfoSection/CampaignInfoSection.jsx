@@ -1,4 +1,4 @@
-import campaignDefault from '../../../assets/default_campaign.jpg';
+import campaignDefault from '../../../assets/default_campaign.webp';
 import { InfoSection } from '../../../components/infoSection/InfoSection';
 
 export const CampaignInfoSection = ({ campaign }) => {

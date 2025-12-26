@@ -2,11 +2,11 @@ import { useState } from "react";
 import { useAccount } from "wagmi";
 import { useNavigate } from 'react-router';
 import styles from "./homePageMap.module.css";
-import imgConnected from "../../assets/Base_Town_Connected-1.png";
-import imgDisconnected from "../../assets/Base_Town_Disconnected-1.png";
-import imgAdventurers from "../../assets/Town_Adventurers-1.png";
-import imgCampaigns from "../../assets/Town_Campaigns-1.png";
-import imgProfile from "../../assets/Town_Profile-1.png";
+import imgConnected from "../../assets/Base_Town_Connected.webp";
+import imgDisconnected from "../../assets/Base_Town_Disconnected.webp";
+import imgAdventurers from "../../assets/Town_Adventurers.webp";
+import imgCampaigns from "../../assets/Town_Campaigns.webp";
+import imgProfile from "../../assets/Town_Profile.webp";
 
 const images = [
     imgConnected,
