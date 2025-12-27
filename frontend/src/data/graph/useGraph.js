@@ -104,8 +104,6 @@ export const UseGraph = () => {
     let unlockedFees = 0;
     let lockedCollateral = 0;
     let unlockedCollateral = 0;
-    let finishedCampaigns = 0;
-    let activeCampaigns = 0;
 
     campaigns.forEach(campaign => {
         const isOwner = campaign.clientState === ClientState.Owner;
@@ -114,23 +112,19 @@ export const UseGraph = () => {
 
         if (isOwner && isCompleted) {
             unlockedFees += +campaign.lockedFees;
-            finishedCampaigns++;
         }
         if (isOwner && !isCompleted) {
             lockedFees += +campaign.lockedFees;
-            activeCampaigns++;
         }
         if (isJoined && isCompleted) {
             unlockedCollateral +=
                 +campaign.players.find(p => p.id.toLowerCase() === clientAdr)
                     .lockedCollateral;
-            finishedCampaigns++;
         }
         if (isJoined && !isCompleted) {
             lockedCollateral +=
                 +campaign.players.find(p => p.id.toLowerCase() === clientAdr)
                     .lockedCollateral;
-            activeCampaigns++;
         }
     })
 
@@ -139,8 +133,6 @@ export const UseGraph = () => {
         unlockedFees: `${formatEther(unlockedFees)} Ξ`,
         lockedCollateral: `${formatEther(lockedCollateral)} Ξ`,
         unlockedCollateral: `${formatEther(unlockedCollateral)} Ξ`,
-        finishedCampaigns: 0,
-        activeCampaigns: 0
     }
 
     // console.log('lockedFees: ', lockedFees);
