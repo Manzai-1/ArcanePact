@@ -3,6 +3,7 @@ import { useContext, useState } from "react";
 import { UseGraph } from "../../../data/graph/useGraph";
 import { TxContext } from "../../../providers/TxProvider";
 import { useAccount } from "wagmi";
+import { formatEther } from 'viem';
 
 export const useCampaignModal = (campaignId) => {
     const { address } = useAccount();
@@ -45,7 +46,7 @@ export const useCampaignModal = (campaignId) => {
         const totalFees = +campaign.gamemasterFee * (+campaign.participantCount -1);
 
         actions.push({
-            label: `Withdraw Fees [ ${totalFees}Ξ ]`,
+            label: `Withdraw Fees [ ${formatEther(totalFees)} Ξ ]`,
             handleClick: handleWithdrawCollateral,
             disabled: totalFees === 0
         })
