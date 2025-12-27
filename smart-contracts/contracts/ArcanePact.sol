@@ -107,6 +107,7 @@ contract ArcanePact {
 
     event LockedCollateralWithdrawn(
         uint256 indexed campaignId,
+        address indexed player,
         uint256 withdrawnAmount,
         uint256 currentlyLockedAmount
     );
@@ -328,7 +329,7 @@ contract ArcanePact {
 
         locked = false;
 
-        emit LockedCollateralWithdrawn(campaignId, amountToTransfer, player.lockedCollateral);
+        emit LockedCollateralWithdrawn(campaignId, msg.sender, amountToTransfer, player.lockedCollateral);
     }
 
     function addReview(uint256 campaignId, address recipient, Review calldata review) external {

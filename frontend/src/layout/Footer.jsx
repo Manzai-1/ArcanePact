@@ -4,7 +4,7 @@ const Footer = ({
   termsUrl = "/terms",
   privacyUrl = "/privacy",
   githubUrl = "https://github.com/Manzai-1/ArcanePact",
-  etherscanUrl = "https://sepolia.etherscan.io/address/0xC718839424fBa62D9F9aF12258D80ff20f3915d9",
+  etherscanUrl = "https://sepolia.etherscan.io/address/0x08F2E87aCdad0E8E69AE5cAF52B7A2666FEaAda2",
 }) => {
   return (
     <div className={styles.footer}>
