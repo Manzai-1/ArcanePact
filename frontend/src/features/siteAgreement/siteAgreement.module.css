@@ -11,6 +11,12 @@
   opacity: 0.9;
 }
 
+.subtext {
+  font-size: 13px;
+  line-height: 1.5;
+  opacity: 0.85;
+}
+
 .checkboxRow {
   display: flex;
   align-items: flex-start;
@@ -23,6 +29,20 @@
 .checkboxRow input[type="checkbox"] {
   margin-top: 3px;
   cursor: pointer;
+}
+
+.link,
+.linkInline {
+  color: inherit;
+  text-decoration: underline;
+  font-weight: 600;
+  cursor: pointer;
+  margin-inline: 0.2rem;
+}
+
+.link:hover,
+.linkInline:hover {
+  opacity: 0.85;
 }
 
 .actions {
