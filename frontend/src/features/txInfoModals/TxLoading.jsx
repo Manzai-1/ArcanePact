@@ -2,6 +2,6 @@ import styles from './txInfoModals.module.css';
 
 export const TxLoading = () => {
     return (
-        <span class={styles.pending}>Broadcasting transaction..</span>
+        <span className={styles.pending}>Broadcasting transaction..</span>
     )
 }

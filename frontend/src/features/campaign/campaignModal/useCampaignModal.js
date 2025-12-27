@@ -26,7 +26,7 @@ export const useCampaignModal = (campaignId) => {
     const handleSign = () => sendTx('signCampaign', [campaign.id], txValue);
     const handleApply = () => sendTx('campaignApplication', [campaign.id]);
     const handleWithdrawCollateral = () => sendTx('withdrawCollateral', [campaign.id]);
-    const handleWithDrawFees = () => sendTx('withdrawFees', [campaign.id]);
+    const handleWithdrawFees = () => sendTx('withdrawFees', [campaign.id]);
 
     const actions = [];
     if(campaign.clientState === ClientState.AwaitingSignature) {
@@ -35,29 +35,35 @@ export const useCampaignModal = (campaignId) => {
     if(campaign.clientState === ClientState.None && campaign.state === CampaignState.Initialized){
         actions.push({ label: 'Apply', handleClick: handleApply, disabled: false});
     }
-    if(campaign.clientState === ClientState.Signed && campaign.state === CampaignState.Completed){
+    if(clientAdr && campaign.clientState === ClientState.Signed && campaign.state === CampaignState.Completed){
+        const lockedCollateral = (campaign.players.find(p => p.id === clientAdr) ?? []).lockedCollateral;
+
         actions.push({
-            label: `Withdraw Collateral [${campaign.collateralEth}]`,
+            label: `Withdraw Collateral [ ${formatEther(lockedCollateral)} Ξ ]`,
             handleClick: handleWithdrawCollateral,
-            disabled: +campaign.collateral === 0
+            disabled: +lockedCollateral === 0
         })
     }
     if(campaign.clientState === ClientState.Owner && campaign.state === CampaignState.Completed){
-        const totalFees = +campaign.gamemasterFee * (+campaign.participantCount -1);
+        const fees = campaign.lockedFees;
 
         actions.push({
-            label: `Withdraw Fees [ ${formatEther(totalFees)} Ξ ]`,
-            handleClick: handleWithdrawCollateral,
-            disabled: totalFees === 0
+            label: `Withdraw Fees [ ${formatEther(fees)} Ξ ]`,
+            handleClick: handleWithdrawFees,
+            disabled: +fees === 0
         })
     }
 
+    // const reviewId = selectedPlayerId ? campaignId+'-'+clientAdr+'-'+selectedPlayerId.toLowerCase() : '';
     const canReview = 
             selectedPlayerId && 
             campaign.state === CampaignState.Completed && 
             campaign.ClientState === CampaignState.Signed &&
             selectedPlayerId !== clientAdr &&
-            !players.find(p => p.id === selectedPlayerId).reviews.find(r => r.sender === clientAdr);
+            !players.find(p => p.id === selectedPlayerId).reviews.find(r =>
+                r.campaignId === campaignId && 
+                r.sender.toLowerCase() === clientAdr
+            );
 
     return {
         actions,
@@ -66,10 +72,6 @@ export const useCampaignModal = (campaignId) => {
         handleViewPlayer,
         selectedPlayerId,
         closeViewPlayer: ()=>{setSelectedPlayerId(null)},
-        handleSign,
-        handleApply,
-        handleWithdrawCollateral,
-        handleWithDrawFees,
         selectedPlayer,
         campaign
     };
