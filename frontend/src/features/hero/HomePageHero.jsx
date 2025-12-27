@@ -17,14 +17,16 @@ export const HomePageHero = () => {
                         Play Together. Decide Together.
                     </h1>
 
-                    <p className={styles.subtitle}>
+                    <span className={styles.subtitle}>
                         A decentralized platform where adventurers form parties,
                         vote on campaigns, and build reputations that matter.
-                        <br />
-                        <span className={styles.walletNote}>
-                            Sign in using a secure digital account — no email or password required.
-                        </span>
-                    </p>
+                    </span>
+                    <span className={styles.subtitle}>
+                        Build trust through verified play history, shared decisions, and clear commitments before every campaign.
+                    </span>
+                    <span className={styles.subtitle}>
+                        Sign in using a secure digital account — no email or password required.
+                    </span>
 
                     {!isConnected && <div className={styles.connect}>
                         <ConnectButton />
@@ -45,6 +47,8 @@ export const HomePageHero = () => {
                         />
                     </div>
                 </div>
+            </section>
+            <section className={styles.root}>
 
                 <div className={styles.features}>
                     <div className={styles.feature}>
