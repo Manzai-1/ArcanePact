@@ -22,7 +22,7 @@ export const CampaignScreen = () => {
           return tab.type === 'table' ? {
             label: tab.label,
             content: <Table 
-              headers={model.headers} 
+              headers={tab.headers} 
               rows={tab.rows} 
               action={model.setSelectedCampaign}
             />

@@ -92,6 +92,7 @@ export const UseGraph = () => {
             feeEth: `${noTrailingZero(formatEther(campaign.gamemasterFee))} Ξ`,
             collateralEth: `${noTrailingZero(formatEther(campaign.collateral))} Ξ`,
             clientState,
+            clientStateText: ClientState[clientState],
             stateText,
             players: campaignPlayers,
             votes

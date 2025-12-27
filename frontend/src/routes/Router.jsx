@@ -13,9 +13,9 @@ export const router = createBrowserRouter([
     element: <AppLayout />,
     children: [
       { path: '/', element: <HomePage /> },
-      { path: '/Adventurers', element: <AdventurersPage /> },
-      { path: '/Campaigns', element: <CampaignsPage /> },
-      { path: '/Profile', element: <ProfilePage /> },
+      { path: '/adventurers', element: <AdventurersPage /> },
+      { path: '/campaigns', element: <CampaignsPage /> },
+      { path: '/profile', element: <ProfilePage /> },
       { path: '/terms', element: <TermsOfUse /> },
       { path: '/privacy', element: <PrivacyNotice /> },
     ],
