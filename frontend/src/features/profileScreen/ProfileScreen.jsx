@@ -6,10 +6,11 @@ import { PlayerReviews } from "../player/playerReviews/PlayerReviews";
 import { TableSectionWithHeader } from "../../components/tableSection/TableSectionWithHeader";
 import { TableSection } from "../../components/tableSection/TableSection";
 import { ChangeName } from "../player/changeName/ChangeName";
+import { PlayerFunds } from "../player/playerFunds/PlayerFunds";
 
 
 export const ProfileScreen = () => {
-  const { players, isLoading, error } = UseGraph();
+  const { players, profileData, isLoading, error } = UseGraph();
   const { address } = useAccount();
 
   if (isLoading) return (<>Loading...</>);
@@ -24,6 +25,7 @@ export const ProfileScreen = () => {
   return (
     <div className={styles.root}>
       <PlayerInfoSection player={client} />
+      <PlayerFunds profileData={profileData} />
       <ChangeName/>
       {client &&
         <TableSectionWithHeader header={'Reviews'} aria={'Review section'}>

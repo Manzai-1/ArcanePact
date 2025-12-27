@@ -39,7 +39,7 @@ export const UseGraph = () => {
         }
     });
 
-        const campaigns = (campaignPlayerQuery.data ?? []).map(campaign => {
+    const campaigns = (campaignPlayerQuery.data ?? []).map(campaign => {
         const stateText = CampaignState[campaign.state];
 
         const campaignPlayers = (campaign.players ?? []).map(cp => ({
@@ -53,7 +53,7 @@ export const UseGraph = () => {
         }));
 
         const owner = players.find(player => player.id === campaign.owner);
-        if(owner) campaignPlayers.push({
+        if (owner) campaignPlayers.push({
             name: owner.name,
             id: owner.id,
             lockedCollateral: 0,
@@ -99,7 +99,60 @@ export const UseGraph = () => {
         }
     });
 
+
+    let lockedFees = 0;
+    let unlockedFees = 0;
+    let lockedCollateral = 0;
+    let unlockedCollateral = 0;
+    let finishedCampaigns = 0;
+    let activeCampaigns = 0;
+
+    campaigns.forEach(campaign => {
+        const isOwner = campaign.clientState === ClientState.Owner;
+        const isCompleted = campaign.state === CampaignState.Completed
+        const isJoined = !isCompleted && campaign.clientState === ClientState.Signed;
+
+        if (isOwner && isCompleted) {
+            unlockedFees += +campaign.lockedFees;
+            finishedCampaigns++;
+        }
+        if (isOwner && !isCompleted) {
+            lockedFees += +campaign.lockedFees;
+            activeCampaigns++;
+        }
+        if (isJoined && isCompleted) {
+            unlockedCollateral +=
+                +campaign.players.find(p => p.id.toLowerCase() === clientAdr)
+                    .lockedCollateral;
+            finishedCampaigns++;
+        }
+        if (isJoined && !isCompleted) {
+            lockedCollateral +=
+                +campaign.players.find(p => p.id.toLowerCase() === clientAdr)
+                    .lockedCollateral;
+            activeCampaigns++;
+        }
+    })
+
+    const profileData = {
+        lockedFees: `${formatEther(lockedFees)} Ξ`,
+        unlockedFees: `${formatEther(unlockedFees)} Ξ`,
+        lockedCollateral: `${formatEther(lockedCollateral)} Ξ`,
+        unlockedCollateral: `${formatEther(unlockedCollateral)} Ξ`,
+        finishedCampaigns: 0,
+        activeCampaigns: 0
+    }
+
+    // console.log('lockedFees: ', lockedFees);
+    // console.log('unlockedFees: ', unlockedFees);
+    // console.log('lockedCollateral: ', lockedCollateral);
+    // console.log('unlockedCollateral: ', unlockedCollateral);
+    // console.log('finishedCampaigns: ', finishedCampaigns);
+    // console.log('activeCampaigns: ', activeCampaigns);
+
+
     return {
+        profileData,
         players,
         campaigns,
         isLoading: campaignPlayerQuery.isLoading || playerCampaignQuery.isLoading,
