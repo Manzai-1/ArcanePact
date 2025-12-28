@@ -1,19 +1,19 @@
-specVersion: 1.3.0
-indexerHints:
-  prune: auto
+specVersion: 0.0.4
+description: Indexing states to be used in ArcanePact frontend
+repository: https://github.com/Manzai-1/ArcanePact
 schema:
   file: ./schema.graphql
 dataSources:
-  - kind: ethereum
+  - kind: ethereum/contract
     name: ArcanePact
-    network: local
+    network: sepolia
     source:
-      address: "0x5FbDB2315678afecb367f032d93F642f64180aa3"
+      address: "0x08F2E87aCdad0E8E69AE5cAF52B7A2666FEaAda2"
       abi: ArcanePact
-      startBlock: 0
+      startBlock: 9904954
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.9
+      apiVersion: 0.0.6
       language: wasm/assemblyscript
       entities:
         - Campaigns
@@ -29,7 +29,7 @@ dataSources:
           handler: handleCampaignCreated
         - event: CampaignParticipantCountChanged(indexed uint256,uint256)
           handler: handleUpdateParticipantCount
-        - event: LockedCollateralWithdrawn(indexed uint256,uint256,uint256)
+        - event: LockedCollateralWithdrawn(indexed uint256,indexed address,uint256,uint256)
           handler: handleLockedCollateralWithdrawn
         - event: LockedFeesWithdrawn(indexed uint256,uint256,uint256)
           handler: handleLockedFeesWithdrawn
@@ -47,4 +47,4 @@ dataSources:
           handler: handleUpdatedLockedFees
         - event: ChangedName(string,indexed address)
           handler: handleChangedName
-      file: ./src/arcane-pact.ts
+      file: ./src/mapping.ts

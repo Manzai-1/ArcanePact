@@ -1,4 +1,6 @@
-import { BigInt } from "@graphprotocol/graph-ts";
+import {
+  BigInt
+} from '@graphprotocol/graph-ts';
 import {
   CampaignCreated,
   UpdatedCampaignPlayer,
@@ -12,8 +14,7 @@ import {
   UpdatedLockedFees,
   ChangedName
 } from "../generated/ArcanePact/ArcanePact";
-
-import { Campaign, Player, CampaignPlayer, Review, Vote } from "../generated/schema";
+import { Campaign, Player, CampaignPlayer, Review, Vote } from '../generated/schema';
 
 export function handleCampaignCreated(event: CampaignCreated): void {
   const id = event.params.campaignId.toString();
@@ -151,11 +152,35 @@ export function handleUpdatedCampaignState(event: UpdatedCampaignState): void {
 }
 
 export function handleLockedCollateralWithdrawn(event: LockedCollateralWithdrawn): void {
+  const campaign = event.params.campaignId.toString();
+  const playerAddress = event.params.player.toHexString().toLowerCase();
 
+  let player = Player.load(playerAddress);
+  if (player == null) {
+    return;
+  }
+
+  const id = campaign+'-'+playerAddress;
+
+  let campaignPlayer = CampaignPlayer.load(id);
+  if (campaignPlayer == null) {
+    return;
+  }
+
+  campaignPlayer.lockedCollateral = event.params.currentlyLockedAmount;
+  campaignPlayer.save();
 }
 
 export function handleLockedFeesWithdrawn(event: LockedFeesWithdrawn): void {
+  const id = event.params.campaignId.toString();
 
+  let campaign = Campaign.load(id);
+  if (campaign == null) {
+    return;
+  }
+
+  campaign.lockedFees = event.params.currentlyLockedAmount;
+  campaign.save();
 }
 
 export function handleReviewAdded(event: ReviewAdded): void {
@@ -175,6 +200,9 @@ export function handleReviewAdded(event: ReviewAdded): void {
   let recipient = Player.load(recipientId);
   if (recipient == null) return;
 
+  let sender = Player.load(senderId);
+  if (sender == null) return;
+
   let campaign = Campaign.load(campaignId);
   if (campaign == null) return;
 
@@ -183,6 +211,7 @@ export function handleReviewAdded(event: ReviewAdded): void {
 
   review.campaign = campaign.id;
   review.recipient = recipient.id;
+  review.sender = sender.id;
   review.score = score;
   review.comment = comment;
 
