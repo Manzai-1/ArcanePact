@@ -42,6 +42,7 @@ type Review @entity (immutable: true) {
   id: ID!
   campaign: Campaign!
   recipient: Player!
+  sender: Player!
   score: Int!
   comment: String!
 }

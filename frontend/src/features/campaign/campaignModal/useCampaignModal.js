@@ -11,7 +11,7 @@ export const useCampaignModal = (campaignId) => {
     const [selectedPlayerId, setSelectedPlayerId] = useState(null);
     const { sendTx } = useContext(TxContext);
 
-    if(isLoading || error || !sendTx || !address) return null;
+    if(isLoading || error || !sendTx ) return null;
     const clientAdr = address ? address.toLowerCase() : null;
     const campaign = campaigns.find(c => c.id === campaignId);
 

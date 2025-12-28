@@ -1,2 +1,4 @@
 graph-local/
+subgraph/
+poap-subgraph
 package-lock.json
