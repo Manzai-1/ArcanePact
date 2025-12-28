@@ -12,8 +12,8 @@ export const PlayerReviews = ({player}) => {
 
     return (
         <>
-            {rows &&<Table headers={headers} rows={rows}/>}
-            {!rows &&<>No reviews available..</>}
+            {(rows && rows.length > 0) &&<Table headers={headers} rows={rows}/>}
+            {(!rows || rows.length === 0) &&<span>No reviews available..</span>}
         </>
     )
 }
