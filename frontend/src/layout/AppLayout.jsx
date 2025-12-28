@@ -9,6 +9,9 @@ import { useState } from 'react';
 
 const AppLayout = () => {
   const [hasAgreed, setHasAgreed] = useState(localStorage.getItem("legalAccepted"));
+  const isLegalRoute =
+    location.pathname === "/terms" ||
+    location.pathname === "/privacy";
 
   return (
     <>
@@ -16,8 +19,8 @@ const AppLayout = () => {
         <div className={styles.background}>
           <Header/>
           <main className={styles.main}>
-             {hasAgreed  &&<Outlet/>}
-             {!hasAgreed &&<SiteAgreement setHasAgreed={setHasAgreed}/>}
+             {(hasAgreed || isLegalRoute)  &&<Outlet/>}
+             {(!hasAgreed && !isLegalRoute)&&<SiteAgreement setHasAgreed={setHasAgreed}/>}
           </main>
           <footer className={styles.footer}> <Footer/> </footer>
         </div>

@@ -1,4 +1,4 @@
-import profileDefault from '../../../assets/default_profile.jpg';
+import profileDefault from '../../../assets/default_profile.webp';
 import { InfoSection } from '../../../components/infoSection/InfoSection';
 
 export const PlayerInfoSection = ({player}) => {

@@ -1,0 +1,13 @@
+.root {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+}
+
+.root > :first-child {
+    flex: 3;
+}
+
+.root > :last-child {
+    flex: 1;
+}

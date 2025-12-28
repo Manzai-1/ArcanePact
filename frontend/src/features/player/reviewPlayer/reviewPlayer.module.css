@@ -1,13 +1,13 @@
 
 .root {
   display: flex;
-  padding-block: 12px;
 }
 
 .toggle {
-  display: inline-flex;
+  display: flex;
+  margin-block: auto;
+  margin-right: 12px;
   gap: 8px;
-  padding-inline: 6px;
 }
 
 .radio {
@@ -52,7 +52,3 @@
 .input {
   flex: 1;
 }
-
-/* .button button {
-  margin-top: 0px;
-} */

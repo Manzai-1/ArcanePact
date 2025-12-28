@@ -1,0 +1,104 @@
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&display=swap');
+
+.container {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    margin-top: 6rem;
+}
+.root {
+    display: flex;
+    flex-direction: row;
+    max-width: 700px;
+
+    padding: 2rem;
+    gap: 2rem;
+
+    background: linear-gradient(rgba(20, 32, 48, 0.65),
+            rgba(12, 20, 32, 0.75));
+
+    border: 3px solid #000;
+    border-radius: 14px;
+
+    box-shadow:
+        inset 0 0 18px rgba(0, 0, 0, 0.55),
+        0 0 18px rgba(0, 0, 0, 0.6);
+
+    font-family: 'Cinzel', serif;
+}
+
+.content {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 14px;
+    flex: 2;
+}
+
+.title {
+    font-size: 2.1rem;
+    font-weight: 700;
+    color: #ffedb5;
+    text-shadow: 2px 2px 3px #000;
+    letter-spacing: 0.8px;
+    line-height: 1.15;
+}
+
+.subtitle {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #d8c59f;
+    text-shadow: 1px 1px 2px #000;
+    line-height: 1.6;
+
+    padding-top: 1rem;
+    padding-inline: 1rem;
+}
+
+.connect {
+    display: flex;
+    justify-content: center;
+    margin-block: 0.5rem;
+}
+
+.actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-top: auto;
+    margin-bottom: 0px;
+}
+
+.features {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    flex: 3;
+}
+
+.feature {
+    padding: 12px 14px;
+    border-radius: 10px;
+
+    background: rgba(32, 25, 18, 0.45);
+    border: 2px solid #000;
+
+    box-shadow: inset 0 0 12px rgba(0, 0, 0, 0.45);
+}
+
+.featureTitle {
+    display: block;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #ffedb5;
+    text-shadow: 1px 1px 2px #000;
+    margin-bottom: 4px;
+}
+
+.featureText {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #d8c59f;
+    text-shadow: 1px 1px 2px #000;
+    line-height: 1.5;
+}

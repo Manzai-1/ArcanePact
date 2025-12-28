@@ -1,10 +1,8 @@
-import HomePageMap from "../features/homePageMap/HomePageMap";
+import { HomePageHero } from "../features/hero/HomePageHero";
 
 const HomePage = () => {
   return (
-    <>
-      {/* <HomePageMap /> */}
-    </>
+    <HomePageHero />
   );
 };
 

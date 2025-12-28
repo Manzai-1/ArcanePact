@@ -1,0 +1,10 @@
+.actionDiv{
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    gap: 0.5rem;
+}
+
+.actionDiv button {
+    flex: 1;
+}
