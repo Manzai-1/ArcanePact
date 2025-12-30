@@ -139,15 +139,6 @@ export const UseGraph = () => {
         unlockedCollateral: `${formatEther(unlockedCollateral)} Ξ`,
     }
 
-    // console.log('lockedFees: ', lockedFees);
-    // console.log('unlockedFees: ', unlockedFees);
-    // console.log('lockedCollateral: ', lockedCollateral);
-    // console.log('unlockedCollateral: ', unlockedCollateral);
-    // console.log('finishedCampaigns: ', finishedCampaigns);
-    // console.log('activeCampaigns: ', activeCampaigns);
-
-    console.log(campaigns);
-
     return {
         profileData,
         players,

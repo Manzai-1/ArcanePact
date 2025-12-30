@@ -19,5 +19,5 @@ export function blockToDate(
       ? new Date(Date.now() + msDiff)
       : new Date(Date.now() - msDiff)
 
-  return date.toLocaleString();
+  return date.toLocaleString('sv-SE');
 }
