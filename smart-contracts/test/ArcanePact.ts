@@ -8,7 +8,8 @@ const campaignConfig = {
     description: 'Dumnmy campaign for testing',
     inviteOnly: false,
     gamemasterFee: 0n,
-    collateral: 0n
+    collateral: 0n,
+    durationBlocks: 100n
 }
 
 const enum PlayerState {
@@ -140,6 +141,56 @@ describe('Campaign lifecycle', () => {
                 1, 
                 CampaignState.Completed
             );
+    })
+
+    it('Should stop Campaign upon a minority / single vote if lastBlock has passed', async () => {
+        const { arcanePact, account } = await contractFixture();
+        const val1 = ethers.parseEther("1");
+        const val2 = ethers.parseEther("2");
+
+        await arcanePact.newCampaign({
+            ...campaignConfig, 
+            gamemasterFee: val1, 
+            collateral: val1,
+            durationBlocks: 1n
+        });
+
+        await arcanePact.invitePlayers(1, [account[1].address]);
+        await arcanePact.invitePlayers(1, [account[2].address]);
+        await arcanePact.invitePlayers(1, [account[3].address]);
+
+        await arcanePact.connect(account[1]).signCampaign(1, {value: val2});
+        await arcanePact.connect(account[2]).signCampaign(1, {value: val2});
+        await arcanePact.connect(account[3]).signCampaign(1, {value: val2});
+
+        await expect(arcanePact.addVote(1, VoteType.StopCampaign))
+            .to.emit(arcanePact, "UpdatedCampaignState").withArgs(
+                1, 
+                CampaignState.Completed
+            );
+    })
+
+    it('Should not stop Campaign upon a minority / single vote if lastBlock has not passed', async () => {
+        const { arcanePact, account } = await contractFixture();
+        const val1 = ethers.parseEther("1");
+        const val2 = ethers.parseEther("2");
+
+        await arcanePact.newCampaign({
+            ...campaignConfig, 
+            gamemasterFee: val1, 
+            collateral: val1,
+        });
+
+        await arcanePact.invitePlayers(1, [account[1].address]);
+        await arcanePact.invitePlayers(1, [account[2].address]);
+        await arcanePact.invitePlayers(1, [account[3].address]);
+
+        await arcanePact.connect(account[1]).signCampaign(1, {value: val2});
+        await arcanePact.connect(account[2]).signCampaign(1, {value: val2});
+        await arcanePact.connect(account[3]).signCampaign(1, {value: val2});
+
+        await expect(arcanePact.addVote(1, VoteType.StopCampaign))
+            .to.not.emit(arcanePact, "UpdatedCampaignState");
     })
 })
 
@@ -689,6 +740,7 @@ describe('Campaign Participant Collateral Withdrawal', () => {
         await expect(arcanePact.connect(account[1]).withdrawCollateral(1))
             .to.emit(arcanePact, "LockedCollateralWithdrawn").withArgs(
                 1,
+                account[1].address,
                 val1,
                 0
             );
@@ -818,7 +870,7 @@ describe('Campaign Participant Reviewing', () => {
     })
 
 
-    it('Should reject voting when already voted', async () => {
+    it('Should reject reviewing when already reviewed', async () => {
         const { arcanePact, account } = await contractFixture();
         const val1 = ethers.parseEther("1");
         const val2 = ethers.parseEther("2");
