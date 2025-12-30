@@ -1,6 +1,7 @@
 import { useContext, useState } from "react";
 import { TxContext } from "../../../providers/TxProvider";
 import { parseEther } from "viem";
+import { isNumber, zodValidate } from "../../../schemas/zodSchemas";
 
 
 export const useNewCampaign = () => {
@@ -54,21 +55,30 @@ export const useNewCampaign = () => {
     const feeOnChange = (value) => {
         setForm((prev) => ({
             ...prev,
-            fee: {...prev.fee, value},
+            fee: {
+                value, 
+                error: zodValidate(isNumber, value)
+            },
         }));
     };
 
     const collateralOnChange = (value) => {
         setForm((prev) => ({
             ...prev,
-            collateral: {...prev.collateral, value},
+            collateral: {
+                value, 
+                error: zodValidate(isNumber, value)
+            },
         }));
     };
 
     const durationBlocksOnChange = (value) => {
         setForm((prev) => ({
             ...prev,
-            collateral: {...prev.collateral, value},
+            durationBlocks: {
+                value, 
+                error: zodValidate(isNumber, value)
+            },
         }));
     };
     
