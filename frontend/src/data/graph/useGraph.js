@@ -112,7 +112,7 @@ export const UseGraph = () => {
     campaigns.forEach(campaign => {
         const isOwner = campaign.clientState === ClientState.Owner;
         const isCompleted = campaign.state === CampaignState.Completed
-        const isJoined = !isCompleted && campaign.clientState === ClientState.Signed;
+        const isJoined = campaign.clientState === ClientState.Signed;
 
         if (isOwner && isCompleted) {
             unlockedFees += +campaign.lockedFees;
