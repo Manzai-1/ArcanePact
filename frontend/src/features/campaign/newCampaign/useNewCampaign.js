@@ -30,7 +30,7 @@ export const useNewCampaign = () => {
             inviteOnly: form.inviteOnly,
             gamemasterFee: parseEther(form.fee.value),
             collateral: parseEther(form.collateral.value),
-            durationBlocks: parseEther(form.durationBlocks.value),
+            durationBlocks: form.durationBlocks.value,
         };
         
         sendTx('newCampaign', [newCampaign]);
