@@ -3,6 +3,11 @@
 
 pragma solidity 0.8.28;
 
+/// @title ArcanePact
+/// @author Manzai-1
+/// @notice Campaigns with invite/apply flow, fee+collateral deposits, voting-driven state changes, and post-completion withdrawals.
+/// @dev If `block.number >= lastBlock`, a single vote can transition campaign state; otherwise requires strict majority.
+
 contract ArcanePact {
     uint256 private nextId;
     bool private locked;
@@ -166,14 +171,17 @@ contract ArcanePact {
         nextId = 1;
     }
 
+    /// @notice Reject unknown function calls.
     fallback() external payable {
         revert FunctionNotFound();
     }
 
+    /// @notice Reject plain ETH transfers.
     receive() external payable {
         revert PaymentDataMissing();
     }
 
+    /// @notice Create a campaign (caller becomes owner). lastBlock ensures that players can withdraw funds after a set amount of blocks.
     function newCampaign(NewCampaignConfig calldata config) external {
         uint256 campaignId = nextId++;
         Campaign storage campaign = campaigns[campaignId];
@@ -198,6 +206,7 @@ contract ArcanePact {
         );
     }
 
+    /// @notice Invite players (sets them to AwaitingSignature).
     function invitePlayers(
         uint256 campaignId,
         address[] calldata addresses
@@ -219,6 +228,7 @@ contract ArcanePact {
         }
     }
 
+    /// @notice Can apply to a non-invite-only campaign.
     function campaignApplication(uint256 campaignId) external {
         address applicant = msg.sender;
 
@@ -234,6 +244,7 @@ contract ArcanePact {
         emit UpdatedCampaignPlayer(campaignId, applicant, player.state);
     }
 
+    /// @notice Owner approves/rejects an application.
     function reviewApplication(
         uint256 campaignId,
         address applicant,
@@ -257,6 +268,7 @@ contract ArcanePact {
         emit UpdatedCampaignPlayer(campaignId, applicant, player.state);
     }
 
+    /// @notice Sign by paying exactly (gamemasterFee + collateral). transitions players state to Signed
     function signCampaign(uint256 campaignId) external payable {
         Campaign storage campaign = campaigns[campaignId];
 
@@ -285,7 +297,7 @@ contract ArcanePact {
         emit UpdatedLockedFees(campaignId, campaign.lockedFees);
     }
 
-    //can be optimized with bit shifting / bitmasks
+    /// @notice Vote to start/stop; after `lastBlock` a single vote can transition.
     function addVote(uint256 campaignId, VoteType voteType) external {
         Campaign storage campaign = campaigns[campaignId];
 
@@ -325,6 +337,7 @@ contract ArcanePact {
         }
     }
 
+    /// @notice Owner withdraws locked fees after completion.
     function withdrawFees(uint256 campaignId) external {
         Campaign storage campaign = campaigns[campaignId];
 
@@ -349,6 +362,7 @@ contract ArcanePact {
         );
     }
 
+    /// @notice Signed players withdraw collateral after completion.
     function withdrawCollateral(uint256 campaignId) external {
         Campaign storage campaign = campaigns[campaignId];
 
@@ -380,6 +394,7 @@ contract ArcanePact {
         );
     }
 
+    /// @notice Add a review for a recipient after campaign completion (once per sender->recipient combination per campaign).
     function addReview(
         uint256 campaignId,
         address recipient,
@@ -414,6 +429,7 @@ contract ArcanePact {
         emit ReviewAdded(campaignId, recipient, msg.sender, review);
     }
 
+    /// @notice Emit a name-change event (no storage).
     function ChangePlayerName(string memory name) external {
         emit ChangedName(name, msg.sender);
     }
