@@ -25,7 +25,7 @@ dataSources:
         - name: ArcanePact
           file: ./abis/ArcanePact.json
       eventHandlers:
-        - event: CampaignCreated(indexed uint256,indexed address,indexed uint8,uint256,uint256,(string,string,bool,uint256,uint256))
+        - event: CampaignCreated(indexed uint256,indexed address,indexed uint8,uint256,uint256,uint256,(string,string,bool,uint256,uint256,uint256))
           handler: handleCampaignCreated
         - event: CampaignParticipantCountChanged(indexed uint256,uint256)
           handler: handleUpdateParticipantCount

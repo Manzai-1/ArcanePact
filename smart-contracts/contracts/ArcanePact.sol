@@ -65,6 +65,7 @@ contract ArcanePact {
         CampaignState indexed campaignState,
         uint256 participantCount,
         uint256 lockedFees,
+        uint256 lastBlock,
         NewCampaignConfig config
     );
 
@@ -192,6 +193,7 @@ contract ArcanePact {
             campaign.state,
             campaign.participantCount,
             campaign.lockedFees,
+            campaign.lastBlock,
             config
         );
     }

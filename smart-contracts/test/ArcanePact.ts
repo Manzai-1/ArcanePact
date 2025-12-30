@@ -82,6 +82,10 @@ describe('Campaign lifecycle', () => {
                     expect(lockedFees).to.equal(0);
                     return true;
                 },
+                (lastBlock: any) => {
+                    expect(lastBlock).to.equal(campaignConfig.durationBlocks + 2n);
+                    return true;
+                },
                 (emittedConfig: any) => {
                     expect(emittedConfig.title).to.equal(campaignConfig.title);
                     expect(emittedConfig.description).to.equal(campaignConfig.description);

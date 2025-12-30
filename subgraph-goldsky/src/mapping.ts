@@ -28,6 +28,7 @@ export function handleCampaignCreated(event: CampaignCreated): void {
   campaign.state = event.params.campaignState;
   campaign.participantCount = event.params.participantCount;
   campaign.lockedFees = event.params.lockedFees;
+  campaign.lastBlock = event.params.lastBlock;
 
   const config = event.params.config;
   campaign.title = config.title;
