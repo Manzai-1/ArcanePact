@@ -117,6 +117,7 @@
 
 .footerTitle {
   display: block;
+  text-align: left;
   margin: 0 0 6px 0;
   font-size: 1.15rem;
   font-weight: 700;

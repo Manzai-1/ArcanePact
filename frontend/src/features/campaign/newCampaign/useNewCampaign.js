@@ -8,11 +8,12 @@ export const useNewCampaign = () => {
     if(!sendTx) return null;
 
     const formDefaultValues = {
-        title: {value: '', error: 'TEsting'},
+        title: {value: '', error: ''},
         description: {value: '', error: ''},
         inviteOnly: false,
-        fee: {value: '', error: ''},
-        collateral: {value: '', error: ''}
+        fee: {value: '0.001', error: ''},
+        collateral: {value: '0.001', error: ''},
+        durationBlocks: {value: '216000', error: ''}
     };
 
     const [form, setForm] = useState(formDefaultValues);
@@ -29,6 +30,7 @@ export const useNewCampaign = () => {
             inviteOnly: form.inviteOnly,
             gamemasterFee: parseEther(form.fee.value),
             collateral: parseEther(form.collateral.value),
+            durationBlocks: form.durationBlocks.value,
         };
         
         sendTx('newCampaign', [newCampaign]);
@@ -57,6 +59,13 @@ export const useNewCampaign = () => {
     };
 
     const collateralOnChange = (value) => {
+        setForm((prev) => ({
+            ...prev,
+            collateral: {...prev.collateral, value},
+        }));
+    };
+
+    const durationBlocksOnChange = (value) => {
         setForm((prev) => ({
             ...prev,
             collateral: {...prev.collateral, value},
@@ -95,6 +104,14 @@ export const useNewCampaign = () => {
             error: form.collateral.error,
             placeholder: '', 
             onChange: collateralOnChange,
+        },
+        {
+            title: 'Duration', 
+            type: 'text', 
+            value: form.durationBlocks.value, 
+            error: form.durationBlocks.error,
+            placeholder: '', 
+            onChange: durationBlocksOnChange,
         }
     ]
 

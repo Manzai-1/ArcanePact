@@ -11,7 +11,7 @@ export const CampaignInfoSection = ({ campaign }) => {
 
     const footer = {
         label: 'Description',
-        value: campaign.description
+        value: campaign.description + '\nExpires at: ' + campaign.expiration
     }
 
     return (

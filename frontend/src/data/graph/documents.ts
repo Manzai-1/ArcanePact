@@ -13,6 +13,7 @@ export const CAMPAIGNS_WITH_PLAYERS_AND_VOTES = gql`
       state
       lockedFees
       participantCount
+      lastBlock
 
       players(first: 1000, orderBy: id, orderDirection: asc) {
         id
