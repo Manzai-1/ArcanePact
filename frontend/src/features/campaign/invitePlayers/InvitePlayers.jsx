@@ -3,18 +3,28 @@ import styles from "./invitePlayers.module.css";
 import { TxContext } from "../../../providers/TxProvider";
 import { ActionButton } from "../../../components/buttons/ActionButton";
 import { InputField } from "../../../components/inputField/InputField";
+import { isEvmAddress, zodValidate } from "../../../schemas/zodSchemas";
 
 
 export default function InvitePlayers({ campaignId }) {
-  const [address, setAddress] = useState("");
+  const [address, setAddress] = useState({ value: '', error: '' });
   const [addresses, setAddresses] = useState([]);
 
   const { sendTx } = useContext(TxContext);
-  if(!sendTx) return (<></>);
+  if (!sendTx) return (<></>);
+
+  const handleSetAddress = (address) => {
+    setAddress({
+      value: address,
+      error: zodValidate(isEvmAddress, address)
+    });
+  }
 
   const addAddress = () => {
-    setAddresses((prev) => [...prev, address]);
-    setAddress("");
+    if (!address.error) {
+      setAddresses((prev) => [...prev, address.value]);
+      setAddress({ value: '', error: null });
+    }
   };
 
   const handleInvite = () => {
@@ -30,12 +40,13 @@ export default function InvitePlayers({ campaignId }) {
       <div className={styles.row}>
         <div className={styles.input}>
           <InputField
-            value={address}
+            value={address.value}
+            error={address.error ?? ''}
             placeholder="0x… wallet address"
-            onChange={setAddress}
+            onChange={handleSetAddress}
           />
         </div>
-          <div className={styles.button}>
+        <div className={styles.button}>
           <ActionButton
             label="Add Player"
             disabled={!address}

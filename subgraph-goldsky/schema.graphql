@@ -9,6 +9,7 @@ type Campaign @entity(immutable: false) {
   state: Int!
   lockedFees: BigInt!
   participantCount: BigInt!
+  lastBlock: BigInt!
   players: [CampaignPlayer!]! @derivedFrom(field: "campaign")
   votes: [Vote!]! @derivedFrom(field: "campaign")
 }

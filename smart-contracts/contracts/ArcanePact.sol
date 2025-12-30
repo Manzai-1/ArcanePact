@@ -44,6 +44,7 @@ contract ArcanePact {
         uint256 gamemasterFee;
         uint256 lockedFees;
         uint256 participantCount;
+        uint256 lastBlock;
     }
     struct NewCampaignConfig {
         string title;
@@ -51,6 +52,7 @@ contract ArcanePact {
         bool inviteOnly;
         uint256 gamemasterFee;
         uint256 collateral;
+        uint256 durationBlocks;
     }
     struct Review {
         ReviewScore score;
@@ -58,14 +60,15 @@ contract ArcanePact {
     }
 
     event CampaignCreated(
-        uint256 indexed campaignId, 
-        address indexed owner, 
-        CampaignState indexed campaignState, 
+        uint256 indexed campaignId,
+        address indexed owner,
+        CampaignState indexed campaignState,
         uint256 participantCount,
         uint256 lockedFees,
+        uint256 lastBlock,
         NewCampaignConfig config
     );
-    
+
     event UpdatedCampaignPlayer(
         uint256 indexed campaignId,
         address indexed player,
@@ -119,10 +122,7 @@ contract ArcanePact {
         Review review
     );
 
-    event ChangedName (
-        string name,
-        address indexed player
-    );
+    event ChangedName(string name, address indexed player);
 
     error FunctionNotFound();
     error PaymentDataMissing();
@@ -136,8 +136,16 @@ contract ArcanePact {
     error ApplicantAlreadyApproved(uint256 campaignId, address applicant);
     error PlayerNotAwaitingSignature(uint256 campaignId, address player);
     error PlayerHasNotSigned(uint256 campaignId, address player);
-    error IncorrectTransactionValue(uint256 gamemasterFee, uint256 collateral, uint256 received);
-    error HasAlreadyVoted(uint256 campaignId, address player, VoteType voteType);
+    error IncorrectTransactionValue(
+        uint256 gamemasterFee,
+        uint256 collateral,
+        uint256 received
+    );
+    error HasAlreadyVoted(
+        uint256 campaignId,
+        address player,
+        VoteType voteType
+    );
     error CampaignNotCompleted(uint256 campaignId);
     error HasNoLockedFees(uint256 campaignId);
     error BlockedDueToReEntrancy(uint256 campaignId, address caller);
@@ -148,11 +156,13 @@ contract ArcanePact {
 
     mapping(uint256 => Campaign) internal campaigns;
     mapping(uint256 => mapping(address => Player)) internal campaignPlayers;
-    mapping(uint256 => mapping(VoteType => uint256)) internal campaignVoteCount; 
-    mapping(uint256 => mapping(VoteType => mapping(address => bool))) internal campaignHasVoted;
-    mapping(uint256 => mapping(address => mapping(address => bool))) internal playerHasReviewed;
+    mapping(uint256 => mapping(VoteType => uint256)) internal campaignVoteCount;
+    mapping(uint256 => mapping(VoteType => mapping(address => bool)))
+        internal campaignHasVoted;
+    mapping(uint256 => mapping(address => mapping(address => bool)))
+        internal playerHasReviewed;
 
-    constructor () {
+    constructor() {
         nextId = 1;
     }
 
@@ -164,29 +174,41 @@ contract ArcanePact {
         revert PaymentDataMissing();
     }
 
-    function newCampaign (NewCampaignConfig calldata config) external{
+    function newCampaign(NewCampaignConfig calldata config) external {
         uint256 campaignId = nextId++;
         Campaign storage campaign = campaigns[campaignId];
-        
+
         campaign.owner = msg.sender;
         campaign.state = CampaignState.Initialized;
         campaign.inviteOnly = config.inviteOnly;
         campaign.collateral = config.collateral;
         campaign.gamemasterFee = config.gamemasterFee;
+        campaign.lastBlock = block.number + config.durationBlocks;
         campaign.lockedFees = 0;
         campaign.participantCount = 1;
 
-        emit CampaignCreated(campaignId, msg.sender, campaign.state, campaign.participantCount, campaign.lockedFees,config);
+        emit CampaignCreated(
+            campaignId,
+            msg.sender,
+            campaign.state,
+            campaign.participantCount,
+            campaign.lockedFees,
+            campaign.lastBlock,
+            config
+        );
     }
 
-    function invitePlayers (uint256 campaignId, address[] calldata addresses) external {
+    function invitePlayers(
+        uint256 campaignId,
+        address[] calldata addresses
+    ) external {
         Campaign storage campaign = campaigns[campaignId];
 
-        checkCampaignExists(campaign.owner, campaignId); 
+        checkCampaignExists(campaign.owner, campaignId);
         checkIsOwner(campaign.owner, msg.sender);
         checkIfCampaignLocked(campaign.state, campaignId);
 
-        for(uint256 i = 0; i < addresses.length; i++) {
+        for (uint256 i = 0; i < addresses.length; i++) {
             address adr = addresses[i];
             Player storage player = campaignPlayers[campaignId][adr];
 
@@ -197,32 +219,36 @@ contract ArcanePact {
         }
     }
 
-    function campaignApplication (uint256 campaignId) external {
+    function campaignApplication(uint256 campaignId) external {
         address applicant = msg.sender;
 
         Campaign storage campaign = campaigns[campaignId];
-        checkCampaignExists(campaign.owner, campaignId); 
+        checkCampaignExists(campaign.owner, campaignId);
         checkCampaignInviteOnly(campaign.inviteOnly, campaignId);
         checkIfCampaignLocked(campaign.state, campaignId);
 
         Player storage player = campaignPlayers[campaignId][applicant];
         checkPlayerAlreadyInCampaign(player.state, campaignId, applicant);
-        
+
         player.state = PlayerState.Applied;
         emit UpdatedCampaignPlayer(campaignId, applicant, player.state);
     }
 
-    function reviewApplication(uint256 campaignId, address applicant, ApplicationDecision decision) external {
+    function reviewApplication(
+        uint256 campaignId,
+        address applicant,
+        ApplicationDecision decision
+    ) external {
         Campaign storage campaign = campaigns[campaignId];
 
-        checkCampaignExists(campaign.owner, campaignId); 
+        checkCampaignExists(campaign.owner, campaignId);
         checkIsOwner(campaign.owner, msg.sender);
         checkIfCampaignLocked(campaign.state, campaignId);
 
         Player storage player = campaignPlayers[campaignId][applicant];
-        checkApplicantExists(player.state, campaignId, applicant); 
+        checkApplicantExists(player.state, campaignId, applicant);
 
-        if(decision == ApplicationDecision.Approved) {
+        if (decision == ApplicationDecision.Approved) {
             player.state = PlayerState.AwaitingSignature;
         } else {
             player.state = PlayerState.Rejected;
@@ -251,7 +277,10 @@ contract ArcanePact {
         campaign.participantCount += 1;
 
         emit UpdatedCampaignPlayer(campaignId, msg.sender, player.state);
-        emit CampaignParticipantCountChanged(campaignId, campaign.participantCount);
+        emit CampaignParticipantCountChanged(
+            campaignId,
+            campaign.participantCount
+        );
         emit PlayerLockedCollateral(campaignId, msg.sender, collateral);
         emit UpdatedLockedFees(campaignId, campaign.lockedFees);
     }
@@ -263,12 +292,12 @@ contract ArcanePact {
         checkCampaignExists(campaign.owner, campaignId);
         checkCampaignNotCompleted(campaign.state, campaignId);
 
-        if(campaign.owner != msg.sender){
+        if (campaign.owner != msg.sender) {
             Player storage player = campaignPlayers[campaignId][msg.sender];
             checkPlayerSigned(player.state, campaignId, msg.sender);
         }
 
-        if(campaignHasVoted[campaignId][voteType][msg.sender]){
+        if (campaignHasVoted[campaignId][voteType][msg.sender]) {
             revert HasAlreadyVoted(campaignId, msg.sender, voteType);
         }
 
@@ -277,13 +306,19 @@ contract ArcanePact {
 
         emit NewVoteAdded(campaignId, voteType, msg.sender);
 
-        if(campaignVoteCount[campaignId][voteType] > (campaign.participantCount / 2)){
-            if(voteType == VoteType.StartCampaign){
+        bool isUnlocked = block.number >= campaign.lastBlock;
+
+        if (
+            isUnlocked ||
+            (campaignVoteCount[campaignId][voteType] >
+                (campaign.participantCount / 2))
+        ) {
+            if (voteType == VoteType.StartCampaign) {
                 campaign.state = CampaignState.Running;
                 emit UpdatedCampaignState(campaignId, campaign.state);
             }
 
-            if(voteType == VoteType.StopCampaign){
+            if (voteType == VoteType.StopCampaign) {
                 campaign.state = CampaignState.Completed;
                 emit UpdatedCampaignState(campaignId, campaign.state);
             }
@@ -298,7 +333,7 @@ contract ArcanePact {
         checkIfCampaignCompleted(campaign.state, campaignId);
         checkHasLockedFees(campaign.lockedFees, campaignId);
 
-        if(locked) revert BlockedDueToReEntrancy(campaignId, msg.sender);
+        if (locked) revert BlockedDueToReEntrancy(campaignId, msg.sender);
         locked = true;
 
         uint256 amountToTransfer = campaign.lockedFees;
@@ -307,7 +342,11 @@ contract ArcanePact {
 
         locked = false;
 
-        emit LockedFeesWithdrawn(campaignId, amountToTransfer, campaign.lockedFees);
+        emit LockedFeesWithdrawn(
+            campaignId,
+            amountToTransfer,
+            campaign.lockedFees
+        );
     }
 
     function withdrawCollateral(uint256 campaignId) external {
@@ -318,9 +357,13 @@ contract ArcanePact {
 
         Player storage player = campaignPlayers[campaignId][msg.sender];
         checkPlayerSigned(player.state, campaignId, msg.sender);
-        checkHasLockedCollateral(player.lockedCollateral, campaignId, msg.sender);
+        checkHasLockedCollateral(
+            player.lockedCollateral,
+            campaignId,
+            msg.sender
+        );
 
-        if(locked) revert BlockedDueToReEntrancy(campaignId, msg.sender);
+        if (locked) revert BlockedDueToReEntrancy(campaignId, msg.sender);
         locked = true;
 
         uint256 amountToTransfer = player.lockedCollateral;
@@ -329,30 +372,38 @@ contract ArcanePact {
 
         locked = false;
 
-        emit LockedCollateralWithdrawn(campaignId, msg.sender, amountToTransfer, player.lockedCollateral);
+        emit LockedCollateralWithdrawn(
+            campaignId,
+            msg.sender,
+            amountToTransfer,
+            player.lockedCollateral
+        );
     }
 
-    function addReview(uint256 campaignId, address recipient, Review calldata review) external {
-        if(recipient == msg.sender) revert CannotReviewSelf();
+    function addReview(
+        uint256 campaignId,
+        address recipient,
+        Review calldata review
+    ) external {
+        if (recipient == msg.sender) revert CannotReviewSelf();
 
         Campaign storage campaign = campaigns[campaignId];
 
         checkCampaignExists(campaign.owner, campaignId);
         checkIfCampaignCompleted(campaign.state, campaignId);
 
-
-        if(campaign.owner != msg.sender){
+        if (campaign.owner != msg.sender) {
             Player storage player = campaignPlayers[campaignId][msg.sender];
             checkPlayerSigned(player.state, campaignId, msg.sender);
         }
 
-        if(campaign.owner != recipient){
+        if (campaign.owner != recipient) {
             Player storage player = campaignPlayers[campaignId][recipient];
             checkPlayerSigned(player.state, campaignId, msg.sender);
         }
 
         checkAlreadyReviewed(
-            playerHasReviewed[campaignId][msg.sender][recipient], 
+            playerHasReviewed[campaignId][msg.sender][recipient],
             campaignId,
             recipient,
             msg.sender
@@ -369,74 +420,144 @@ contract ArcanePact {
 
     function transferFunds(uint256 amount, address recipient) private {
         (bool ok, ) = payable(recipient).call{value: amount}("");
-        if(!ok) revert TransferFailed(amount, recipient);
+        if (!ok) revert TransferFailed(amount, recipient);
     }
 
     function checkIsOwner(address owner, address sender) internal pure {
-        if(owner != sender) revert NotOwner(sender);
+        if (owner != sender) revert NotOwner(sender);
     }
 
-    function checkCampaignExists(address owner, uint256 campaignId) internal pure {
-        if(owner == address(0)) revert CampaignDoesNotExist(campaignId);
+    function checkCampaignExists(
+        address owner,
+        uint256 campaignId
+    ) internal pure {
+        if (owner == address(0)) revert CampaignDoesNotExist(campaignId);
     }
 
-    function checkApplicantExists(PlayerState state, uint256 campaignId, address applicant) internal pure {
-        if(state != PlayerState.Applied) revert ApplicantDoesNotExist(campaignId, applicant);
+    function checkApplicantExists(
+        PlayerState state,
+        uint256 campaignId,
+        address applicant
+    ) internal pure {
+        if (state != PlayerState.Applied)
+            revert ApplicantDoesNotExist(campaignId, applicant);
     }
 
-    function checkApplicantAlreadyApproved(PlayerState state, uint256 campaignId, address applicant) internal pure {
-        if(state == PlayerState.AwaitingSignature) revert ApplicantAlreadyApproved(campaignId, applicant);
+    function checkApplicantAlreadyApproved(
+        PlayerState state,
+        uint256 campaignId,
+        address applicant
+    ) internal pure {
+        if (state == PlayerState.AwaitingSignature)
+            revert ApplicantAlreadyApproved(campaignId, applicant);
     }
 
-    function checkApplicantAlreadyRejected(PlayerState state, uint256 campaignId, address applicant) internal pure {
-        if(state == PlayerState.Rejected) revert ApplicantAlreadyRejected(campaignId, applicant);
+    function checkApplicantAlreadyRejected(
+        PlayerState state,
+        uint256 campaignId,
+        address applicant
+    ) internal pure {
+        if (state == PlayerState.Rejected)
+            revert ApplicantAlreadyRejected(campaignId, applicant);
     }
 
-    function checkCampaignInviteOnly(bool inviteOnly, uint256 campaignId) internal pure {
-        if(inviteOnly) revert CampaignIsInviteOnly(campaignId);
+    function checkCampaignInviteOnly(
+        bool inviteOnly,
+        uint256 campaignId
+    ) internal pure {
+        if (inviteOnly) revert CampaignIsInviteOnly(campaignId);
     }
 
-    function checkPlayerAlreadyInCampaign(PlayerState state, uint256 campaignId, address player) internal pure {
-        if(state != PlayerState.None) revert PlayerExistsInCampaign(campaignId, player);
+    function checkPlayerAlreadyInCampaign(
+        PlayerState state,
+        uint256 campaignId,
+        address player
+    ) internal pure {
+        if (state != PlayerState.None)
+            revert PlayerExistsInCampaign(campaignId, player);
     }
 
-    function checkPlayerAwaitingSignature(PlayerState state, uint256 campaignId, address player) internal pure {
-        if(state != PlayerState.AwaitingSignature) revert PlayerNotAwaitingSignature(campaignId, player);
+    function checkPlayerAwaitingSignature(
+        PlayerState state,
+        uint256 campaignId,
+        address player
+    ) internal pure {
+        if (state != PlayerState.AwaitingSignature)
+            revert PlayerNotAwaitingSignature(campaignId, player);
     }
 
-    function checkPlayerSigned(PlayerState state, uint256 campaignId, address player) internal pure {
-        if(state != PlayerState.Signed) revert PlayerHasNotSigned(campaignId, player);
+    function checkPlayerSigned(
+        PlayerState state,
+        uint256 campaignId,
+        address player
+    ) internal pure {
+        if (state != PlayerState.Signed)
+            revert PlayerHasNotSigned(campaignId, player);
     }
 
-    function checkIfCampaignLocked(CampaignState state, uint256 campaignId) internal pure {
-        if(state != CampaignState.Initialized) revert CampaignLocked(campaignId);
+    function checkIfCampaignLocked(
+        CampaignState state,
+        uint256 campaignId
+    ) internal pure {
+        if (state != CampaignState.Initialized)
+            revert CampaignLocked(campaignId);
     }
 
-    function checkCampaignNotCompleted(CampaignState state, uint256 campaignId) internal pure {
-        if(state == CampaignState.Completed) revert CampaignLocked(campaignId);
+    function checkCampaignNotCompleted(
+        CampaignState state,
+        uint256 campaignId
+    ) internal pure {
+        if (state == CampaignState.Completed) revert CampaignLocked(campaignId);
     }
 
-    function checkIfCampaignCompleted(CampaignState state, uint256 campaignId) internal pure {
-        if(state != CampaignState.Completed) revert CampaignNotCompleted(campaignId);
+    function checkIfCampaignCompleted(
+        CampaignState state,
+        uint256 campaignId
+    ) internal pure {
+        if (state != CampaignState.Completed)
+            revert CampaignNotCompleted(campaignId);
     }
 
-    function checkTransactionValue(uint256 fee, uint256 collateral, uint256 received) internal pure {
-        if(received != (fee + collateral)) revert IncorrectTransactionValue(fee, collateral, received);
+    function checkTransactionValue(
+        uint256 fee,
+        uint256 collateral,
+        uint256 received
+    ) internal pure {
+        if (received != (fee + collateral))
+            revert IncorrectTransactionValue(fee, collateral, received);
     }
 
-    function checkAlreadyVoted(bool hasVoted, uint256 campaignId, address player, VoteType voteType) internal pure {
-        if(hasVoted) revert HasAlreadyVoted(campaignId, player, voteType);
+    function checkAlreadyVoted(
+        bool hasVoted,
+        uint256 campaignId,
+        address player,
+        VoteType voteType
+    ) internal pure {
+        if (hasVoted) revert HasAlreadyVoted(campaignId, player, voteType);
     }
 
-    function checkHasLockedFees(uint256 lockedFees, uint256 campaignId) internal pure {
-        if(!(lockedFees > 0)) revert HasNoLockedFees(campaignId);
+    function checkHasLockedFees(
+        uint256 lockedFees,
+        uint256 campaignId
+    ) internal pure {
+        if (!(lockedFees > 0)) revert HasNoLockedFees(campaignId);
     }
 
-    function checkHasLockedCollateral(uint256 lockedColalteral, uint256 campaignId, address player) internal pure {
-        if(!(lockedColalteral > 0)) revert HasNoLockedCollateral(campaignId, player);
+    function checkHasLockedCollateral(
+        uint256 lockedColalteral,
+        uint256 campaignId,
+        address player
+    ) internal pure {
+        if (!(lockedColalteral > 0))
+            revert HasNoLockedCollateral(campaignId, player);
     }
 
-    function checkAlreadyReviewed(bool hasReviewed, uint256 campaignId, address recipient, address caller) internal pure {
-        if(hasReviewed) revert AlreadyReviewed(campaignId, recipient, caller);
+    function checkAlreadyReviewed(
+        bool hasReviewed,
+        uint256 campaignId,
+        address recipient,
+        address caller
+    ) internal pure {
+        if (hasReviewed) revert AlreadyReviewed(campaignId, recipient, caller);
     }
 }

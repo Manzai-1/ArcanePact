@@ -3,7 +3,7 @@
 .container {
     display: flex;
     justify-content: center;
-    gap: 2rem;
+    gap: 12px;
     margin-top: 6rem;
 }
 .root {
@@ -17,7 +17,7 @@
     background: linear-gradient(rgba(20, 32, 48, 0.65),
             rgba(12, 20, 32, 0.75));
 
-    border: 3px solid #000;
+    border: 2px solid #000;
     border-radius: 14px;
 
     box-shadow:

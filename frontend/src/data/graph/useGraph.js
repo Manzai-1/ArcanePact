@@ -1,10 +1,13 @@
 import { useCampaignPlayerQuery, usePlayerCampaignQuery } from "./queries";
-import { useAccount } from "wagmi";
+import { useAccount, useBlockNumber } from "wagmi";
 import { CampaignState, ClientState, PlayerState, VoteType } from "../../models/IArcanePact";
 import { formatEther } from "ethers";
+import { blockToDate } from "../../helpers/dateTime";
 
 export const UseGraph = () => {
     const { address } = useAccount();
+    const {data: currentBlock} = useBlockNumber();
+    
     const clientAdr = address ? address.toLowerCase() : null;
 
     const campaignPlayerQuery = useCampaignPlayerQuery(60000, 0);
@@ -95,7 +98,8 @@ export const UseGraph = () => {
             clientStateText: ClientState[clientState],
             stateText,
             players: campaignPlayers,
-            votes
+            votes,
+            expiration: blockToDate(BigInt(campaign.lastBlock), currentBlock)
         }
     });
 
@@ -134,14 +138,6 @@ export const UseGraph = () => {
         lockedCollateral: `${formatEther(lockedCollateral)} Ξ`,
         unlockedCollateral: `${formatEther(unlockedCollateral)} Ξ`,
     }
-
-    // console.log('lockedFees: ', lockedFees);
-    // console.log('unlockedFees: ', unlockedFees);
-    // console.log('lockedCollateral: ', lockedCollateral);
-    // console.log('unlockedCollateral: ', unlockedCollateral);
-    // console.log('finishedCampaigns: ', finishedCampaigns);
-    // console.log('activeCampaigns: ', activeCampaigns);
-
 
     return {
         profileData,
